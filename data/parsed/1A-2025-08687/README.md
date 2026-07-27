@@ -4,8 +4,7 @@ Counts of IRCC security screenings **initiated between January 1, 2019 and
 December 31, 2025**, broken down by application/immigration stream, screening
 activity type, citizenship, and processing office. The numbers were OCR-extracted
 from the scanned PDF (`original-atip-requests/1A-2025-08687.pdf`, 76 pages),
-then corrected and reconciled against the printed table (see
-[Provenance](#provenance--data-quality)).
+then corrected and reconciled against the printed table.
 
 Two datasets are combined here, distinguished by the `source` column:
 
@@ -50,6 +49,10 @@ Identical in both tables and both CSVs:
 | `fix_note` | Explanation, populated only on placeholder rows |
 
 Blank numeric cells are stored as `NULL` (empty in the CSV) and mean zero.
+
+A few `office` labels were truncated by the PDF's column width and are stored as
+printed (e.g. `Global Case Management System (G`, `Yaounde (High Commission of
+Canac`), which reflects the source rather than a parsing error.
 
 ## Hierarchy (the `level` column)
 
@@ -127,19 +130,3 @@ SELECT * FROM "1A-2025-08687"
 WHERE fix_status IS NULL OR fix_status <> 'MISSING_DATA_PLACEHOLDER';
 -- include placeholders (default) to keep every aggregation balanced.
 ```
-
-## Provenance / data quality
-
-- Numbers were OCR'd from the scanned PDF, then every citizenship group was re-read
-  against the source and corrected: ~375 numeric cells fixed and ~4,360 garbled
-  names corrected (the OCR frequently read `g→a`, `g→q`, `j→i`, `O→Q` —
-  e.g. `Alaeria`→Algeria, `Beiiing`→Beijing, `Winnipeq`→Winnipeg).
-- Structural fixes were applied where the parser mis-grouped rows: merged countries were split
-  apart, a wrongly-absorbed category header
-  (`Humanitarian & Compassionate / Public Policy`) was restored, and mis-levelled
-  rows were re-placed.
-- A few office labels truncated by column width in the PDF remain as printed
-  (e.g. `Global Case Management System (G`, `Yaounde (High Commission of Canac`).
-  These are not OCR letter errors.
-- After all corrections + placeholders, every roll-up reconciles exactly, and the
-  TRV / PR grand totals are **27,527 / 195,224** and **14,743 / 116,725**.
