@@ -12,7 +12,7 @@ refreshed from, its origin.
 
 Each CSV is a tidy long extract of one IRCC workbook.
 
-| CSV                   | Description                                                          |
+| CSV                   | Description                                                         |
 | --------------------- | ------------------------------------------------------------------- |
 | `pr_intake.csv`       | New permanent-residence applications received (intake).             |
 | `copr_issued.csv`     | Confirmation of Permanent Residence (COPR) documents issued.        |
@@ -41,28 +41,28 @@ The workbooks all live under
 `https://www.ircc.canada.ca/opendata-donneesouvertes/data/`, and the URLs below
 are that base followed by the (space-containing) workbook filename.
 
-| CSV                   | URL                                                                                                          |
-| --------------------- | ------------------------------------------------------------------------------------------------------------ |
-| `pr_intake.csv`       | https://www.ircc.canada.ca/opendata-donneesouvertes/data/Open%20Data%20-%20OPS%20PR%20Intake%20en.xlsx        |
-| `copr_issued.csv`     | https://www.ircc.canada.ca/opendata-donneesouvertes/data/Open%20Data%20-%20OPS%20COPR%20Issued%20en.xlsx      |
-| `trv_intake.csv`      | https://www.ircc.canada.ca/opendata-donneesouvertes/data/Open%20Data%20-%20OPS%20TRV%20Intake%20en.xlsx       |
-| `tr_processed.csv`    | https://www.ircc.canada.ca/opendata-donneesouvertes/data/Open%20Data%20-%20OPS%20TR%20Processed%20en.xlsx     |
-| `tr_approved.csv`     | https://www.ircc.canada.ca/opendata-donneesouvertes/data/Open%20Data%20-%20OPS%20TR%20Approved%20en.xlsx      |
-| `sp_processed.csv`    | https://www.ircc.canada.ca/opendata-donneesouvertes/data/Open%20Data%20-%20OPS%20SP%20Processed%20en.xlsx     |
+| CSV                   | URL                                                                                                             |
+| --------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `pr_intake.csv`       | https://www.ircc.canada.ca/opendata-donneesouvertes/data/Open%20Data%20-%20OPS%20PR%20Intake%20en.xlsx          |
+| `copr_issued.csv`     | https://www.ircc.canada.ca/opendata-donneesouvertes/data/Open%20Data%20-%20OPS%20COPR%20Issued%20en.xlsx        |
+| `trv_intake.csv`      | https://www.ircc.canada.ca/opendata-donneesouvertes/data/Open%20Data%20-%20OPS%20TRV%20Intake%20en.xlsx         |
+| `tr_processed.csv`    | https://www.ircc.canada.ca/opendata-donneesouvertes/data/Open%20Data%20-%20OPS%20TR%20Processed%20en.xlsx       |
+| `tr_approved.csv`     | https://www.ircc.canada.ca/opendata-donneesouvertes/data/Open%20Data%20-%20OPS%20TR%20Approved%20en.xlsx        |
+| `sp_processed.csv`    | https://www.ircc.canada.ca/opendata-donneesouvertes/data/Open%20Data%20-%20OPS%20SP%20Processed%20en.xlsx       |
 | `trv_v1_approved.csv` | https://www.ircc.canada.ca/opendata-donneesouvertes/data/Open%20Data%20-%20OPS%20TRV%20V-1%20Approved%20en.xlsx |
-| `pr_citz.csv`         | https://www.ircc.canada.ca/opendata-donneesouvertes/data/EN_ODP-PR-Citz.xlsx                                  |
+| `pr_citz.csv`         | https://www.ircc.canada.ca/opendata-donneesouvertes/data/EN_ODP-PR-Citz.xlsx                                    |
 
 ## Files
 
 - The monthly extracts (every CSV except `pr_citz.csv`) are tidy long, one row
   per (country, year, month), with columns:
 
-  | Column    | Meaning                                                          |
-  | --------- | ---------------------------------------------------------------- |
+  | Column    | Meaning                                                                                                     |
+  | --------- | ----------------------------------------------------------------------------------------------------------- |
   | `country` | Source country. The literal `Total` denotes the all-countries aggregate row carried over from the workbook. |
-  | `year`    | Calendar year (2023–2026 as published).                          |
-  | `month`   | `January`…`December`, or `Total` for the workbook's per-year total column. |
-  | `value`   | The count. Empty when IRCC suppressed the cell (see below).      |
+  | `year`    | Calendar year (2023–2026 as published).                                                                     |
+  | `month`   | `January`…`December`, or `Total` for the workbook's per-year total column.                                  |
+  | `value`   | The count. Empty when IRCC suppressed the cell (see below).                                                 |
 
   `pr_citz.csv` follows the same shape but replaces `month` with `period` (see
   [Datasets](#datasets)).

@@ -8,19 +8,19 @@ then corrected and reconciled against the printed table.
 
 Two datasets are combined here, distinguished by the `source` column:
 
-| `source` | Stream | PDF pages |
-|----------|--------|-----------|
-| `trv`    | Temporary Resident | 1–40 |
-| `pr`     | Permanent Resident | 41–76 |
+| `source` | Stream             | PDF pages |
+| -------- | ------------------ | --------- |
+| `trv`    | Temporary Resident | 1–40      |
+| `pr`     | Permanent Resident | 41–76     |
 
 ## Files
 
-| File | Contents |
-|------|----------|
-| `1A-2025-08687.sqlite3` | SQLite database — the authoritative copy. Two tables (below). |
-| `1A-2025-08687.csv` | CSV dump of the `"1A-2025-08687"` table (office-level leaf rows). |
-| `aggregation.csv` | CSV dump of the `aggregation` table (roll-up rows). |
-| `README.md` | This file. |
+| File                    | Contents                                                          |
+| ----------------------- | ----------------------------------------------------------------- |
+| `1A-2025-08687.sqlite3` | SQLite database — the authoritative copy. Two tables (below).     |
+| `1A-2025-08687.csv`     | CSV dump of the `"1A-2025-08687"` table (office-level leaf rows). |
+| `aggregation.csv`       | CSV dump of the `aggregation` table (roll-up rows).               |
+| `README.md`             | This file.                                                        |
 
 Database tables:
 
@@ -34,19 +34,19 @@ Use whichever is convenient. The `.sqlite3` is the source of truth.
 
 Identical in both tables and both CSVs:
 
-| Column | Meaning |
-|--------|---------|
-| `source` | `trv` or `pr` |
-| `page` | PDF page the row was read from (provenance) |
-| `category` | Top stream. TRV → application type (`SP`, `SP-EXT`, `TRV`, `VR-EXT`, `WP`, `WP-EXT`). PR → immigration category (`Economic`, `Family Class`, `Humanitarian & Compassionate / Public Policy`, `Protected Persons`, `Permit Holders Class`, `Unspecified`). |
-| `activity_type` | Screening type. TRV → `VIT 34` / `VIT 35` / `VIT 37`. PR → `HIRV Screening` / `Org Crime Screening` / `Security Screening`. |
-| `citizenship` | Country of citizenship |
-| `office` | Visa / processing office (the leaf dimension) |
-| `level` | Which tier of the hierarchy this row is (see below) |
-| `total_2025` | Screenings initiated in calendar year 2025 |
-| `total_2019_to_2025` | Screenings initiated over the whole period 2019–2025 (always ≥ `total_2025`) |
-| `fix_status` | `NULL` for normal rows; `MISSING_DATA_PLACEHOLDER` for synthetic reconciliation rows |
-| `fix_note` | Explanation, populated only on placeholder rows |
+| Column               | Meaning                                                                                                                                                                                                                                                   |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `source`             | `trv` or `pr`                                                                                                                                                                                                                                             |
+| `page`               | PDF page the row was read from (provenance)                                                                                                                                                                                                               |
+| `category`           | Top stream. TRV → application type (`SP`, `SP-EXT`, `TRV`, `VR-EXT`, `WP`, `WP-EXT`). PR → immigration category (`Economic`, `Family Class`, `Humanitarian & Compassionate / Public Policy`, `Protected Persons`, `Permit Holders Class`, `Unspecified`). |
+| `activity_type`      | Screening type. TRV → `VIT 34` / `VIT 35` / `VIT 37`. PR → `HIRV Screening` / `Org Crime Screening` / `Security Screening`.                                                                                                                               |
+| `citizenship`        | Country of citizenship                                                                                                                                                                                                                                    |
+| `office`             | Visa / processing office (the leaf dimension)                                                                                                                                                                                                             |
+| `level`              | Which tier of the hierarchy this row is (see below)                                                                                                                                                                                                       |
+| `total_2025`         | Screenings initiated in calendar year 2025                                                                                                                                                                                                                |
+| `total_2019_to_2025` | Screenings initiated over the whole period 2019–2025 (always ≥ `total_2025`)                                                                                                                                                                              |
+| `fix_status`         | `NULL` for normal rows; `MISSING_DATA_PLACEHOLDER` for synthetic reconciliation rows                                                                                                                                                                      |
+| `fix_note`           | Explanation, populated only on placeholder rows                                                                                                                                                                                                           |
 
 Blank numeric cells are stored as `NULL` (empty in the CSV) and mean zero.
 

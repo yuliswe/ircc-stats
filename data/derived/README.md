@@ -15,10 +15,10 @@ Explorer's referral-rate view (`screeningApplications` in
 
 ### Inputs
 
-| Group                       | Source                                     | Provides                                                            |
-| --------------------------- | ------------------------------------------ | ------------------------------------------------------------------ |
-| Screening referrals         | `data/parsed/1A-2025-08687/` (the security-screening release) | Per-citizenship 2025 referral counts by screening activity type.   |
-| Application volumes          | `data/parsed/monthly-ircc-updates/`        | Per-country 2025 PR intake, study permits processed, and TRV intake. |
+| Group               | Source                                                        | Provides                                                             |
+| ------------------- | ------------------------------------------------------------- | -------------------------------------------------------------------- |
+| Screening referrals | `data/parsed/1A-2025-08687/` (the security-screening release) | Per-citizenship 2025 referral counts by screening activity type.     |
+| Application volumes | `data/parsed/monthly-ircc-updates/`                           | Per-country 2025 PR intake, study permits processed, and TRV intake. |
 
 ### Screening-referral columns
 
@@ -28,14 +28,14 @@ office-level leaves are summed to a citizenship × activity-type total, exactly
 the reconciled figures the Bias Explorer uses. The release splits screening into
 two streams by its `source` column, and the columns follow that split:
 
-| Column        | Stream | `1A-2025-08687` activity type | Notes                          |
-| ------------- | ------ | ----------------------------- | ------------------------------ |
-| `vit_34`      | TRV    | `VIT 34`                      |                                |
-| `vit_35`      | TRV    | `VIT 35`                      |                                |
-| `vit_37`      | TRV    | `VIT 37`                      |                                |
-| `hirv`        | PR     | `HIRV Screening`              | Human-rights-violation screening. |
-| `org_crime`   | PR     | `Org Crime Screening`         |                                |
-| `security`    | PR     | `Security Screening`          |                                |
+| Column      | Stream | `1A-2025-08687` activity type | Notes                             |
+| ----------- | ------ | ----------------------------- | --------------------------------- |
+| `vit_34`    | TRV    | `VIT 34`                      |                                   |
+| `vit_35`    | TRV    | `VIT 35`                      |                                   |
+| `vit_37`    | TRV    | `VIT 37`                      |                                   |
+| `hirv`      | PR     | `HIRV Screening`              | Human-rights-violation screening. |
+| `org_crime` | PR     | `Org Crime Screening`         |                                   |
+| `security`  | PR     | `Security Screening`          |                                   |
 
 An activity-type cell that is blank in the release is written here as `0`.
 Two subtotals and a grand total are derived from those six columns:
@@ -51,18 +51,18 @@ These are the 2025 published per-year totals (`year = 2025`, `month = 'Total'`)
 from the monthly extracts documented in
 `data/parsed/monthly-ircc-updates/README.md`:
 
-| Column                             | Source extract | Meaning                              |
-| ---------------------------------- | -------------- | ------------------------------------ |
-| `pr_intake_2025_fullyear`          | `pr_intake`    | Permanent-residence applications received. |
-| `sp_processed_2025_fullyear`       | `sp_processed` | Study permits processed.             |
-| `trv_intake_2025_fullyear`         | `trv_intake`   | Temporary-resident-visa applications received. |
+| Column                       | Source extract | Meaning                                        |
+| ---------------------------- | -------------- | ---------------------------------------------- |
+| `pr_intake_2025_fullyear`    | `pr_intake`    | Permanent-residence applications received.     |
+| `sp_processed_2025_fullyear` | `sp_processed` | Study permits processed.                       |
+| `trv_intake_2025_fullyear`   | `trv_intake`   | Temporary-resident-visa applications received. |
 
 The denominator column is the sum of the two **intake** series only:
 
 - `total_applications_2025_fullyear` = `pr_intake_2025_fullyear +
-  trv_intake_2025_fullyear`.
+trv_intake_2025_fullyear`.
 
-Study permits are reported as *processed* rather than *received*, so
+Study permits are reported as _processed_ rather than _received_, so
 `sp_processed_2025_fullyear` is carried for context but deliberately left out of
 the applications denominator, which mixes only comparable intake counts.
 
@@ -96,14 +96,14 @@ count in this file is a multiple of 5.
 
 ### Columns
 
-| Column                 | Derivation                                                        |
-| ---------------------- | ----------------------------------------------------------------- |
-| `country`              | Source-country label, carried over verbatim from the inputs.      |
-| `tr_approved`          | The country's 2025 published `Total` from `tr_approved.csv`.      |
-| `tr_processed`         | The country's 2025 published `Total` from `tr_processed.csv`.     |
-| `tr_non_approval`      | `tr_processed − tr_approved`.                                     |
-| `tr_approval_rate`     | `tr_approved ÷ tr_processed`, rounded to four decimals.           |
-| `tr_non_approval_rate` | `1 − (tr_approved ÷ tr_processed)`, rounded to four decimals.     |
+| Column                 | Derivation                                                    |
+| ---------------------- | ------------------------------------------------------------- |
+| `country`              | Source-country label, carried over verbatim from the inputs.  |
+| `tr_approved`          | The country's 2025 published `Total` from `tr_approved.csv`.  |
+| `tr_processed`         | The country's 2025 published `Total` from `tr_processed.csv`. |
+| `tr_non_approval`      | `tr_processed − tr_approved`.                                 |
+| `tr_approval_rate`     | `tr_approved ÷ tr_processed`, rounded to four decimals.       |
+| `tr_non_approval_rate` | `1 − (tr_approved ÷ tr_processed)`, rounded to four decimals. |
 
 ### Suppression, missing values, and zero denominators
 

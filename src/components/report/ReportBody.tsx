@@ -89,11 +89,11 @@ export function ReportBody() {
         <ScreeningScatter />
       </Section>
 
+      <Part kicker={c.part2.kicker} title={c.part2.title} lede={c.part2.lede} />
+
       <Section n={5} title={c.sections[5].title} intro={c.sections[5].intro}>
         <ChoroplethChart />
       </Section>
-
-      <Part kicker={c.part2.kicker} title={c.part2.title} lede={c.part2.lede} />
 
       <Section n={6} title={c.sections[6].title} intro={c.sections[6].intro}>
         <TrApprovalChart />

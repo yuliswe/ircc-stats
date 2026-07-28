@@ -12,7 +12,7 @@
  * map ignores the global Metric and stream toggles that drive the other charts.
  * Counts are heavily right-skewed — one country can admit a hundred times more
  * than another — so the value is placed on the ramp with a log transform against
- * the largest count on the map, which keeps the low end legible while the darkest
+ * the largest count on the map, which keeps the low end legible while the bluest
  * step still marks the single most-admitted nationality. Geometry is the static
  * world-atlas topology, so the projection and per-feature path strings are
  * computed once at module load and only the fills, which depend on data and
@@ -20,19 +20,19 @@
  * surface, never as a low ramp step, so that "no data" is never confused with
  * "few admissions".
  */
-import { useMemo, useState, useEffect } from 'react';
+import { CHARTS, chartText } from '@/content/strings';
+import { flagName, pick } from '@/lib/i18n';
 import { geoNaturalEarth1, geoPath } from 'd3-geo';
+import { useEffect, useMemo, useState } from 'react';
 import { feature } from 'topojson-client';
 import topo from 'world-atlas/countries-110m.json';
+import { fmtInt } from '../../lib/format';
+import { grayRedBlueColor, type ThemeMode } from '../../lib/palette';
 import { useViz } from '../../lib/store';
 import type { CoprRow } from '../../lib/viz-types';
-import { sequentialColor, type ThemeMode } from '../../lib/palette';
-import { fmtInt } from '../../lib/format';
-import { flagName, pick } from '@/lib/i18n';
-import { CHARTS, chartText } from '@/content/strings';
 import { ChartCard } from '../viz/ChartCard';
-import { TooltipBox, type TipRow } from '../viz/TooltipBox';
 import type { Column } from '../viz/TableView';
+import { TooltipBox, type TipRow } from '../viz/TooltipBox';
 
 // All user-facing copy for this chart lives in `@/content/strings`
 // (`CHARTS.choropleth` for static labels, `chartText.choropleth` for
@@ -64,11 +64,17 @@ const FEATURE_PATHS: { id: string; d: string }[] = geo.features.map(f => ({
 const NO_DATA_FILL = 'var(--surface-3)';
 const NO_DATA_STROKE = 'var(--border)';
 
-interface HoverState {
+// Canada is the destination, not an origin, so it never carries a CoPRs-issued
+// count; paint it solid black to mark it as the country the map is about rather
+// than leaving it in the neutral "no data" surface.
+const CANADA_ISO3 = 'CAN';
+const CANADA_FILL = '#000000';
+
+type HoverState = {
   iso3: string;
   x: number;
   y: number;
-}
+};
 
 export function ChoroplethChart() {
   const { data, selection, select, theme, locale } = useViz();
@@ -101,18 +107,21 @@ export function ChoroplethChart() {
     return { byIso, maxCopr, unmatched };
   }, [data.coprByCountry]);
 
-  // Place a CoPRs-issued count on the ramp with a log transform against the map's
-  // largest count, so the darkest step marks the single most-admitted nationality
-  // and the heavily right-skewed low end stays distinguishable rather than
-  // collapsing to one shade. A country that admitted nobody reads as the lightest
-  // step, still visibly "has data".
+  // Place a CoPRs-issued count on the ramp with a square-root transform against
+  // the map's largest count. Square root sits between the log and linear extremes:
+  // it still compresses the heavily right-skewed low end so those countries stay
+  // distinguishable, but less aggressively than log, so mid-range countries keep
+  // more of their true proportion to the peak. The ramp runs gray→red→blue, so
+  // zero and near-zero read as the neutral empty surface, medium quantities
+  // saturate to red, and the bluest step marks the single most-admitted
+  // nationality.
   const rampT = (copr: number): number => {
     if (maxCopr <= 0) return 0;
-    return Math.log1p(Math.max(0, copr)) / Math.log1p(maxCopr);
+    return Math.sqrt(Math.max(0, copr)) / Math.sqrt(maxCopr);
   };
 
   const fillFor = (m: CoprRow, t: ThemeMode): string =>
-    sequentialColor(rampT(m.coprIssued), t);
+    grayRedBlueColor(rampT(m.coprIssued), t);
 
   // ── table equivalent (always available — accessibility) ─────────────────────
   const tableColumns: Column[] = [
@@ -141,12 +150,13 @@ export function ChoroplethChart() {
       ? TX.footnoteUnmatched(locale, { names: unmatched })
       : null;
 
-  // The ramp runs light-to-dark as the CoPRs-issued count rises, so the left end
-  // marks the fewest admissions and the right end the most. The tick labels report
-  // the underlying count at each end.
+  // The ramp runs gray-to-red-to-blue as the CoPRs-issued count rises, so the
+  // left (gray) end marks the fewest admissions, the middle saturates to red, and
+  // the right (blue) end marks the most. The tick labels report the underlying
+  // count at each end.
   const legend = (
     <GradientLegend
-      stops={[0, 0.25, 0.5, 0.75, 1].map(t => sequentialColor(t, theme))}
+      stops={[0, 0.25, 0.5, 0.75, 1].map(t => grayRedBlueColor(t, theme))}
       leftLabel={pick(locale, T.legendLeft)}
       midLabel={pick(locale, T.legendMid)}
       rightLabel={TX.legendMax(locale, { maxCopr })}
@@ -202,8 +212,13 @@ export function ChoroplethChart() {
         {FEATURE_PATHS.map((fp, i) => {
           if (!fp.d) return null;
           const iso3 = ccn3ToIso3[fp.id];
-          const m = iso3 ? byIso.get(iso3) : undefined;
-          const fill = m ? fillFor(m, theme) : NO_DATA_FILL;
+          const isCanada = iso3 === CANADA_ISO3;
+          const m = iso3 && !isCanada ? byIso.get(iso3) : undefined;
+          const fill = isCanada
+            ? CANADA_FILL
+            : m
+              ? fillFor(m, theme)
+              : NO_DATA_FILL;
           const isSelected = !!selection && !!iso3 && selection.iso3 === iso3;
           const dimmed = !!selection && !isSelected;
           return (

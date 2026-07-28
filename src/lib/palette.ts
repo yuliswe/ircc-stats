@@ -137,3 +137,50 @@ export function sequentialColor(t: number, theme: ThemeMode): string {
   if (i >= ramp.length - 1) return ramp[ramp.length - 1];
   return lerpHex(ramp[i], ramp[i + 1], x - i);
 }
+
+/**
+ * Sequential red→blue color for a normalized magnitude t in [0,1], with red at
+ * the low end and blue at the high end. It reuses the diverging anchors so the
+ * two ends match the rest of the palette, and the pale midpoint marks
+ * mid-range values.
+ */
+export function redBlueColor(t: number, theme: ThemeMode): string {
+  const { cool, mid, warm } = DIVERGING[theme];
+  const x = Math.max(0, Math.min(1, t));
+  return x < 0.5
+    ? lerpHex(warm, mid, x * 2)
+    : lerpHex(mid, cool, (x - 0.5) * 2);
+}
+
+/**
+ * Low-end anchor for {@link grayRedBlueColor}: the `--surface-3` neutral from
+ * theme.css, so the ramp's zero end matches the map's empty / no-data surface.
+ */
+const RAMP_GRAY: Record<ThemeMode, string> = {
+  light: '#eceae3',
+  dark: '#2f2f2d',
+};
+
+/**
+ * Position of the red peak on the gray→red→blue ramp: gray→red fills [0, this]
+ * and red→blue fills [this, 1]. Keeping it well below 0.5 lets blue dominate the
+ * upper range, so mid-volume quantities already read blue rather than red.
+ */
+const RAMP_RED_AT = 0.3;
+
+/**
+ * Sequential gray→red→blue color for a normalized magnitude t in [0,1]. Unlike
+ * {@link redBlueColor}, this is a true low-to-high ramp rather than a diverging
+ * one: the low end reads as neutral gray (matching the empty surface, so zero
+ * and near-zero barely register), red peaks at {@link RAMP_RED_AT} for medium
+ * quantities, and the high end resolves to blue for the largest quantities. Red
+ * and blue reuse the diverging warm/cool anchors so the ends match the palette.
+ */
+export function grayRedBlueColor(t: number, theme: ThemeMode): string {
+  const { cool, warm } = DIVERGING[theme];
+  const gray = RAMP_GRAY[theme];
+  const x = Math.max(0, Math.min(1, t));
+  return x <= RAMP_RED_AT
+    ? lerpHex(gray, warm, x / RAMP_RED_AT)
+    : lerpHex(warm, cool, (x - RAMP_RED_AT) / (1 - RAMP_RED_AT));
+}

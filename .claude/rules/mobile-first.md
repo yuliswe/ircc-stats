@@ -1,7 +1,7 @@
 ---
 description: The UI must be mobile friendly
 globs:
-  - "**/*.tsx"
+  - '**/*.tsx'
 alwaysApply: false
 ---
 

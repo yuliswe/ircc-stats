@@ -5,7 +5,7 @@ import './globals.css';
 export const metadata: Metadata = {
   title: 'IRCC Report 2025',
   description:
-    'Whether applicants of certain nationalities are disproportionately referred to security screening, from IRCC ATIP request 1A-2025-08687.',
+    'Whether applicants of certain nationalities are disproportionately referred to CBSA/CSIS for comprehensive security screening, from IRCC ATIP request 1A-2025-08687.',
 };
 
 // GA4 Measurement ID (e.g. G-XXXXXXXXXX) for the irccreport.ca data stream.
