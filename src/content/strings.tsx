@@ -721,8 +721,12 @@ export interface ReportContent {
     monthlySrcName: string;
     monthlySrcDesc: ReactNode;
     monthlyFiles: ReactNode[];
+    reportIssue: string;
   };
 }
+
+/** The report's issue tracker, linked from the footer bar. */
+export const REPO_ISSUES_HREF = 'https://github.com/yuliswe/ircc-stats/issues';
 
 const OGL_HREF = 'https://open.canada.ca/en/open-government-licence-canada';
 
@@ -1023,6 +1027,7 @@ function reportEn(h: Headline, atip: string): ReportContent {
           Month &mdash; temporary-residence applications finalized
         </>,
       ],
+      reportIssue: 'Report an issue with this page',
     },
   };
 }
@@ -1045,7 +1050,7 @@ function reportZh(h: Headline, atip: string): ReportContent {
         </a>
         ，记录了 2019 到 2025 年间发起的全面安全审查；申请量与获批量则取自 IRCC
         已公开的 2025
-        年运营数据。原始档案是扫描件，每一个数字都由文字识别（OCR）读出，再逐一对照原表核对更正。需要说明的是：某些国家的申请人被审查的比例偏高，只是这份档案里呈现出来的一种现象，不代表任何申请人有不当行为。每一张图表也都能通过各自的
+        年运营数据。需要说明的是：某些国家的申请人被审查的比例偏高，只是这份档案里呈现出来的一种现象，不代表任何申请人有不当行为。每一张图表也都能通过各自的
         <b>查看数据表</b>
         按钮，切换成原始数据表格阅读。
       </>
@@ -1227,6 +1232,7 @@ function reportZh(h: Headline, atip: string): ReportContent {
           Month &mdash; 已办结的临时居民申请
         </>,
       ],
+      reportIssue: '报告本页面的问题',
     },
   };
 }

@@ -8,7 +8,12 @@
  * only the strings passed into it change with the locale.
  */
 import { useViz } from '@/lib/store';
-import { getReportContent, type Headline, SHELL } from '@/content/strings';
+import {
+  getReportContent,
+  type Headline,
+  SHELL,
+  REPO_ISSUES_HREF,
+} from '@/content/strings';
 import { Hero, Findings, Stat, Part, Section } from '@/components/report/parts';
 import { pick } from '@/lib/i18n';
 import { fmtInt, fmtPct } from '@/lib/format';
@@ -156,6 +161,14 @@ export function ReportBody() {
         </div>
         <div className='footer-bar'>
           <span>{pick(locale, SHELL.brand)}</span>
+          <a
+            className='footer-report-issue'
+            href={REPO_ISSUES_HREF}
+            target='_blank'
+            rel='noopener noreferrer'
+          >
+            {c.footer.reportIssue}
+          </a>
           <span>ATIP {atip}</span>
         </div>
       </footer>
