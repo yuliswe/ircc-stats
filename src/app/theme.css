@@ -142,50 +142,7 @@
   --focus: var(--accent);
 }
 
-/* OS-driven dark, only when the user has not pinned a theme */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
-    color-scheme: dark;
-
-    --surface: #1a1a19;
-    --surface-2: #242423;
-    --surface-3: #2f2f2d;
-    --border: #2c2c2a;
-    --grid: #2c2c2a;
-
-    --ink: #ffffff;
-    --ink-2: #c3c2b7;
-    --ink-muted: #898781;
-
-    --series-1: #3987e5;
-    --series-2: #199e70;
-    --series-3: #c98500;
-    --series-4: #008300;
-    --series-5: #9085e9;
-    --series-6: #e66767;
-    --series-7: #d55181;
-    --series-8: #d95926;
-
-    --seq-1: #b8d4f7;
-    --seq-2: #8fbcf1;
-    --seq-3: #5a9ae8;
-    --seq-4: #2a78d6;
-    --seq-5: #1c5aa0;
-
-    --div-cool: #3987e5;
-    --div-mid: #383835;
-    --div-warm: #e66767;
-
-    --accent: #ff563c;
-    --accent-2: #ff8a6e;
-    --rule: rgba(243, 242, 242, 0.42);
-    --rule-soft: rgba(243, 242, 242, 0.16);
-
-    --band-1-bg: var(--accent);
-    --band-1-fg: #f6f7f8;
-    --band-2-bg: #322f2c;
-    --band-2-fg: #f3f2f2;
-
-    --focus: var(--accent);
-  }
-}
+/* Light is the default color scheme. Dark is opt-in only — it applies when the
+   reader pins it through the theme toggle (:root[data-theme='dark'] above); the
+   OS `prefers-color-scheme: dark` preference is intentionally not followed, so
+   the report always opens light. */

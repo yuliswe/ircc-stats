@@ -107,7 +107,6 @@ export function VizProvider({
   const [metric, setMetric] = useState<Metric>('enrichment');
   const [selection, setSelection] = useState<Selection | null>(null);
   const [userTheme, setUserTheme] = useState<ThemeMode | null>(null);
-  const [systemDark, setSystemDark] = useState(false);
   const [hydrated, setHydrated] = useState(false);
 
   // hydrate controls + selection from the URL, once
@@ -127,18 +126,15 @@ export function VizProvider({
     setHydrated(true);
   }, [data]);
 
-  // theme: system preference + persisted user override
+  // theme: light by default; the reader's persisted toggle is the only override.
+  // The OS dark preference is deliberately not followed, so the report always
+  // opens light unless the reader has explicitly switched to dark before.
   useEffect(() => {
     const stored = window.localStorage.getItem('viz-theme');
     if (stored === 'light' || stored === 'dark') setUserTheme(stored);
-    const mq = window.matchMedia('(prefers-color-scheme: dark)');
-    setSystemDark(mq.matches);
-    const on = (e: MediaQueryListEvent) => setSystemDark(e.matches);
-    mq.addEventListener('change', on);
-    return () => mq.removeEventListener('change', on);
   }, []);
 
-  const theme: ThemeMode = userTheme ?? (systemDark ? 'dark' : 'light');
+  const theme: ThemeMode = userTheme ?? 'light';
 
   useEffect(() => {
     const root = document.documentElement;
@@ -195,12 +191,13 @@ export function VizProvider({
 
   const toggleTheme = useCallback(() => {
     setUserTheme(prev => {
-      const next: ThemeMode =
-        (prev ?? (systemDark ? 'dark' : 'light')) === 'dark' ? 'light' : 'dark';
+      // No prior override means the reader is on the light default, so the
+      // first toggle goes to dark.
+      const next: ThemeMode = (prev ?? 'light') === 'dark' ? 'light' : 'dark';
       window.localStorage.setItem('viz-theme', next);
       return next;
     });
-  }, [systemDark]);
+  }, []);
 
   const value: VizState = {
     data,
