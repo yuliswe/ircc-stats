@@ -67,15 +67,22 @@ table th.num {
   position: sticky;
   top: 0;
   z-index: 40;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.55rem 1.25rem;
-  background: color-mix(in srgb, var(--surface-2) 82%, transparent);
-  backdrop-filter: blur(8px);
+  background: var(--surface-2);
   border-bottom: 2px solid var(--rule);
   transition: transform 240ms ease;
   will-change: transform;
+}
+
+/* The bar's contents ride the same 1280px column as the report body, so the
+   wordmark and controls line up with the masthead below instead of drifting to
+   the viewport edges on wide screens. */
+.header-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.55rem clamp(16px, 4vw, 40px);
 }
 
 /* Red square lockup ahead of the wordmark — the mockup's masthead mark. */
@@ -108,9 +115,9 @@ table th.num {
 }
 
 .app-header .brand .mark {
-  font-size: 0.82rem;
+  font-size: 13px;
   font-weight: 800;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   white-space: nowrap;
   overflow: hidden;
@@ -152,12 +159,15 @@ table th.num {
 /* ── editorial report layer ──────────────────────────────────────────────────── */
 /* Prose reads in Archivo at a comfortable measure — the report runs one flat
    modernist family throughout; only the charts keep their own encodings. */
+/* The report runs the mockup's compact editorial body: 14px framing copy at a
+   tight measure, in the muted ink. Individual slots (the larger hero dek, the
+   band ledes) raise the size or flip the colour on top of this base. */
 .prose {
-  max-width: var(--measure);
+  max-width: 68ch;
   font-family: var(--font-serif);
-  font-size: 1.22rem;
-  line-height: 1.65;
-  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--ink-2);
 }
 
 .prose p {
@@ -176,28 +186,28 @@ table th.num {
 .eyebrow {
   display: inline-block;
   font-family: var(--font-sans);
-  font-size: 0.72rem;
+  font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.16em;
   color: var(--accent-2);
+  margin-bottom: 14px;
 }
 
 /* masthead — grid layout: headline in the left column, standfirst + byline in
    the right, headline figures spanning full width beneath. Single column first,
    two columns once there is room. */
+/* The masthead carries no rule of its own; the headline-figures block below it
+   owns the top and bottom rules, so a border here would double them. */
 .report-hero {
-  padding: 2.5rem 0 2rem;
-  border-bottom: 2px solid var(--rule);
-  margin-bottom: 2.5rem;
+  padding: clamp(20px, 2.4vw, 32px) 0 0;
 }
 
 .report-hero .hero-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1.4rem 2.5rem;
-  align-items: start;
-  margin-top: 0.7rem;
+  gap: clamp(18px, 2.2vw, 30px);
+  align-items: end;
 }
 
 @media (min-width: 780px) {
@@ -213,31 +223,34 @@ table th.num {
 .report-hero .hero-title {
   font-family: var(--font-sans);
   font-weight: 800;
-  font-size: clamp(2rem, 6vw, 3.5rem);
-  line-height: 0.98;
+  font-size: clamp(36px, 5.4vw, 72px);
+  line-height: 0.93;
   letter-spacing: -0.035em;
   text-wrap: balance;
   margin: 0;
   max-width: 18ch;
 }
 
+/* The standfirst is the one body slot that reads at display size and in full
+   ink, sitting a step above the 14px framing copy elsewhere. */
 .report-hero .dek {
-  margin-top: 0;
-  font-size: clamp(1.1rem, 2.4vw, 1.3rem);
+  margin: 0 0 14px;
+  max-width: 46ch;
+  font-size: clamp(15px, 1.15vw, 17px);
   line-height: 1.5;
   font-weight: 500;
-  color: var(--ink-2);
+  color: var(--ink);
 }
 
 .report-hero .byline {
   font-family: var(--font-sans);
-  font-size: 0.88rem;
+  font-size: 12px;
   line-height: 1.55;
   color: var(--ink-muted);
   margin: 1.1rem 0 0;
-  padding-top: 0.9rem;
+  padding-top: 12px;
   border-top: 2px solid var(--rule);
-  max-width: var(--measure);
+  max-width: 56ch;
 }
 
 .report-hero .byline a {
@@ -251,14 +264,14 @@ table th.num {
 .findings {
   display: grid;
   grid-template-columns: 1fr;
-  margin: 1.8rem 0 0;
+  margin: clamp(18px, 2vw, 24px) 0 0;
   border-top: 2px solid var(--rule);
   border-bottom: 2px solid var(--rule);
 }
 
 .findings .stat {
   background: transparent;
-  padding: 1.1rem 1.2rem 1.1rem 0;
+  padding: 14px 20px 14px 0;
   margin: 0;
 }
 
@@ -269,7 +282,7 @@ table th.num {
 
 .findings .stat dt {
   font-family: var(--font-sans);
-  font-size: 0.7rem;
+  font-size: 10.5px;
   text-transform: uppercase;
   letter-spacing: 0.14em;
   color: var(--ink-muted);
@@ -277,9 +290,9 @@ table th.num {
 }
 
 .findings .stat dd {
-  margin: 0.35rem 0 0;
+  margin: 6px 0 5px;
   font-family: var(--font-sans);
-  font-size: 2rem;
+  font-size: clamp(32px, 3.2vw, 44px);
   font-weight: 800;
   line-height: 1;
   letter-spacing: -0.03em;
@@ -290,9 +303,11 @@ table th.num {
 .findings .stat .stat-note {
   display: block;
   margin-top: 0.3rem;
+  max-width: 26ch;
   font-family: var(--font-sans);
-  font-size: 0.82rem;
+  font-size: 13px;
   font-weight: 400;
+  line-height: 1.45;
   letter-spacing: 0;
   text-transform: none;
   color: var(--ink-2);
@@ -302,12 +317,13 @@ table th.num {
    lead the first column, the lede fills the next; single column on narrow
    screens. Tinted per part: accent red for Part I, deep neutral for Part II. */
 .report-part {
-  margin: 3.5rem 0 2rem;
-  padding: clamp(1.2rem, 2.4vw, 1.8rem) clamp(1.2rem, 2.6vw, 2rem);
+  margin: clamp(26px, 3vw, 42px) 0 2rem;
+  padding: clamp(16px, 2vw, 24px);
+  scroll-margin-top: 70px;
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1rem 2.5rem;
-  align-items: start;
+  gap: clamp(14px, 2vw, 32px);
+  align-items: end;
 }
 
 @media (min-width: 720px) {
@@ -332,7 +348,7 @@ table th.num {
 
 .report-part .part-kicker {
   font-family: var(--font-sans);
-  font-size: 0.72rem;
+  font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.2em;
@@ -340,14 +356,21 @@ table th.num {
   opacity: 0.85;
 }
 
+/* Part II rides the dark band, where a peach kicker reads better than a dimmed
+   light one — the mockup names the colour rather than lowering opacity. */
+.report-part--ink .part-kicker {
+  color: #ff9783;
+  opacity: 1;
+}
+
 .report-part .part-title {
   font-family: var(--font-sans);
-  font-size: clamp(1.55rem, 4vw, 2.2rem);
-  line-height: 1;
+  font-size: clamp(26px, 3.1vw, 40px);
+  line-height: 0.97;
   font-weight: 800;
   letter-spacing: -0.03em;
   text-wrap: balance;
-  margin: 0.5rem 0 0;
+  margin: 8px 0 0;
   color: inherit;
 }
 
@@ -356,8 +379,9 @@ table th.num {
 .report-part .part-lede {
   margin-top: 0;
   max-width: 62ch;
+  line-height: 1.5;
+  font-weight: 500;
   color: inherit;
-  opacity: 0.92;
 }
 
 /* a numbered analytical section: a two-column head on a top rule — the numbered
@@ -370,9 +394,9 @@ table th.num {
 .section-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 0.9rem 2.5rem;
+  gap: 0.9rem clamp(12px, 2vw, 32px);
   border-top: 2px solid var(--rule);
-  padding-top: 1.1rem;
+  padding-top: 12px;
   margin-bottom: 1.4rem;
 }
 
@@ -386,14 +410,16 @@ table th.num {
 .section-head {
   display: flex;
   align-items: baseline;
-  gap: 0.7rem;
+  gap: 12px;
   min-width: 0;
   margin-bottom: 0;
 }
 
+/* The number is a small red index sitting inline with the title (~0.55em of it
+   in the mockup), not a large display numeral. */
 .section-head .section-num {
   font-family: var(--font-sans);
-  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-size: clamp(13px, 1.4vw, 16px);
   font-weight: 800;
   color: var(--accent);
   font-variant-numeric: tabular-nums;
@@ -403,8 +429,8 @@ table th.num {
 
 .section-head h2 {
   font-family: var(--font-sans);
-  font-size: clamp(1.45rem, 3.4vw, 1.9rem);
-  line-height: 1.06;
+  font-size: clamp(21px, 2.1vw, 29px);
+  line-height: 1.04;
   font-weight: 800;
   letter-spacing: -0.02em;
   text-wrap: balance;
@@ -424,27 +450,29 @@ table th.num {
 }
 
 .report-footer {
-  margin: 4rem 0 0;
-  padding-top: 1.6rem;
+  margin: clamp(26px, 3vw, 42px) 0 0;
+  padding-top: 18px;
   border-top: 2px solid var(--rule);
   font-family: var(--font-sans);
-  font-size: 0.92rem;
-  line-height: 1.62;
-  color: var(--ink-muted);
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--ink-2);
 }
 
 .report-footer h2 {
   font-family: var(--font-sans);
-  font-size: 0.72rem;
+  font-size: 11px;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--ink-2);
+  letter-spacing: 0.16em;
+  color: var(--accent-2);
   margin-bottom: 0.5rem;
 }
 
 .report-footer p {
   margin: 0 0 0.8rem;
-  max-width: var(--measure);
+  max-width: 60ch;
+  color: var(--ink-2);
 }
 
 .report-footer a {
@@ -481,38 +509,52 @@ table th.num {
   flex-wrap: wrap;
   gap: 0.5rem 1.5rem;
   justify-content: space-between;
-  font-size: 0.72rem;
-  font-weight: 650;
-  letter-spacing: 0.09em;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--ink-muted);
 }
 
 .data-sources {
   list-style: none;
-  margin: 0 0 0.8rem;
+  margin: 16px 0 0.8rem;
   padding: 0;
-  max-width: var(--measure);
+  max-width: 60ch;
   display: flex;
   flex-direction: column;
-  gap: 1.1rem;
+  gap: 0;
 }
 
+/* Each source is a stacked block separated by a hairline top rule, matching the
+   mockup's data-sources list rather than the earlier left-rule treatment. */
 .data-sources > li {
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
-  padding-left: 0.9rem;
-  border-left: 2px solid var(--rule);
+  padding: 14px 0;
+  border-top: 1px solid var(--rule-soft);
 }
 
 .data-sources .src-name {
-  color: var(--ink-2);
-  font-weight: 600;
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
 }
 
 .data-sources .src-desc {
   color: var(--ink-muted);
+  font-size: 13px;
+}
+
+/* The source's own link reads as a small uppercase accent line; the nested
+   workbook links below stay plain body links. */
+.data-sources > li > a {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 /* Nested per-workbook links: wrap on narrow screens, comfortable tap targets. */
@@ -539,12 +581,12 @@ table th.num {
 
 .btn {
   appearance: none;
-  border: 2px solid var(--rule);
+  border: 2px solid var(--ink);
   background: transparent;
   color: var(--ink);
   border-radius: 0;
-  padding: 0.55rem 0.8rem;
-  font-size: 0.7rem;
+  padding: 8px 14px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -562,9 +604,9 @@ table th.num {
 }
 
 main {
-  max-width: var(--wide);
+  max-width: 1280px;
   margin: 0 auto;
-  padding: 0.5rem 1.25rem 5rem;
+  padding: 0.5rem clamp(16px, 4vw, 40px) 5rem;
 }
 
 /* headline figures widen once there is room, split by soft vertical rules */
@@ -1030,16 +1072,12 @@ table.data-table th.num {
 /* ── small screens ───────────────────────────────────────────────────────────── */
 @media (max-width: 640px) {
   main {
-    padding: 0.85rem 0.8rem 4rem;
+    padding: 0.85rem clamp(16px, 4vw, 40px) 4rem;
   }
 
-  .app-header {
-    padding: 0.6rem 0.85rem;
+  .header-inner {
+    padding: 0.6rem 16px;
     gap: 0.5rem;
-  }
-
-  .app-header .brand h1 {
-    font-size: 0.95rem;
   }
 
   /* Give the charts as much width as possible before they must scroll. */
@@ -1053,7 +1091,7 @@ table.data-table th.num {
   }
 
   .btn {
-    padding: 0.35rem 0.55rem;
-    font-size: 0.78rem;
+    padding: 6px 10px;
+    font-size: 11px;
   }
 }

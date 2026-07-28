@@ -33,24 +33,29 @@
   --accent-2: #ae1800;
   /* 2px near-black hairline rules and their soft internal divider, the flat
      system's only structural lines. Kept apart from --border/--grid so chart
-     gridlines stay on the neutral border. */
-  --rule: rgba(32, 30, 29, 0.42);
-  --rule-soft: rgba(32, 30, 29, 0.16);
+     gridlines stay on the neutral border. The strong rule and its soft divider
+     match the mockup's rgba(32,30,29,.4)/.15 structural lines. */
+  --rule: rgba(32, 30, 29, 0.4);
+  --rule-soft: rgba(32, 30, 29, 0.15);
   /* reading measure for prose, and the wider measure figures break out to */
   --measure: 44rem;
   --wide: 66rem;
 
-  /* surfaces & chrome */
+  /* surfaces & chrome. --surface-2 is the report page ground and matches the
+     mockup's #f3f2f2 cool paper; --surface stays the slightly lighter card
+     ground the charts sit on. */
   --surface: #fcfcfb;
-  --surface-2: #f4f3ef;
+  --surface-2: #f3f2f2;
   --surface-3: #eceae3;
   --border: #e1e0d9;
   --grid: #e1e0d9;
 
-  /* ink */
-  --ink: #0b0b0b;
-  --ink-2: #52514e;
-  --ink-muted: #898781;
+  /* ink — the mockup's warm near-black and its two muted greys: --ink-2 backs
+     body copy and stat notes, --ink-muted backs uppercase labels, captions, and
+     nav. */
+  --ink: #201e1d;
+  --ink-2: #444141;
+  --ink-muted: #605d5d;
 
   /* categorical slots (fixed order, never cycled) */
   --series-1: #2a78d6; /* blue   — Security Screening / VIT 34 / slice 1 */
@@ -79,7 +84,7 @@
      the saturated/dark fill in either theme. Kept as their own tokens because
      --ink flips to white in dark mode and cannot back a dark band. */
   --band-1-bg: var(--accent);
-  --band-1-fg: #f6f7f8;
+  --band-1-fg: #f3f2f2;
   --band-2-bg: #201e1d;
   --band-2-fg: #f3f2f2;
 
