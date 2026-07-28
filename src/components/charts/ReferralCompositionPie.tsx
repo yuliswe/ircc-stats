@@ -26,10 +26,18 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { useViz } from '@/lib/store';
 import { CATEGORICAL, INK } from '@/lib/palette';
-import { fmtInt, fmtPct, withFlag } from '@/lib/format';
+import { fmtInt, fmtPct } from '@/lib/format';
+import { flagName, pick } from '@/lib/i18n';
+import { CHARTS, chartText } from '@/content/strings';
 import { ChartCard } from '@/components/viz/ChartCard';
 import { TooltipBox } from '@/components/viz/TooltipBox';
 import type { Column } from '@/components/viz/TableView';
+
+// All user-facing copy for this chart lives in `@/content/strings`
+// (`CHARTS.referralComposition` for static labels, `chartText.referralComposition`
+// for interpolated prose); this alias keeps the call sites terse.
+const T = CHARTS.referralComposition;
+const TX = chartText.referralComposition;
 
 // The categorical palette has eight slots; the eight largest nationalities take
 // them in fixed order and the remainder collapses into "Other". A ninth hue would
@@ -131,7 +139,7 @@ function truncate(s: string, max = 26): string {
 }
 
 export function ReferralCompositionPie() {
-  const { data, theme, selection, select } = useViz();
+  const { data, theme, selection, select, locale } = useViz();
   const [hover, setHover] = useState<Hover | null>(null);
 
   const rows = data.screeningApplications;
@@ -212,7 +220,13 @@ export function ReferralCompositionPie() {
   const interaction = (s: Slice) => ({
     role: s.isOther ? ('img' as const) : ('button' as const),
     tabIndex: s.isOther ? undefined : 0,
-    'aria-label': `${s.isOther ? `Other, ${fmtInt(otherCount)} nationalities` : withFlag(s.cit, s.iso3)}: ${fmtInt(s.referred)} referrals, ${fmtPct(s.fraction)}`,
+    'aria-label': TX.sliceAria(locale, {
+      isOther: s.isOther,
+      name: flagName(locale, s.cit, s.iso3),
+      otherCount,
+      referred: s.referred,
+      fraction: s.fraction,
+    }),
     style: {
       cursor: s.isOther ? 'default' : 'pointer',
       opacity: opacityFor(s),
@@ -236,57 +250,39 @@ export function ReferralCompositionPie() {
   });
 
   const tableColumns: Column[] = [
-    { key: 'cit', label: 'Country' },
-    { key: 'referred', label: 'Referrals', num: true },
-    { key: 'pct', label: '% of total', num: true },
+    { key: 'cit', label: pick(locale, T.colCountry) },
+    { key: 'referred', label: pick(locale, T.colReferred), num: true },
+    { key: 'pct', label: pick(locale, T.colPct), num: true },
   ];
   const tableRows: Record<string, ReactNode>[] = [...rows]
     .filter(r => r.referred > 0)
     .sort((a, b) => b.referred - a.referred)
     .map(r => ({
-      cit: withFlag(r.cit, r.iso3),
+      cit: flagName(locale, r.cit, r.iso3),
       referred: fmtInt(r.referred),
       pct: grand > 0 ? fmtPct(r.referred / grand) : '—',
     }));
 
-  const subtitle = (
-    <>
-      Each slice is one nationality&rsquo;s share of <b>all</b> 2025
-      security-screening referrals. This is the composition of the referred
-      population &mdash; who the referrals were, not how often a nationality is
-      referred &mdash; so a large slice can simply reflect a large applicant
-      base. For the per-applicant chance of referral, see the referral-rate
-      chart.
-    </>
-  );
+  const subtitle = TX.subtitle(locale);
 
-  const footnote = (
-    <>
-      Referrals count applicants sent to any screening type (VIT&nbsp;34/35/37,
-      HIRV, Org&nbsp;Crime, or Security) in 2025, totalling {fmtInt(grand)}{' '}
-      across {fmtInt(natCount)} nationalities. The eight largest are labelled
-      individually; the remaining {fmtInt(otherCount)} are pooled into
-      &ldquo;Other&rdquo;. Use the table view for the full per-country
-      breakdown.
-    </>
-  );
+  const footnote = TX.footnote(locale, { grand, natCount, otherCount });
 
   if (grand === 0) {
     return (
       <ChartCard
-        title='Referral composition by nationality'
+        title={pick(locale, T.title)}
         subtitle={subtitle}
         tableColumns={tableColumns}
         tableRows={tableRows}
       >
-        <div className='chart-empty'>No referral data available.</div>
+        <div className='chart-empty'>{pick(locale, T.empty)}</div>
       </ChartCard>
     );
   }
 
   return (
     <ChartCard
-      title='Referral composition by nationality'
+      title={pick(locale, T.title)}
       subtitle={subtitle}
       footnote={footnote}
       tableColumns={tableColumns}
@@ -313,7 +309,7 @@ export function ReferralCompositionPie() {
             margin: '0 auto',
           }}
           role='img'
-          aria-label='Donut chart of the composition of total 2025 security-screening referrals by nationality, with labelled callouts'
+          aria-label={pick(locale, T.svgAria)}
         >
           {/* arcs */}
           {slices.map((s, i) => (
@@ -363,8 +359,8 @@ export function ReferralCompositionPie() {
                   fontWeight={selectedCit === l.cit ? 650 : 400}
                 >
                   {l.isOther
-                    ? `Other (${fmtInt(otherCount)})`
-                    : withFlag(truncate(l.cit), l.iso3)}
+                    ? TX.otherLabel(locale, { otherCount })
+                    : flagName(locale, truncate(l.cit), l.iso3)}
                 </tspan>
                 <tspan fill='var(--ink-muted)' dx={6} className='tnum'>
                   {fmtPct(l.fraction, l.fraction < 0.1 ? 1 : 0)}
@@ -394,7 +390,7 @@ export function ReferralCompositionPie() {
             fontSize={9.5}
             fill='var(--ink-muted)'
           >
-            total referrals
+            {pick(locale, T.centreTotal)}
           </text>
         </svg>
       </div>
@@ -403,14 +399,20 @@ export function ReferralCompositionPie() {
         <TooltipBox
           title={
             hover.slice.isOther
-              ? `Other (${fmtInt(otherCount)} nationalities)`
-              : withFlag(hover.slice.cit, hover.slice.iso3)
+              ? TX.otherTipTitle(locale, { otherCount })
+              : flagName(locale, hover.slice.cit, hover.slice.iso3)
           }
           x={hover.x}
           y={hover.y}
           rows={[
-            { label: 'Referrals', value: fmtInt(hover.slice.referred) },
-            { label: '% of total', value: fmtPct(hover.slice.fraction) },
+            {
+              label: pick(locale, T.tipReferrals),
+              value: fmtInt(hover.slice.referred),
+            },
+            {
+              label: pick(locale, T.tipPct),
+              value: fmtPct(hover.slice.fraction),
+            },
           ]}
         />
       ) : null}

@@ -23,12 +23,20 @@
 import { useMemo, useState } from 'react';
 import { useViz } from '@/lib/store';
 import { CATEGORICAL } from '@/lib/palette';
-import { fmtInt, fmtPct, withFlag } from '@/lib/format';
+import { fmtInt, fmtPct } from '@/lib/format';
+import { flagName, pick } from '@/lib/i18n';
+import { CHARTS, chartText } from '@/content/strings';
 import { ChartCard } from '@/components/viz/ChartCard';
 import { Legend } from '@/components/viz/Legend';
 import { TooltipBox } from '@/components/viz/TooltipBox';
 import type { Column } from '@/components/viz/TableView';
 import type { ScreeningAppRow } from '@/lib/viz-types';
+
+// All user-facing copy for this chart lives in `@/content/strings`
+// (`CHARTS.volumeCompare` for static labels, `chartText.volumeCompare` for
+// interpolated prose); this alias keeps the call sites terse.
+const T = CHARTS.volumeCompare;
+const TX = chartText.volumeCompare;
 
 const TOP_N = 25;
 
@@ -105,7 +113,7 @@ function compactInt(v: number): string {
 }
 
 export function VolumeCompareChart() {
-  const { data, theme, selection, select } = useViz();
+  const { data, theme, selection, select, locale } = useViz();
   const [expanded, setExpanded] = useState(false);
   const [hover, setHover] = useState<HoverState | null>(null);
 
@@ -148,16 +156,20 @@ export function VolumeCompareChart() {
   const wRefBar = (v: number) => (Math.max(0, v) / refMax) * BAR_W;
 
   const tableColumns: Column[] = [
-    { key: 'cit', label: 'Country' },
-    { key: 'applications', label: 'Applications', num: true },
-    { key: 'referred', label: 'Referred', num: true },
-    { key: 'pct', label: '% referred', num: true },
-    { key: 'prIntake', label: 'PR intake', num: true },
-    { key: 'spProcessed', label: 'Study permits', num: true },
-    { key: 'trvIntake', label: 'TRV intake', num: true },
+    { key: 'cit', label: pick(locale, T.colCountry) },
+    {
+      key: 'applications',
+      label: pick(locale, T.colApplications),
+      num: true,
+    },
+    { key: 'referred', label: pick(locale, T.colReferred), num: true },
+    { key: 'pct', label: pick(locale, T.colPctReferred), num: true },
+    { key: 'prIntake', label: pick(locale, T.colPrIntake), num: true },
+    { key: 'spProcessed', label: pick(locale, T.colStudyPermits), num: true },
+    { key: 'trvIntake', label: pick(locale, T.colTrvIntake), num: true },
   ];
   const tableRows = sorted.map(r => ({
-    cit: withFlag(r.cit, r.iso3),
+    cit: flagName(locale, r.cit, r.iso3),
     applications: fmtInt(r.applications),
     referred: fmtInt(r.referred),
     pct: r.applications > 0 ? fmtPct(r.referred / r.applications, 2) : '—',
@@ -166,26 +178,9 @@ export function VolumeCompareChart() {
     trvIntake: fmtInt(r.trvIntake),
   }));
 
-  const subtitle = (
-    <>
-      Two counts per nationality, side by side and sorted by application volume.
-      The left panel is a bar of 2025 immigration <b>applications</b> on a true
-      linear scale, so volume ratios stay honest and India reads as roughly 3×
-      China. The right panel is a bar of the number of applicants{' '}
-      <b>referred to comprehensive security screening</b>, on its own linear
-      scale, so a country referred out of proportion to its application volume
-      stands out — China is referred far more often than India despite filing a
-      third as many applications. Each row is read straight across; the exact
-      counts sit at the end of each bar.
-    </>
-  );
+  const subtitle = TX.subtitle(locale);
 
-  const footnote =
-    'Referrals count all comprehensive security screening activity types (VIT 34/35/37, HIRV, Org ' +
-    'Crime, Security); applications count PR intake and TRV intake. Study permits processed are ' +
-    'shown for reference only and are not added into the application total, because TRV intake ' +
-    'already includes study permit applicants. The two panels use independent linear scales, so a ' +
-    'bar length in one panel is not comparable to a bar length in the other.';
+  const footnote = pick(locale, T.footnote);
 
   const controls = canCollapse ? (
     <button
@@ -193,15 +188,15 @@ export function VolumeCompareChart() {
       aria-pressed={expanded}
       onClick={() => setExpanded(v => !v)}
     >
-      {expanded ? `Show top ${TOP_N}` : `Show all (${total})`}
+      {TX.collapse(locale, { expanded, topN: TOP_N, total })}
     </button>
   ) : undefined;
 
   const legend = (
     <Legend
       items={[
-        { label: 'Applications', color: appsColor },
-        { label: 'Referred to security screening', color: refColor },
+        { label: pick(locale, T.legendApplications), color: appsColor },
+        { label: pick(locale, T.legendReferred), color: refColor },
       ]}
     />
   );
@@ -209,14 +204,12 @@ export function VolumeCompareChart() {
   if (total === 0) {
     return (
       <ChartCard
-        title='Applications vs. referrals to security screening'
+        title={pick(locale, T.title)}
         subtitle={subtitle}
         tableColumns={tableColumns}
         tableRows={[]}
       >
-        <div className='chart-empty'>
-          No nationalities with a 2025 application count.
-        </div>
+        <div className='chart-empty'>{TX.empty(locale)}</div>
       </ChartCard>
     );
   }
@@ -231,7 +224,7 @@ export function VolumeCompareChart() {
 
   return (
     <ChartCard
-      title='Applications vs. referrals to security screening'
+      title={pick(locale, T.title)}
       subtitle={subtitle}
       controls={controls}
       legend={legend}
@@ -254,7 +247,7 @@ export function VolumeCompareChart() {
           // horizontally rather than shrinking the SVG text into illegibility.
           style={{ display: 'block', width: '100%', minWidth: MIN_SVG_PX }}
           role='img'
-          aria-label='Grouped bar chart by citizenship: a left panel of applications and a right panel of applicants referred to comprehensive security screening, each an absolute count on its own linear scale'
+          aria-label={pick(locale, T.svgAria)}
         >
           {/* Panel headers */}
           <text
@@ -265,7 +258,7 @@ export function VolumeCompareChart() {
             fontWeight={650}
             fill={appsColor}
           >
-            Applications
+            {pick(locale, T.panelApplications)}
           </text>
           <text
             x={REF_X0}
@@ -275,7 +268,7 @@ export function VolumeCompareChart() {
             fontWeight={650}
             fill={refColor}
           >
-            Referred to comprehensive
+            {pick(locale, T.panelReferredLine1)}
           </text>
           <text
             x={REF_X0}
@@ -285,7 +278,7 @@ export function VolumeCompareChart() {
             fontWeight={650}
             fill={refColor}
           >
-            security screening (quantity)
+            {pick(locale, T.panelReferredLine2)}
           </text>
 
           {/* Left panel axis — applications, gridlines + count ticks */}
@@ -360,7 +353,11 @@ export function VolumeCompareChart() {
                 key={r.cit}
                 role='button'
                 tabIndex={0}
-                aria-label={`${withFlag(r.cit, r.iso3)}: ${fmtInt(r.applications)} applications, ${fmtInt(r.referred)} referred to comprehensive security screening`}
+                aria-label={TX.rowAria(locale, {
+                  name: flagName(locale, r.cit, r.iso3),
+                  applications: r.applications,
+                  referred: r.referred,
+                })}
                 style={{
                   cursor: 'pointer',
                   opacity: dimmed ? 0.25 : 1,
@@ -402,7 +399,7 @@ export function VolumeCompareChart() {
                   fontWeight={isSelected ? 650 : 400}
                   fill='var(--ink)'
                 >
-                  {withFlag(truncate(r.cit), r.iso3)}
+                  {truncate(flagName(locale, r.cit, r.iso3))}
                 </text>
 
                 {/* left panel: applications bar (true linear scale) + value */}
@@ -458,17 +455,20 @@ export function VolumeCompareChart() {
 
       {hover ? (
         <TooltipBox
-          title={withFlag(hover.row.cit, hover.row.iso3)}
+          title={flagName(locale, hover.row.cit, hover.row.iso3)}
           x={hover.x}
           y={hover.y}
           rows={[
-            { label: 'Applications', value: fmtInt(hover.row.applications) },
             {
-              label: 'Referred to screening',
+              label: pick(locale, T.tipApplications),
+              value: fmtInt(hover.row.applications),
+            },
+            {
+              label: pick(locale, T.tipReferred),
               value: fmtInt(hover.row.referred),
             },
             {
-              label: '% referred',
+              label: pick(locale, T.tipPctReferred),
               value:
                 hover.row.applications > 0
                   ? fmtPct(hover.row.referred / hover.row.applications, 2)

@@ -8,12 +8,12 @@
 import type { ReactNode } from 'react';
 
 export function Hero({
-  atip,
+  eyebrow,
   title,
   dek,
   children,
 }: {
-  atip: string;
+  eyebrow: ReactNode;
   title: ReactNode;
   dek: ReactNode;
   /** headline figures + byline */
@@ -21,9 +21,7 @@ export function Hero({
 }) {
   return (
     <header className='report-hero'>
-      <span className='eyebrow'>
-        ATIP release {atip} · Access to Information Act
-      </span>
+      <span className='eyebrow'>{eyebrow}</span>
       <h1 className='hero-title'>{title}</h1>
       <p className='dek prose'>{dek}</p>
       {children}

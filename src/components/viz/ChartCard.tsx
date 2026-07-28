@@ -10,6 +10,9 @@
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { TableView, type Column } from './TableView';
 import { RevealContext } from '@/lib/reveal';
+import { useViz } from '@/lib/store';
+import { pick } from '@/lib/i18n';
+import { CHART_CARD } from '@/content/strings';
 
 type RevealState = 'armed' | 'in' | null;
 
@@ -38,6 +41,7 @@ export function ChartCard({
   className,
   children,
 }: ChartCardProps) {
+  const { locale } = useViz();
   const [table, setTable] = useState(false);
   const headingId = useId();
 
@@ -98,7 +102,9 @@ export function ChartCard({
           aria-pressed={table}
           onClick={() => setTable(v => !v)}
         >
-          {table ? 'View chart' : 'View as table'}
+          {table
+            ? pick(locale, CHART_CARD.viewChart)
+            : pick(locale, CHART_CARD.viewTable)}
         </button>
       </div>
       <p className='card-sub'>{subtitle}</p>

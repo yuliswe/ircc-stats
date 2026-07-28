@@ -22,12 +22,20 @@
 import { useId, useMemo, useState } from 'react';
 import { useViz } from '@/lib/store';
 import { divergingColor } from '@/lib/palette';
-import { fmtInt, fmtPct, log2, withFlag } from '@/lib/format';
+import { fmtInt, fmtPct, log2 } from '@/lib/format';
+import { flagName, pick } from '@/lib/i18n';
+import { CHARTS, chartText } from '@/content/strings';
 import { ChartCard } from '@/components/viz/ChartCard';
 import { Legend } from '@/components/viz/Legend';
 import { TooltipBox } from '@/components/viz/TooltipBox';
 import type { Column } from '@/components/viz/TableView';
 import type { TrApprovalRow } from '@/lib/viz-types';
+
+// All user-facing copy for this chart lives in `@/content/strings`
+// (`CHARTS.trApproval` for static labels, `chartText.trApproval` for
+// interpolated prose); this alias keeps the call sites terse.
+const T = CHARTS.trApproval;
+const TX = chartText.trApproval;
 
 const TOP_N = 25;
 
@@ -84,7 +92,7 @@ function niceCeil(x: number): number {
 }
 
 export function TrApprovalChart() {
-  const { data, theme, selection, select } = useViz();
+  const { data, theme, selection, select, locale } = useViz();
   const [minProcessed, setMinProcessed] = useState<number>(DEFAULT_MIN);
   const minProcessedLabelId = useId();
   const [expanded, setExpanded] = useState(false);
@@ -133,46 +141,33 @@ export function TrApprovalChart() {
 
   // ── shared table equivalent (accessibility, house rule 1) ────────────────────
   const tableColumns: Column[] = [
-    { key: 'cit', label: 'Country' },
-    { key: 'approved', label: 'Approved', num: true },
-    { key: 'processed', label: 'Processed', num: true },
-    { key: 'rate', label: 'Approval rate', num: true },
-    { key: 'vsAvg', label: 'vs. average', num: true },
+    { key: 'cit', label: pick(locale, T.colCountry) },
+    { key: 'approved', label: pick(locale, T.colApproved), num: true },
+    { key: 'processed', label: pick(locale, T.colProcessed), num: true },
+    { key: 'rate', label: pick(locale, T.colRate), num: true },
+    { key: 'vsAvg', label: pick(locale, T.colVsAvg), num: true },
   ];
   const tableRows = sorted.map(r => ({
-    cit: withFlag(r.cit, r.iso3),
+    cit: flagName(locale, r.cit, r.iso3),
     approved: fmtInt(r.approved),
     processed: fmtInt(r.processed),
     rate: fmtPct(r.rate, 1),
     vsAvg: avgRate > 0 ? `${(r.rate / avgRate).toFixed(1)}×` : '—',
   }));
 
-  const subtitle = (
-    <>
-      Share of a nationality&rsquo;s 2025 <b>processed</b> temporary-residence
-      applications that were <b>approved</b>, using IRCC&rsquo;s published
-      annual totals. The dashed line is the national average of{' '}
-      <b>{fmtPct(avgRate, 1)}</b>; blue bars are approved more often than the
-      average applicant, red bars less. Nationalities with fewer than{' '}
-      {fmtInt(minProcessed)} processed applications are hidden{' '}
-      {hiddenBelowThreshold > 0
-        ? `(${fmtInt(hiddenBelowThreshold)} excluded)`
-        : ''}{' '}
-      because a tiny denominator makes the rate unstable.
-    </>
-  );
+  const subtitle = TX.subtitle(locale, {
+    avgRate,
+    minProcessed,
+    hidden: hiddenBelowThreshold,
+  });
 
-  const footnote =
-    'Approved and processed are IRCC’s own published 2025 annual totals (each rounded to the ' +
-    'nearest 5); the rate is approved ÷ processed. Rows whose approved or processed count IRCC ' +
-    'suppressed to protect privacy carry no rate and are omitted, as are the "Other*" residual ' +
-    'bucket and any nationality with no ISO match (Solomon Islands, Stateless).';
+  const footnote = pick(locale, T.footnote);
 
   const controls = (
     <>
       <div className='seg-field'>
         <span className='seg-label' id={minProcessedLabelId}>
-          Min. processed applications
+          {pick(locale, T.minProcessed)}
         </span>
         <div
           className='segmented'
@@ -196,7 +191,7 @@ export function TrApprovalChart() {
           aria-pressed={expanded}
           onClick={() => setExpanded(v => !v)}
         >
-          {expanded ? `Show top ${TOP_N}` : `Show all (${total})`}
+          {TX.collapse(locale, { expanded, topN: TOP_N, total })}
         </button>
       ) : null}
     </>
@@ -206,12 +201,12 @@ export function TrApprovalChart() {
     <Legend
       items={[
         {
-          label: 'Below average',
+          label: pick(locale, T.legendBelow),
           color: divergingColor(COLOR_SPAN, theme, COLOR_SPAN),
         },
-        { label: 'National average', color: 'var(--grid)' },
+        { label: pick(locale, T.legendAvg), color: 'var(--grid)' },
         {
-          label: 'Above average',
+          label: pick(locale, T.legendAbove),
           color: divergingColor(-COLOR_SPAN, theme, COLOR_SPAN),
         },
       ]}
@@ -221,15 +216,13 @@ export function TrApprovalChart() {
   if (total === 0) {
     return (
       <ChartCard
-        title='Temporary-residence approval rate by nationality'
+        title={pick(locale, T.title)}
         subtitle={subtitle}
         controls={controls}
         tableColumns={tableColumns}
         tableRows={[]}
       >
-        <div className='chart-empty'>
-          No nationalities meet the {fmtInt(minProcessed)}-processed minimum.
-        </div>
+        <div className='chart-empty'>{TX.empty(locale, { minProcessed })}</div>
       </ChartCard>
     );
   }
@@ -242,7 +235,7 @@ export function TrApprovalChart() {
 
   return (
     <ChartCard
-      title='Temporary-residence approval rate by nationality'
+      title={pick(locale, T.title)}
       subtitle={subtitle}
       controls={controls}
       legend={legend}
@@ -265,7 +258,7 @@ export function TrApprovalChart() {
           // horizontally rather than shrinking the SVG text into illegibility.
           style={{ display: 'block', width: '100%', minWidth: MIN_SVG_PX }}
           role='img'
-          aria-label='Bar chart of temporary-residence approval rate by citizenship'
+          aria-label={pick(locale, T.svgAria)}
         >
           {/* axis ticks + gridlines */}
           {ticks.map(t => {
@@ -313,7 +306,7 @@ export function TrApprovalChart() {
             fill='var(--ink-2)'
             className='tnum'
           >
-            avg {fmtPct(avgRate, 1)}
+            {pick(locale, T.avg)} {fmtPct(avgRate, 1)}
           </text>
 
           {shown.map((r, i) => {
@@ -337,7 +330,12 @@ export function TrApprovalChart() {
                 key={r.cit}
                 role='button'
                 tabIndex={0}
-                aria-label={`${withFlag(r.cit, r.iso3)}: ${fmtPct(r.rate, 1)} approval rate, ${fmtInt(r.approved)} of ${fmtInt(r.processed)} processed`}
+                aria-label={TX.rowAria(locale, {
+                  name: flagName(locale, r.cit, r.iso3),
+                  rate: r.rate,
+                  approved: r.approved,
+                  processed: r.processed,
+                })}
                 style={{
                   cursor: 'pointer',
                   opacity: dimmed ? 0.25 : 1,
@@ -379,7 +377,7 @@ export function TrApprovalChart() {
                   fontWeight={isSelected ? 650 : 400}
                   fill='var(--ink)'
                 >
-                  {withFlag(truncate(r.cit), r.iso3)}
+                  {truncate(flagName(locale, r.cit, r.iso3))}
                 </text>
 
                 <rect
@@ -418,16 +416,28 @@ export function TrApprovalChart() {
 
       {hover ? (
         <TooltipBox
-          title={withFlag(hover.row.cit, hover.row.iso3)}
+          title={flagName(locale, hover.row.cit, hover.row.iso3)}
           x={hover.x}
           y={hover.y}
           rows={[
-            { label: 'Approved', value: fmtInt(hover.row.approved) },
-            { label: 'Processed', value: fmtInt(hover.row.processed) },
-            { label: 'Not approved', value: fmtInt(hover.row.nonApproval) },
-            { label: 'Approval rate', value: fmtPct(hover.row.rate, 1) },
             {
-              label: 'vs. national average',
+              label: pick(locale, T.tipApproved),
+              value: fmtInt(hover.row.approved),
+            },
+            {
+              label: pick(locale, T.tipProcessed),
+              value: fmtInt(hover.row.processed),
+            },
+            {
+              label: pick(locale, T.tipNotApproved),
+              value: fmtInt(hover.row.nonApproval),
+            },
+            {
+              label: pick(locale, T.tipRate),
+              value: fmtPct(hover.row.rate, 1),
+            },
+            {
+              label: pick(locale, T.tipVsAvg),
               value:
                 avgRate > 0 ? `${(hover.row.rate / avgRate).toFixed(1)}×` : '—',
             },

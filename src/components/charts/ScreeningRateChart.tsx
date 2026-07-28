@@ -22,12 +22,20 @@
 import { useId, useMemo, useState } from 'react';
 import { useViz } from '@/lib/store';
 import { divergingColor } from '@/lib/palette';
-import { fmtInt, fmtPct, log2, withFlag } from '@/lib/format';
+import { fmtInt, fmtPct, log2 } from '@/lib/format';
+import { flagName, pick } from '@/lib/i18n';
+import { CHARTS, chartText } from '@/content/strings';
 import { ChartCard } from '@/components/viz/ChartCard';
 import { Legend } from '@/components/viz/Legend';
 import { TooltipBox } from '@/components/viz/TooltipBox';
 import type { Column } from '@/components/viz/TableView';
 import type { ScreeningAppRow } from '@/lib/viz-types';
+
+// All user-facing copy for this chart lives in `@/content/strings`
+// (`CHARTS.screeningRate` for static labels, `chartText.screeningRate` for
+// interpolated prose); this alias keeps the call sites terse.
+const T = CHARTS.screeningRate;
+const TX = chartText.screeningRate;
 
 const TOP_N = 25;
 
@@ -76,7 +84,7 @@ function niceCeil(x: number): number {
 }
 
 export function ScreeningRateChart() {
-  const { data, theme, selection, select } = useViz();
+  const { data, theme, selection, select, locale } = useViz();
   const [minApps, setMinApps] = useState<number>(DEFAULT_MIN);
   const minAppsLabelId = useId();
   const [expanded, setExpanded] = useState(false);
@@ -138,44 +146,37 @@ export function ScreeningRateChart() {
 
   // ── shared table equivalent (accessibility, house rule 1) ────────────────────
   const tableColumns: Column[] = [
-    { key: 'cit', label: 'Country' },
-    { key: 'referred', label: 'Referred', num: true },
-    { key: 'applications', label: 'Applications', num: true },
-    { key: 'rate', label: 'Referral rate', num: true },
-    { key: 'vsAvg', label: 'vs. average', num: true },
+    { key: 'cit', label: pick(locale, T.colCountry) },
+    { key: 'referred', label: pick(locale, T.colReferred), num: true },
+    {
+      key: 'applications',
+      label: pick(locale, T.colApplications),
+      num: true,
+    },
+    { key: 'rate', label: pick(locale, T.colRate), num: true },
+    { key: 'vsAvg', label: pick(locale, T.colVsAvg), num: true },
   ];
   const tableRows = sorted.map(r => ({
-    cit: withFlag(r.cit, r.iso3),
+    cit: flagName(locale, r.cit, r.iso3),
     referred: fmtInt(r.referred),
     applications: fmtInt(r.applications),
     rate: fmtPct(r.rate, 2),
     vsAvg: globalRate > 0 ? `${(r.rate / globalRate).toFixed(1)}×` : '—',
   }));
 
-  const subtitle = (
-    <>
-      Share of a nationality&rsquo;s 2025 immigration applications that were
-      referred to <b>any</b> security screening, relative to <b>applications</b>{' '}
-      (not screenings). The dashed line is the national average of{' '}
-      <b>{fmtPct(globalRate, 2)}</b>; warm bars are referred more often than the
-      average applicant, cool bars less. Nationalities with fewer than{' '}
-      {fmtInt(minApps)} applications are hidden{' '}
-      {hiddenBelowThreshold > 0
-        ? `(${fmtInt(hiddenBelowThreshold)} excluded)`
-        : ''}{' '}
-      because a tiny denominator makes the rate unstable.
-    </>
-  );
+  const subtitle = TX.subtitle(locale, {
+    globalRate,
+    minApps,
+    hidden: hiddenBelowThreshold,
+  });
 
-  const footnote =
-    'Referrals count applicants sent to any screening type (VIT 34/35/37, HIRV, Org Crime, or ' +
-    'Security); applications count PR intake, study permits processed, and TRV intake for 2025.';
+  const footnote = pick(locale, T.footnote);
 
   const controls = (
     <>
       <div className='seg-field'>
         <span className='seg-label' id={minAppsLabelId}>
-          Min. applications
+          {pick(locale, T.minApps)}
         </span>
         <div
           className='segmented'
@@ -199,7 +200,7 @@ export function ScreeningRateChart() {
           aria-pressed={expanded}
           onClick={() => setExpanded(v => !v)}
         >
-          {expanded ? `Show top ${TOP_N}` : `Show all (${total})`}
+          {TX.collapse(locale, { expanded, topN: TOP_N, total })}
         </button>
       ) : null}
     </>
@@ -208,9 +209,15 @@ export function ScreeningRateChart() {
   const legend = (
     <Legend
       items={[
-        { label: 'Below average', color: divergingColor(-2, theme) },
-        { label: 'National average', color: 'var(--grid)' },
-        { label: 'Above average', color: divergingColor(2, theme) },
+        {
+          label: pick(locale, T.legendBelow),
+          color: divergingColor(-2, theme),
+        },
+        { label: pick(locale, T.legendAvg), color: 'var(--grid)' },
+        {
+          label: pick(locale, T.legendAbove),
+          color: divergingColor(2, theme),
+        },
       ]}
     />
   );
@@ -218,15 +225,13 @@ export function ScreeningRateChart() {
   if (total === 0) {
     return (
       <ChartCard
-        title='Screening referral rate — share of applications referred'
+        title={pick(locale, T.title)}
         subtitle={subtitle}
         controls={controls}
         tableColumns={tableColumns}
         tableRows={[]}
       >
-        <div className='chart-empty'>
-          No nationalities meet the {fmtInt(minApps)}-application minimum.
-        </div>
+        <div className='chart-empty'>{TX.empty(locale, { minApps })}</div>
       </ChartCard>
     );
   }
@@ -239,7 +244,7 @@ export function ScreeningRateChart() {
 
   return (
     <ChartCard
-      title='Screening referral rate — share of applications referred'
+      title={pick(locale, T.title)}
       subtitle={subtitle}
       controls={controls}
       legend={legend}
@@ -262,7 +267,7 @@ export function ScreeningRateChart() {
           // horizontally rather than shrinking the SVG text into illegibility.
           style={{ display: 'block', width: '100%', minWidth: MIN_SVG_PX }}
           role='img'
-          aria-label='Bar chart of security-screening referral rate over applications by citizenship'
+          aria-label={pick(locale, T.svgAria)}
         >
           {/* axis ticks + gridlines */}
           {ticks.map(t => {
@@ -310,7 +315,7 @@ export function ScreeningRateChart() {
             fill='var(--ink-2)'
             className='tnum'
           >
-            avg {fmtPct(globalRate, 1)}
+            {pick(locale, T.avg)} {fmtPct(globalRate, 1)}
           </text>
 
           {shown.map((r, i) => {
@@ -331,7 +336,12 @@ export function ScreeningRateChart() {
                 key={r.cit}
                 role='button'
                 tabIndex={0}
-                aria-label={`${withFlag(r.cit, r.iso3)}: ${fmtPct(r.rate, 2)} referral rate, ${fmtInt(r.referred)} of ${fmtInt(r.applications)} applications`}
+                aria-label={TX.rowAria(locale, {
+                  name: flagName(locale, r.cit, r.iso3),
+                  rate: r.rate,
+                  referred: r.referred,
+                  applications: r.applications,
+                })}
                 style={{
                   cursor: 'pointer',
                   opacity: dimmed ? 0.25 : 1,
@@ -373,7 +383,7 @@ export function ScreeningRateChart() {
                   fontWeight={isSelected ? 650 : 400}
                   fill='var(--ink)'
                 >
-                  {withFlag(truncate(r.cit), r.iso3)}
+                  {truncate(flagName(locale, r.cit, r.iso3))}
                 </text>
 
                 <rect
@@ -412,21 +422,24 @@ export function ScreeningRateChart() {
 
       {hover ? (
         <TooltipBox
-          title={withFlag(hover.row.cit, hover.row.iso3)}
+          title={flagName(locale, hover.row.cit, hover.row.iso3)}
           x={hover.x}
           y={hover.y}
           rows={[
             {
-              label: 'Referred to screening',
+              label: pick(locale, T.tipReferred),
               value: fmtInt(hover.row.referred),
             },
             {
-              label: 'Total applications',
+              label: pick(locale, T.tipApplications),
               value: fmtInt(hover.row.applications),
             },
-            { label: 'Referral rate', value: fmtPct(hover.row.rate, 2) },
             {
-              label: 'vs. national average',
+              label: pick(locale, T.tipRate),
+              value: fmtPct(hover.row.rate, 2),
+            },
+            {
+              label: pick(locale, T.tipVsAvg),
               value:
                 globalRate > 0
                   ? `${(hover.row.rate / globalRate).toFixed(1)}×`

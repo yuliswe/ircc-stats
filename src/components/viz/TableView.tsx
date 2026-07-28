@@ -1,5 +1,9 @@
 'use client';
 
+import { useViz } from '@/lib/store';
+import { pick } from '@/lib/i18n';
+import { TABLE } from '@/content/strings';
+
 export interface Column {
   key: string;
   label: string;
@@ -14,8 +18,9 @@ export function TableView({
   columns: Column[];
   rows: Record<string, React.ReactNode>[];
 }) {
+  const { locale } = useViz();
   if (!rows.length) {
-    return <div className='chart-empty'>No rows for the current filters.</div>;
+    return <div className='chart-empty'>{pick(locale, TABLE.empty)}</div>;
   }
   return (
     <div className='data-table-wrap'>

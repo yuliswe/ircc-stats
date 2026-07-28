@@ -33,10 +33,18 @@ import {
 } from 'recharts';
 import { useViz } from '@/lib/store';
 import { INK, divergingColor } from '@/lib/palette';
-import { fmtInt, fmtPct, withFlag } from '@/lib/format';
+import { fmtInt, fmtPct } from '@/lib/format';
+import { flagName, pick, type Locale } from '@/lib/i18n';
+import { CHARTS, chartText } from '@/content/strings';
 import { ChartCard } from '@/components/viz/ChartCard';
 import { Legend } from '@/components/viz/Legend';
 import type { Column } from '@/components/viz/TableView';
+
+// All user-facing copy for this chart lives in `@/content/strings`
+// (`CHARTS.screeningScatter` for static labels, `chartText.screeningScatter` for
+// interpolated prose); this alias keeps the call sites terse.
+const T = CHARTS.screeningScatter;
+const TX = chartText.screeningScatter;
 
 // Log-axis floor so a country with zero screenings still plots near the bottom
 // (log(0) is undefined); the real count is preserved in the tooltip and table.
@@ -66,7 +74,7 @@ interface Point {
 }
 
 export function ScreeningScatter() {
-  const { data, theme, selection, select } = useViz();
+  const { data, theme, selection, select, locale } = useViz();
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   // Points animate in only once the card scrolls into view; the key remounts the
@@ -172,59 +180,48 @@ export function ScreeningScatter() {
   };
 
   const tableColumns: Column[] = [
-    { key: 'cit', label: 'Country' },
-    { key: 'applications', label: 'Applications', num: true },
-    { key: 'referred', label: 'Screenings', num: true },
-    { key: 'pct', label: '% screened', num: true },
+    { key: 'cit', label: pick(locale, T.colCountry) },
+    {
+      key: 'applications',
+      label: pick(locale, T.colApplications),
+      num: true,
+    },
+    { key: 'referred', label: pick(locale, T.colScreenings), num: true },
+    { key: 'pct', label: pick(locale, T.colPctScreened), num: true },
   ];
   const tableRows: Record<string, ReactNode>[] = points.map(p => ({
-    cit: withFlag(p.cit, p.iso3),
+    cit: flagName(locale, p.cit, p.iso3),
     applications: fmtInt(p.applications),
     referred: fmtInt(p.referred),
     pct: fmtPct(p.pct, 2),
   }));
 
-  const subtitle = (
-    <>
-      One dot per nationality: <b>x</b> is total 2025 immigration{' '}
-      <b>applications</b> and <b>y</b> is the total <b>security screenings</b>{' '}
-      they produced, both on <b>log</b> axes so countries spanning three orders
-      of magnitude are all legible. The <b>dot size</b> scales linearly with
-      total applications, so the biggest source countries read as much larger
-      marks. The dashed diagonal is the <b>national average</b> screening rate
-      (pooled screenings over pooled applications); a country above the line is
-      screened more often than that average predicts for its volume, and its{' '}
-      <b>color</b> follows the same split as chart 1 — warm above the average,
-      cool below.
-    </>
-  );
+  const subtitle = TX.subtitle(locale);
 
-  const footnote =
-    'Screenings count all activity types (VIT 34/35/37, HIRV, Org Crime, Security); applications ' +
-    'count PR intake, study permits processed, and TRV intake. Countries with zero applications ' +
-    'are omitted (no dot to place); a country with zero screenings is drawn at the axis floor ' +
-    'because a log scale cannot plot zero.';
+  const footnote = pick(locale, T.footnote);
 
   const legend = (
     <Legend
       items={[
-        { label: 'Below average', color: divergingColor(-2, theme) },
         {
-          label: `National average (${fmtPct(nationalRate, 2)} screened)`,
+          label: pick(locale, T.legendBelow),
+          color: divergingColor(-2, theme),
+        },
+        {
+          label: TX.legendAvg(locale, { screened: nationalRate }),
           color: ink.ink2,
         },
-        { label: 'Above average', color: divergingColor(2, theme) },
+        {
+          label: pick(locale, T.legendAbove),
+          color: divergingColor(2, theme),
+        },
       ]}
     />
   );
 
   let body: ReactNode;
   if (!points.length) {
-    body = (
-      <div className='chart-empty'>
-        No nationalities with a 2025 application count.
-      </div>
-    );
+    body = <div className='chart-empty'>{pick(locale, T.empty)}</div>;
   } else if (!mounted) {
     body = <div style={{ height: 360 }} />;
   } else {
@@ -236,7 +233,7 @@ export function ScreeningScatter() {
             <XAxis
               type='number'
               dataKey='x'
-              name='Applications'
+              name={pick(locale, T.xName)}
               scale='log'
               domain={xDomain}
               allowDataOverflow
@@ -244,7 +241,7 @@ export function ScreeningScatter() {
               tick={{ fill: ink.muted, fontSize: 11 }}
               stroke={ink.grid}
               label={{
-                value: 'Total applications (log)',
+                value: pick(locale, T.xAxisLabel),
                 position: 'insideBottom',
                 offset: -18,
                 fill: ink.ink2,
@@ -254,7 +251,7 @@ export function ScreeningScatter() {
             <YAxis
               type='number'
               dataKey='y'
-              name='Security screenings'
+              name={pick(locale, T.yName)}
               scale='log'
               domain={yDomain}
               allowDataOverflow
@@ -262,7 +259,7 @@ export function ScreeningScatter() {
               tick={{ fill: ink.muted, fontSize: 11 }}
               stroke={ink.grid}
               label={{
-                value: 'Total security screenings (log)',
+                value: pick(locale, T.yAxisLabel),
                 angle: -90,
                 position: 'insideLeft',
                 offset: -2,
@@ -274,7 +271,7 @@ export function ScreeningScatter() {
               type='number'
               dataKey='z'
               range={[30, 520]}
-              name='Applications'
+              name={pick(locale, T.zName)}
             />
             {avgSegment ? (
               <ReferenceLine
@@ -287,7 +284,7 @@ export function ScreeningScatter() {
             <Tooltip
               isAnimationActive={false}
               cursor={{ stroke: ink.muted, strokeDasharray: '3 3' }}
-              content={<ScatterTip />}
+              content={<ScatterTip locale={locale} />}
             />
             <Scatter
               key={revealed ? 'shown' : 'hidden'}
@@ -330,7 +327,7 @@ export function ScreeningScatter() {
 
   return (
     <ChartCard
-      title='Applications vs. security screenings — scatter'
+      title={pick(locale, T.title)}
       subtitle={subtitle}
       legend={points.length ? legend : undefined}
       footnote={footnote}
@@ -346,20 +343,22 @@ export function ScreeningScatter() {
 function ScatterTip({
   active,
   payload,
+  locale = 'en',
 }: {
   active?: boolean;
   payload?: { payload: Point }[];
+  locale?: Locale;
 }) {
   if (!active || !payload || !payload.length) return null;
   const p = payload[0].payload;
   const rows: [string, string][] = [
-    ['Applications', fmtInt(p.applications)],
-    ['Security screenings', fmtInt(p.referred)],
-    ['% screened', fmtPct(p.pct, 2)],
+    [pick(locale, T.tipApplications), fmtInt(p.applications)],
+    [pick(locale, T.tipScreenings), fmtInt(p.referred)],
+    [pick(locale, T.tipPctScreened), fmtPct(p.pct, 2)],
   ];
   return (
     <div className='viz-tooltip' role='tooltip'>
-      <div className='t-title'>{withFlag(p.cit, p.iso3)}</div>
+      <div className='t-title'>{flagName(locale, p.cit, p.iso3)}</div>
       {rows.map(([label, value]) => (
         <div className='t-row' key={label}>
           <span>{label}</span>

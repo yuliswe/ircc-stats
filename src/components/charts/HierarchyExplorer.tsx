@@ -307,7 +307,10 @@ export function HierarchyExplorer() {
                   stroke={selected ? ink.ink : isLeaf ? ink.surface : color}
                   strokeOpacity={selected ? 1 : isLeaf ? 0.9 : 0.55}
                   strokeWidth={selected ? 2.5 : 1}
-                  style={{ cursor: 'pointer', animationDelay: `${Math.min(i * 12, 600)}ms` }}
+                  style={{
+                    cursor: 'pointer',
+                    animationDelay: `${Math.min(i * 12, 600)}ms`,
+                  }}
                   onMouseEnter={onEnterMove}
                   onMouseMove={onEnterMove}
                   onClick={onClick}

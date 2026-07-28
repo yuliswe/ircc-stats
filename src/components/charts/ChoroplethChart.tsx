@@ -27,10 +27,18 @@ import topo from 'world-atlas/countries-110m.json';
 import { useViz } from '../../lib/store';
 import type { CoprRow } from '../../lib/viz-types';
 import { sequentialColor, type ThemeMode } from '../../lib/palette';
-import { fmtInt, withFlag } from '../../lib/format';
+import { fmtInt } from '../../lib/format';
+import { flagName, pick } from '@/lib/i18n';
+import { CHARTS, chartText } from '@/content/strings';
 import { ChartCard } from '../viz/ChartCard';
 import { TooltipBox, type TipRow } from '../viz/TooltipBox';
 import type { Column } from '../viz/TableView';
+
+// All user-facing copy for this chart lives in `@/content/strings`
+// (`CHARTS.choropleth` for static labels, `chartText.choropleth` for
+// interpolated prose); this alias keeps the call sites terse.
+const T = CHARTS.choropleth;
+const TX = chartText.choropleth;
 
 const W = 960;
 const H = 500;
@@ -63,7 +71,7 @@ interface HoverState {
 }
 
 export function ChoroplethChart() {
-  const { data, selection, select, theme } = useViz();
+  const { data, selection, select, theme, locale } = useViz();
 
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
@@ -108,10 +116,10 @@ export function ChoroplethChart() {
 
   // ── table equivalent (always available — accessibility) ─────────────────────
   const tableColumns: Column[] = [
-    { key: 'cit', label: 'Country' },
-    { key: 'iso3', label: 'ISO3' },
-    { key: 'copr', label: 'CoPRs issued', num: true },
-    { key: 'intake', label: 'PR intake', num: true },
+    { key: 'cit', label: pick(locale, T.colCountry) },
+    { key: 'iso3', label: pick(locale, T.colIso3) },
+    { key: 'copr', label: pick(locale, T.colCopr), num: true },
+    { key: 'intake', label: pick(locale, T.colIntake), num: true },
   ];
   const tableRows = useMemo(() => {
     const rows = [...byIso.values()];
@@ -119,20 +127,19 @@ export function ChoroplethChart() {
     // residents from sit at the top.
     rows.sort((a, b) => b.coprIssued - a.coprIssued);
     return rows.map(c => ({
-      cit: withFlag(c.cit, c.iso3),
+      cit: flagName(locale, c.cit, c.iso3),
       iso3: c.iso3 ?? '—',
       copr: fmtInt(c.coprIssued),
       intake: fmtInt(c.prIntake),
     }));
-  }, [byIso]);
+  }, [byIso, locale]);
 
-  const subtitle =
-    'Countries are shaded by the number of Confirmation-of-Permanent-Residence documents issued to their nationals in 2025, so that the darkest countries are those Canada admitted the most permanent residents from. Because admission counts span several orders of magnitude, the shading is on a logarithmic scale.';
+  const subtitle = TX.subtitle(locale);
 
   const footnote =
-    unmatched.length > 0 ? (
-      <div>Not shown on map (no ISO match): {unmatched.join(', ')}.</div>
-    ) : null;
+    unmatched.length > 0
+      ? TX.footnoteUnmatched(locale, { names: unmatched })
+      : null;
 
   // The ramp runs light-to-dark as the CoPRs-issued count rises, so the left end
   // marks the fewest admissions and the right end the most. The tick labels report
@@ -140,10 +147,10 @@ export function ChoroplethChart() {
   const legend = (
     <GradientLegend
       stops={[0, 0.25, 0.5, 0.75, 1].map(t => sequentialColor(t, theme))}
-      leftLabel='0 admitted'
-      midLabel='fewer ← CoPRs issued → more'
-      rightLabel={`${fmtInt(maxCopr)} admitted`}
-      caption='CoPRs issued in 2025 (log scale)'
+      leftLabel={pick(locale, T.legendLeft)}
+      midLabel={pick(locale, T.legendMid)}
+      rightLabel={TX.legendMax(locale, { maxCopr })}
+      caption={pick(locale, T.legendCaption)}
     />
   );
 
@@ -152,18 +159,25 @@ export function ChoroplethChart() {
   let tooltipTitle = '';
   if (hover) {
     if (tooltipMetric) {
-      tooltipTitle = withFlag(tooltipMetric.cit, tooltipMetric.iso3);
+      tooltipTitle = flagName(locale, tooltipMetric.cit, tooltipMetric.iso3);
       tooltipRows.push({
-        label: 'CoPRs issued',
+        label: pick(locale, T.tipCopr),
         value: fmtInt(tooltipMetric.coprIssued),
       });
       tooltipRows.push({
-        label: 'PR intake',
+        label: pick(locale, T.tipIntake),
         value: fmtInt(tooltipMetric.prIntake),
       });
     } else {
-      tooltipTitle = withFlag(iso3ToName[hover.iso3] ?? hover.iso3, hover.iso3);
-      tooltipRows.push({ label: 'CoPR data', value: 'none' });
+      tooltipTitle = flagName(
+        locale,
+        iso3ToName[hover.iso3] ?? hover.iso3,
+        hover.iso3
+      );
+      tooltipRows.push({
+        label: pick(locale, T.tipCoprData),
+        value: pick(locale, T.tipNone),
+      });
     }
   }
 
@@ -183,7 +197,7 @@ export function ChoroplethChart() {
         viewBox={`0 0 ${W} ${H}`}
         style={{ width: '100%', height: 'auto', display: 'block' }}
         role='img'
-        aria-label='World choropleth of the number of Confirmation-of-Permanent-Residence documents issued by country of origin in 2025'
+        aria-label={pick(locale, T.svgAria)}
       >
         {FEATURE_PATHS.map((fp, i) => {
           if (!fp.d) return null;
@@ -233,7 +247,7 @@ export function ChoroplethChart() {
 
   return (
     <ChartCard
-      title='Nationals preferred by Canada'
+      title={pick(locale, T.title)}
       subtitle={subtitle}
       legend={legend}
       footnote={footnote}

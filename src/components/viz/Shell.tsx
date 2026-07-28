@@ -6,8 +6,10 @@
  * selected-country chip. Everything here reads the shared store.
  */
 import { useEffect, useState, type ReactNode } from 'react';
+import Link from 'next/link';
 import { useViz } from '@/lib/store';
-import { withFlag } from '@/lib/format';
+import { flagName, pick } from '@/lib/i18n';
+import { SHELL } from '@/content/strings';
 
 const REPO_URL = 'https://github.com/yuliswe/ircc-stats';
 
@@ -44,13 +46,17 @@ function useAutoHideHeader(): boolean {
 }
 
 function SelectionChip() {
-  const { selection, select } = useViz();
+  const { selection, select, locale } = useViz();
   if (!selection) return null;
   return (
     <div style={{ marginBottom: '1rem' }}>
       <span className='sel-chip'>
-        Focused: {withFlag(selection.cit, selection.iso3)}
-        <button onClick={() => select(null)} aria-label='Clear selection'>
+        {pick(locale, SHELL.focused)}{' '}
+        {flagName(locale, selection.cit, selection.iso3)}
+        <button
+          onClick={() => select(null)}
+          aria-label={pick(locale, SHELL.clearSelection)}
+        >
           ✕
         </button>
       </span>
@@ -59,30 +65,48 @@ function SelectionChip() {
 }
 
 export function Shell({ children }: { children: ReactNode }) {
-  const { data, theme, toggleTheme } = useViz();
+  const { data, theme, toggleTheme, locale } = useViz();
   const headerHidden = useAutoHideHeader();
+
+  // The language switch is a route change (`/` ↔ `/zh`), not a client toggle.
+  // Carry the current query string across so the reader's filters and selection
+  // survive the switch; it is read after mount to avoid an SSR/hydration
+  // mismatch, so the first paint links to the bare counterpart route.
+  const [search, setSearch] = useState('');
+  useEffect(() => setSearch(window.location.search), []);
+  const otherLocaleHref = (locale === 'zh' ? '/' : '/zh') + search;
 
   return (
     <>
       <header className={`app-header${headerHidden ? ' is-hidden' : ''}`}>
         <div className='brand'>
-          <span className='mark'>IRCC Report 2025</span>
+          <span className='mark'>{pick(locale, SHELL.brand)}</span>
           <span className='atip'>ATIP {data.meta.atip}</span>
         </div>
         <span className='spacer' />
+        <Link
+          className='btn'
+          href={otherLocaleHref}
+          hrefLang={locale === 'zh' ? 'en' : 'zh-Hans'}
+          aria-label={pick(locale, SHELL.toggleLangAria)}
+        >
+          {pick(locale, SHELL.langSwitchTo)}
+        </Link>
         <button
           className='btn'
           onClick={toggleTheme}
-          aria-label='Toggle color theme'
+          aria-label={pick(locale, SHELL.toggleThemeAria)}
         >
-          {theme === 'dark' ? '☀︎ Light' : '☾ Dark'}
+          {theme === 'dark'
+            ? pick(locale, SHELL.light)
+            : pick(locale, SHELL.dark)}
         </button>
         <a
           className='btn'
           href={REPO_URL}
           target='_blank'
           rel='noopener noreferrer'
-          aria-label='View source on GitHub'
+          aria-label={pick(locale, SHELL.viewSourceAria)}
         >
           <svg
             width='16'

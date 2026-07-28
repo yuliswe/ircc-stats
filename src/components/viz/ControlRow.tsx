@@ -8,6 +8,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { useViz, type Metric } from '@/lib/store';
 import type { StreamId, ValueField } from '@/lib/viz-types';
+import { dataLabel, pick } from '@/lib/i18n';
+import { CONTROLS, controlsOfCount } from '@/content/strings';
 
 function Segmented<T extends string>({
   label,
@@ -46,7 +48,7 @@ function Segmented<T extends string>({
 }
 
 function TopDimCombo() {
-  const { stream, topDim, setTopDim } = useViz();
+  const { stream, topDim, setTopDim, locale } = useViz();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const values = stream.topDimensionValues;
@@ -71,11 +73,13 @@ function TopDimCombo() {
     setTopDim(next.length === 0 || next.length === values.length ? null : next);
   };
 
-  const summary = allOn ? 'All' : `${selected.length} of ${values.length}`;
+  const summary = allOn
+    ? pick(locale, CONTROLS.all)
+    : controlsOfCount(locale, selected.length, values.length);
 
   return (
     <div className='control'>
-      <label>{stream.topDimensionLabel}</label>
+      <label>{dataLabel(locale, stream.topDimensionLabel)}</label>
       <div className='combo' ref={ref}>
         <button
           className='btn combo-toggle'
@@ -94,7 +98,7 @@ function TopDimCombo() {
                 checked={allOn}
                 onChange={() => setTopDim(null)}
               />
-              All
+              {pick(locale, CONTROLS.all)}
             </label>
             {values.map(v => (
               <label key={v}>
@@ -103,7 +107,7 @@ function TopDimCombo() {
                   checked={allOn || selected.includes(v)}
                   onChange={() => toggle(v)}
                 />
-                {v}
+                {dataLabel(locale, v)}
               </label>
             ))}
           </div>
@@ -124,6 +128,7 @@ export function ControlRow() {
     metric,
     setMetric,
     stream,
+    locale,
   } = useViz();
 
   const seriousUnknown = !stream.seriousMappingKnown;
@@ -133,29 +138,29 @@ export function ControlRow() {
       className='controls'
       id='global-filters'
       role='region'
-      aria-label='Global filters'
+      aria-label={pick(locale, CONTROLS.regionAria)}
     >
       <Segmented<StreamId>
-        label='Stream'
+        label={pick(locale, CONTROLS.stream)}
         value={streamId}
         onChange={setStreamId}
         options={[
-          { value: 'PR', label: 'Permanent residence' },
-          { value: 'TRV', label: 'Temporary residence' },
+          { value: 'PR', label: pick(locale, CONTROLS.pr) },
+          { value: 'TRV', label: pick(locale, CONTROLS.trv) },
         ]}
       />
       <Segmented<ValueField>
-        label='Time basis'
+        label={pick(locale, CONTROLS.timeBasis)}
         value={valueField}
         onChange={setValueField}
         options={[
-          { value: 'grand', label: 'Grand total' },
-          { value: 'total2025', label: '2025 only' },
+          { value: 'grand', label: pick(locale, CONTROLS.grandTotal) },
+          { value: 'total2025', label: pick(locale, CONTROLS.only2025) },
         ]}
       />
       <TopDimCombo />
       <div className='control'>
-        <label>Min. screenings</label>
+        <label>{pick(locale, CONTROLS.minScreenings)}</label>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
           <input
             type='range'
@@ -164,27 +169,25 @@ export function ControlRow() {
             step={5}
             value={minScreenings}
             onChange={e => setMinScreenings(Number(e.target.value))}
-            aria-label='Minimum screenings threshold'
+            aria-label={pick(locale, CONTROLS.minScreeningsAria)}
           />
           <span className='slider-val'>{minScreenings}</span>
         </div>
       </div>
       <Segmented<Metric>
-        label='Metric'
+        label={pick(locale, CONTROLS.metric)}
         value={metric}
         onChange={setMetric}
         options={[
-          { value: 'seriousShare', label: 'Serious-share' },
-          { value: 'enrichment', label: 'Enrichment' },
-          { value: 'referralRate', label: 'Referral rate' },
+          { value: 'seriousShare', label: pick(locale, CONTROLS.seriousShare) },
+          { value: 'enrichment', label: pick(locale, CONTROLS.enrichment) },
+          { value: 'referralRate', label: pick(locale, CONTROLS.referralRate) },
         ].map(o => ({
           ...(o as { value: Metric; label: string }),
           disabled: seriousUnknown,
         }))}
         disabledOption={() =>
-          seriousUnknown
-            ? 'Requires the VIT severity mapping (not yet supplied)'
-            : undefined
+          seriousUnknown ? pick(locale, CONTROLS.seriousUnknown) : undefined
         }
       />
     </div>

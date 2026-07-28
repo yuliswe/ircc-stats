@@ -40,10 +40,18 @@ import {
 } from 'recharts';
 import { useViz } from '@/lib/store';
 import { INK, divergingColor } from '@/lib/palette';
-import { fmtInt, fmtPct, fmtRatio, log2, withFlag } from '@/lib/format';
+import { fmtInt, fmtPct, fmtRatio, log2 } from '@/lib/format';
+import { flagName, pick, type Locale } from '@/lib/i18n';
+import { CHARTS, chartText } from '@/content/strings';
 import { ChartCard } from '@/components/viz/ChartCard';
 import { Legend } from '@/components/viz/Legend';
 import type { Column } from '@/components/viz/TableView';
+
+// All user-facing copy for this chart lives in `@/content/strings`
+// (`CHARTS.approvalVsScreening` for static labels, `chartText.approvalVsScreening`
+// for interpolated prose); this alias keeps the call sites terse.
+const T = CHARTS.approvalVsScreening;
+const TX = chartText.approvalVsScreening;
 
 // Minimum-applications presets; a country with only a few applications posts an
 // unstable screening rate, so the default trims that small-denominator noise
@@ -84,7 +92,7 @@ interface Point {
 }
 
 export function ApprovalVsScreeningScatter() {
-  const { data, theme, selection, select } = useViz();
+  const { data, theme, selection, select, locale } = useViz();
   const [minApplications, setMinApplications] = useState<number>(DEFAULT_MIN);
   const minApplicationsLabelId = useId();
   const [mounted, setMounted] = useState(false);
@@ -192,61 +200,45 @@ export function ApprovalVsScreeningScatter() {
   };
 
   const tableColumns: Column[] = [
-    { key: 'cit', label: 'Country' },
-    { key: 'applications', label: 'Applications', num: true },
-    { key: 'scrRate', label: 'Screening rate', num: true },
-    { key: 'apprRate', label: 'Approval rate', num: true },
-    { key: 'ratio', label: 'Approval ÷ screening', num: true },
+    { key: 'cit', label: pick(locale, T.colCountry) },
+    {
+      key: 'applications',
+      label: pick(locale, T.colApplications),
+      num: true,
+    },
+    { key: 'scrRate', label: pick(locale, T.colScrRate), num: true },
+    { key: 'apprRate', label: pick(locale, T.colApprRate), num: true },
+    { key: 'ratio', label: pick(locale, T.colRatio), num: true },
   ];
   const tableRows: Record<string, ReactNode>[] = points.map(p => ({
-    cit: withFlag(p.cit, p.iso3),
+    cit: flagName(locale, p.cit, p.iso3),
     applications: fmtInt(p.applications),
     scrRate: fmtPct(p.x, 2),
     apprRate: fmtPct(p.y, 1),
     ratio: fmtRatio(p.ratio),
   }));
 
-  const subtitle = (
-    <>
-      One dot per nationality, placed at its 2025 <b>security-screening rate</b>{' '}
-      on the x-axis (referrals over applications, on a <b>log</b> scale because
-      the rates span three orders of magnitude) and its 2025{' '}
-      <b>temporary-residence approval rate</b> on the y-axis (approved over
-      processed). The <b>dot size</b> scales with total applications, so the
-      biggest source countries read as much larger marks. The <b>color</b>{' '}
-      encodes the ratio of the two rates, approval divided by screening,
-      diverging about the national ratio of{' '}
-      <b>{nationalRatio > 0 ? fmtRatio(nationalRatio) : '—'}</b>: a country
-      approved far more often than it is screened reads cool, and one screened
-      nearly as often as it is approved reads warm. Nationalities with fewer
-      than {fmtInt(minApplications)} applications are hidden
-      {hiddenBelowThreshold > 0
-        ? ` (${fmtInt(hiddenBelowThreshold)} excluded)`
-        : ''}{' '}
-      because a tiny denominator makes the screening rate unstable.
-    </>
-  );
+  const subtitle = TX.subtitle(locale, {
+    nationalRatio,
+    minApplications,
+    hidden: hiddenBelowThreshold,
+  });
 
-  const footnote =
-    'The screening rate is 2025 referrals (all activity types) over 2025 applications (PR intake, ' +
-    'study permits processed, and TRV intake); the approval rate is IRCC’s own 2025 approved over ' +
-    'processed temporary-residence total. A country appears only when it carries both rates, so ' +
-    'nationalities with zero screening referrals (no defined rate to plot on a log axis) or with a ' +
-    'suppressed approval count are omitted.';
+  const footnote = pick(locale, T.footnote);
 
   const legend = (
     <Legend
       items={[
         {
-          label: 'Screened nearly as often as approved (low ratio)',
+          label: pick(locale, T.legendLow),
           color: divergingColor(COLOR_SPAN, theme, COLOR_SPAN),
         },
         {
-          label: `National ratio (${nationalRatio > 0 ? fmtRatio(nationalRatio) : '—'})`,
+          label: TX.legendNational(locale, { nationalRatio }),
           color: ink.ink2,
         },
         {
-          label: 'Approved far more often than screened (high ratio)',
+          label: pick(locale, T.legendHigh),
           color: divergingColor(-COLOR_SPAN, theme, COLOR_SPAN),
         },
       ]}
@@ -256,7 +248,7 @@ export function ApprovalVsScreeningScatter() {
   const controls = (
     <div className='seg-field'>
       <span className='seg-label' id={minApplicationsLabelId}>
-        Min. applications
+        {pick(locale, T.minApps)}
       </span>
       <div
         className='segmented'
@@ -279,9 +271,7 @@ export function ApprovalVsScreeningScatter() {
   let body: ReactNode;
   if (!points.length) {
     body = (
-      <div className='chart-empty'>
-        No nationalities meet the {fmtInt(minApplications)}-application minimum.
-      </div>
+      <div className='chart-empty'>{TX.empty(locale, { minApplications })}</div>
     );
   } else if (!mounted) {
     body = <div style={{ height: 360 }} />;
@@ -294,7 +284,7 @@ export function ApprovalVsScreeningScatter() {
             <XAxis
               type='number'
               dataKey='x'
-              name='Screening rate'
+              name={pick(locale, T.axisScreeningName)}
               scale='log'
               domain={xDomain}
               ticks={xTicks}
@@ -303,7 +293,7 @@ export function ApprovalVsScreeningScatter() {
               tick={{ fill: ink.muted, fontSize: 11 }}
               stroke={ink.grid}
               label={{
-                value: 'Security-screening rate (log)',
+                value: pick(locale, T.axisScreeningTitle),
                 position: 'insideBottom',
                 offset: -18,
                 fill: ink.ink2,
@@ -313,14 +303,14 @@ export function ApprovalVsScreeningScatter() {
             <YAxis
               type='number'
               dataKey='y'
-              name='Approval rate'
+              name={pick(locale, T.axisApprovalName)}
               domain={[0, 1]}
               ticks={[0, 0.25, 0.5, 0.75, 1]}
               tickFormatter={(v: number) => `${Math.round(v * 100)}%`}
               tick={{ fill: ink.muted, fontSize: 11 }}
               stroke={ink.grid}
               label={{
-                value: 'TR approval rate',
+                value: pick(locale, T.axisApprovalTitle),
                 angle: -90,
                 position: 'insideLeft',
                 offset: 6,
@@ -332,12 +322,14 @@ export function ApprovalVsScreeningScatter() {
               type='number'
               dataKey='z'
               range={[36, 560]}
-              name='Applications'
+              name={pick(locale, T.zAxisName)}
             />
             <Tooltip
               isAnimationActive={false}
               cursor={{ stroke: ink.muted, strokeDasharray: '3 3' }}
-              content={<ScatterTip nationalRatio={nationalRatio} />}
+              content={
+                <ScatterTip nationalRatio={nationalRatio} locale={locale} />
+              }
             />
             <Scatter
               key={revealed ? 'shown' : 'hidden'}
@@ -380,7 +372,7 @@ export function ApprovalVsScreeningScatter() {
 
   return (
     <ChartCard
-      title='Approval rate vs. security-screening rate — scatter'
+      title={pick(locale, T.title)}
       subtitle={subtitle}
       controls={controls}
       legend={points.length ? legend : undefined}
@@ -398,26 +390,28 @@ function ScatterTip({
   active,
   payload,
   nationalRatio,
+  locale,
 }: {
   active?: boolean;
   payload?: { payload: Point }[];
   nationalRatio: number;
+  locale: Locale;
 }) {
   if (!active || !payload || !payload.length) return null;
   const p = payload[0].payload;
   const rows: [string, string][] = [
-    ['Applications', fmtInt(p.applications)],
-    ['Screening rate', fmtPct(p.x, 2)],
-    ['Approval rate', fmtPct(p.y, 1)],
-    ['Approval ÷ screening', fmtRatio(p.ratio)],
+    [pick(locale, T.tipApplications), fmtInt(p.applications)],
+    [pick(locale, T.tipScrRate), fmtPct(p.x, 2)],
+    [pick(locale, T.tipApprRate), fmtPct(p.y, 1)],
+    [pick(locale, T.tipRatio), fmtRatio(p.ratio)],
     [
-      'vs. national ratio',
+      pick(locale, T.tipVsNational),
       nationalRatio > 0 ? fmtRatio(p.ratio / nationalRatio) : '—',
     ],
   ];
   return (
     <div className='viz-tooltip' role='tooltip'>
-      <div className='t-title'>{withFlag(p.cit, p.iso3)}</div>
+      <div className='t-title'>{flagName(locale, p.cit, p.iso3)}</div>
       {rows.map(([label, value]) => (
         <div className='t-row' key={label}>
           <span>{label}</span>

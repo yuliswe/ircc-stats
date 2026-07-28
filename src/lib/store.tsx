@@ -23,6 +23,7 @@ import {
   type TopDimFilter,
 } from './selectors';
 import type { ThemeMode } from './palette';
+import { DEFAULT_LOCALE, type Locale } from './i18n';
 
 export type Metric = 'seriousShare' | 'enrichment' | 'referralRate';
 
@@ -41,6 +42,7 @@ interface VizState {
   selection: Selection | null;
   theme: ThemeMode;
   userTheme: ThemeMode | null;
+  locale: Locale;
 
   stream: VizData['streams'][StreamId];
   metrics: StreamMetrics;
@@ -84,9 +86,17 @@ function readInitial(search: string) {
 
 export function VizProvider({
   data,
+  locale = DEFAULT_LOCALE,
   children,
 }: {
   data: VizData;
+  /**
+   * The active language, fixed by the route: `/` renders English and `/zh`
+   * renders Chinese. Each locale is a separately prerendered static page, so the
+   * value is a constant for the lifetime of the provider rather than toggled
+   * client-side; switching language is a navigation between the two routes.
+   */
+  locale?: Locale;
   children: ReactNode;
 }) {
   // SSR renders defaults; the first client effect hydrates from the URL.
@@ -135,6 +145,13 @@ export function VizProvider({
     if (userTheme) root.setAttribute('data-theme', userTheme);
     else root.removeAttribute('data-theme');
   }, [userTheme]);
+
+  // Keep the document language in sync with the route so screen readers and the
+  // browser announce the right language. The static export prerenders the shared
+  // root layout with `lang='en'`, so this corrects `/zh` after hydration.
+  useEffect(() => {
+    document.documentElement.lang = locale === 'zh' ? 'zh-Hans' : 'en';
+  }, [locale]);
 
   // write controls back to the URL (replaceState — no history spam)
   useEffect(() => {
@@ -195,6 +212,7 @@ export function VizProvider({
     selection,
     theme,
     userTheme,
+    locale,
     stream,
     metrics,
     setStreamId: changeStream,
