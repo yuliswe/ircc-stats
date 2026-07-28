@@ -1,0 +1,138 @@
+/*
+ * Validated design-system tokens (docs/ui-spec.md §8).
+ *
+ * Both light and dark are first-class: dark is its own set of validated steps,
+ * not an auto-flip. The categorical, sequential, and diverging values were run
+ * through scripts/validate_palette.js before being committed here. Text always
+ * wears an ink token, never a series color.
+ *
+ * Theme resolution: light by default; the OS preference switches to dark unless
+ * the user has pinned a theme via [data-theme] on <html> (set by the toggle).
+ */
+
+:root {
+  color-scheme: light;
+
+  /* editorial layer (report shell). The accent is deliberately the same blue
+     that means "Security Screening" in the charts, so the reading furniture and
+     the data share one hue; it resolves per-theme because --series-1 does. */
+  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-serif:
+    'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', Palatino, Charter,
+    Georgia, Cambria, 'Times New Roman', serif;
+  --accent: var(--series-1);
+  /* reading measure for prose, and the wider measure figures break out to */
+  --measure: 44rem;
+  --wide: 66rem;
+
+  /* surfaces & chrome */
+  --surface: #fcfcfb;
+  --surface-2: #f4f3ef;
+  --surface-3: #eceae3;
+  --border: #e1e0d9;
+  --grid: #e1e0d9;
+
+  /* ink */
+  --ink: #0b0b0b;
+  --ink-2: #52514e;
+  --ink-muted: #898781;
+
+  /* categorical slots (fixed order, never cycled) */
+  --series-1: #2a78d6; /* blue   — Security Screening / VIT 34 / slice 1 */
+  --series-2: #1baf7a; /* aqua   — slice 2 */
+  --series-3: #eda100; /* yellow — VIT 35 */
+  --series-4: #008300; /* green  — slice */
+  --series-5: #4a3aa7; /* violet — slice */
+  --series-6: #e34948; /* red    — HIRV Screening */
+  --series-7: #e87ba4; /* magenta— slice */
+  --series-8: #eb6834; /* orange — Org Crime / VIT 37 */
+
+  /* sequential (heatmap / choropleth share): one-hue blue ramp, light→dark */
+  --seq-1: #7db3ef;
+  --seq-2: #5a9ae8;
+  --seq-3: #2a78d6;
+  --seq-4: #17508f;
+  --seq-5: #0d366b;
+
+  /* diverging (enrichment): cool ↔ neutral ↔ warm */
+  --div-cool: #2a78d6;
+  --div-mid: #f0efec;
+  --div-warm: #e34948;
+
+  /* focus ring */
+  --focus: #2a78d6;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --surface: #1a1a19;
+  --surface-2: #242423;
+  --surface-3: #2f2f2d;
+  --border: #2c2c2a;
+  --grid: #2c2c2a;
+
+  --ink: #ffffff;
+  --ink-2: #c3c2b7;
+  --ink-muted: #898781;
+
+  --series-1: #3987e5;
+  --series-2: #199e70;
+  --series-3: #c98500;
+  --series-4: #008300;
+  --series-5: #9085e9;
+  --series-6: #e66767;
+  --series-7: #d55181;
+  --series-8: #d95926;
+
+  /* dark ramp: own validated steps (dark end lifted to clear the surface) */
+  --seq-1: #b8d4f7;
+  --seq-2: #8fbcf1;
+  --seq-3: #5a9ae8;
+  --seq-4: #2a78d6;
+  --seq-5: #1c5aa0;
+
+  --div-cool: #3987e5;
+  --div-mid: #383835;
+  --div-warm: #e66767;
+
+  --focus: #3987e5;
+}
+
+/* OS-driven dark, only when the user has not pinned a theme */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+
+    --surface: #1a1a19;
+    --surface-2: #242423;
+    --surface-3: #2f2f2d;
+    --border: #2c2c2a;
+    --grid: #2c2c2a;
+
+    --ink: #ffffff;
+    --ink-2: #c3c2b7;
+    --ink-muted: #898781;
+
+    --series-1: #3987e5;
+    --series-2: #199e70;
+    --series-3: #c98500;
+    --series-4: #008300;
+    --series-5: #9085e9;
+    --series-6: #e66767;
+    --series-7: #d55181;
+    --series-8: #d95926;
+
+    --seq-1: #b8d4f7;
+    --seq-2: #8fbcf1;
+    --seq-3: #5a9ae8;
+    --seq-4: #2a78d6;
+    --seq-5: #1c5aa0;
+
+    --div-cool: #3987e5;
+    --div-mid: #383835;
+    --div-warm: #e66767;
+
+    --focus: #3987e5;
+  }
+}

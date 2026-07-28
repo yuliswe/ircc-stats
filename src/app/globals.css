@@ -1,0 +1,789 @@
+@import './theme.css';
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--surface-2);
+  color: var(--ink);
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+  font-size: 18px;
+  line-height: 1.45;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+a {
+  color: var(--series-1);
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* SVG chart surfaces signal focus/selection through their own marks (bar
+   highlight, row dimming, hovered-point ring and tooltip), so the default
+   rectangular outline a browser draws around a focused <g>, <rect> or the
+   Recharts layers just reads as a stray box spanning part of the chart.
+   Suppress it for the chart SVG internals and let the marks carry focus. */
+svg [role='button']:focus,
+svg [role='button']:focus-visible,
+.recharts-wrapper:focus,
+.recharts-wrapper:focus-visible,
+.recharts-wrapper :focus,
+.recharts-wrapper :focus-visible {
+  outline: none;
+}
+
+/* tabular figures only in tables and axis ticks, per §8 */
+.tnum,
+.recharts-cartesian-axis-tick text,
+table td.num,
+table th.num {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── app shell ─────────────────────────────────────────────────────────────── */
+/* A slim utility bar rather than a product header: the report carries its own
+   masthead below, so this only holds the wordmark and the two controls. */
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.55rem 1.25rem;
+  background: color-mix(in srgb, var(--surface-2) 82%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+  transition: transform 240ms ease;
+  will-change: transform;
+}
+
+/* Slide out of view on scroll-down; the class is toggled from Shell. Translate
+   past its own height so the bottom border clears the viewport too. */
+.app-header.is-hidden {
+  transform: translateY(-105%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-header {
+    transition: none;
+  }
+}
+
+.app-header .brand {
+  display: flex;
+  align-items: baseline;
+  gap: 0.55rem;
+  min-width: 0;
+}
+
+.app-header .brand .mark {
+  font-size: 0.82rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.app-header .atip {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.app-header .spacer {
+  flex: 1;
+}
+
+/* ── editorial report layer ──────────────────────────────────────────────────── */
+/* Prose reads in a serif at a comfortable measure; the sans stays on labels,
+   data furniture, and every chart, so the charts are untouched. */
+.prose {
+  max-width: var(--measure);
+  font-family: var(--font-serif);
+  font-size: 1.22rem;
+  line-height: 1.65;
+  color: var(--ink);
+}
+
+.prose p {
+  margin: 0 0 1rem;
+}
+
+.prose p:last-child {
+  margin-bottom: 0;
+}
+
+.prose b,
+.prose strong {
+  font-weight: 650;
+}
+
+.eyebrow {
+  display: inline-block;
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--accent);
+}
+
+/* masthead */
+.report-hero {
+  padding: 2.5rem 0 2rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 2.5rem;
+}
+
+.report-hero .hero-title {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: clamp(2rem, 6vw, 3.3rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+  margin: 0.7rem 0 0;
+  max-width: 18ch;
+}
+
+.report-hero .dek {
+  margin-top: 1.1rem;
+  font-size: clamp(1.2rem, 2.6vw, 1.45rem);
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+
+.report-hero .byline {
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: var(--ink-muted);
+  margin: 1.4rem 0 0;
+  max-width: var(--measure);
+}
+
+.report-hero .byline a {
+  color: var(--ink-2);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* headline figures */
+.findings {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1px;
+  margin: 1.8rem 0 0;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.findings .stat {
+  background: var(--surface);
+  padding: 1rem 1.1rem;
+  margin: 0;
+}
+
+.findings .stat dt {
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink-muted);
+  font-weight: 600;
+}
+
+.findings .stat dd {
+  margin: 0.35rem 0 0;
+  font-family: var(--font-sans);
+  font-size: 1.95rem;
+  font-weight: 650;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.findings .stat .stat-note {
+  display: block;
+  margin-top: 0.3rem;
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ink-2);
+}
+
+/* part divider */
+.report-part {
+  margin: 3.5rem 0 2rem;
+  padding-top: 1.4rem;
+  border-top: 2px solid var(--accent);
+}
+
+.report-part .part-kicker {
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--accent);
+}
+
+.report-part .part-title {
+  font-family: var(--font-serif);
+  font-size: clamp(1.5rem, 4vw, 2.1rem);
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+  margin: 0.5rem 0 0;
+}
+
+.report-part .part-lede {
+  margin-top: 0.9rem;
+  color: var(--ink-2);
+}
+
+/* a numbered analytical section: framing prose, then the chart as its figure */
+.report-section {
+  margin: 2.75rem 0;
+}
+
+.section-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.85rem;
+  margin-bottom: 0.9rem;
+}
+
+.section-head .section-num {
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+  padding-top: 0.25rem;
+  flex: none;
+}
+
+.section-head h2 {
+  font-family: var(--font-serif);
+  font-size: clamp(1.45rem, 3.4vw, 1.9rem);
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+.report-section .commentary {
+  margin-bottom: 1.4rem;
+}
+
+/* the chart figure breaks out past the reading measure */
+.report-section .figure {
+  max-width: none;
+}
+
+.report-section .figure .card {
+  margin-bottom: 0;
+}
+
+.report-footer {
+  margin: 4rem 0 0;
+  padding-top: 1.6rem;
+  border-top: 1px solid var(--border);
+  font-family: var(--font-sans);
+  font-size: 0.92rem;
+  line-height: 1.62;
+  color: var(--ink-muted);
+}
+
+.report-footer h2 {
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-2);
+  margin-bottom: 0.5rem;
+}
+
+.report-footer p {
+  margin: 0 0 0.8rem;
+  max-width: var(--measure);
+}
+
+.report-footer a {
+  color: var(--ink-2);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* The footer carries two headed blocks ("About this report" then "Data
+   sources"); give the second heading room to read as a fresh section. */
+.report-footer p + h2 {
+  margin-top: 2rem;
+}
+
+.data-sources {
+  list-style: none;
+  margin: 0 0 0.8rem;
+  padding: 0;
+  max-width: var(--measure);
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.data-sources > li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding-left: 0.9rem;
+  border-left: 2px solid var(--border);
+}
+
+.data-sources .src-name {
+  color: var(--ink-2);
+  font-weight: 600;
+}
+
+.data-sources .src-desc {
+  color: var(--ink-muted);
+}
+
+/* Nested per-workbook links: wrap on narrow screens, comfortable tap targets. */
+.src-files {
+  list-style: none;
+  margin: 0.2rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.src-files li {
+  color: var(--ink-muted);
+}
+
+.src-files a,
+.data-sources > li > a {
+  display: inline-block;
+  padding: 0.1rem 0;
+  min-height: 1.4rem;
+  word-break: break-word;
+}
+
+.btn {
+  appearance: none;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--ink);
+  border-radius: 8px;
+  padding: 0.4rem 0.7rem;
+  font-size: 0.82rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  text-decoration: none;
+}
+
+.btn:hover {
+  background: var(--surface-3);
+}
+
+main {
+  max-width: var(--wide);
+  margin: 0 auto;
+  padding: 0.5rem 1.25rem 5rem;
+}
+
+/* headline figures widen once there is room */
+@media (min-width: 620px) {
+  .findings {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ── global control row (§5) ─────────────────────────────────────────────────── */
+.controls {
+  position: sticky;
+  top: 57px;
+  z-index: 30;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 1rem 1.5rem;
+  padding: 0.85rem 1rem;
+  margin-bottom: 1.25rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.control {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.control > label {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink-muted);
+  font-weight: 600;
+}
+
+.seg-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.seg-field > .seg-label {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink-muted);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.segmented {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.segmented button {
+  appearance: none;
+  border: 0;
+  background: var(--surface);
+  color: var(--ink-2);
+  padding: 0.35rem 0.7rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.segmented button + button {
+  border-left: 1px solid var(--border);
+}
+
+.segmented button[aria-pressed='true'] {
+  background: var(--series-1);
+  color: #fff;
+}
+
+.segmented button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.control input[type='range'] {
+  width: 160px;
+  accent-color: var(--series-1);
+}
+
+.control .slider-val {
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.combo {
+  position: relative;
+}
+
+.combo-toggle {
+  min-width: 160px;
+  justify-content: space-between;
+}
+
+.combo-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 50;
+  width: 240px;
+  max-height: 280px;
+  overflow: auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.35rem;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+}
+
+.combo-menu label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.4rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.combo-menu label:hover {
+  background: var(--surface-3);
+}
+
+/* ── chart card ──────────────────────────────────────────────────────────────── */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+@media (max-width: 900px) {
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.1rem 1.1rem 0.9rem;
+  margin-bottom: 1.25rem;
+  min-width: 0;
+}
+
+.card-head {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.75rem;
+  margin-bottom: 0.15rem;
+}
+
+.card-head h2 {
+  font-size: 1rem;
+}
+
+.card-head .spacer {
+  flex: 1;
+}
+
+.card-sub {
+  color: var(--ink-2);
+  font-size: 0.82rem;
+  margin: 0.1rem 0 0.9rem;
+  max-width: 68ch;
+}
+
+.card-footnote {
+  color: var(--ink-muted);
+  font-size: 0.72rem;
+  margin-top: 0.7rem;
+  border-top: 1px dashed var(--border);
+  padding-top: 0.5rem;
+}
+
+.card-toggle {
+  font-size: 0.72rem;
+  color: var(--ink-2);
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.2rem 0.5rem;
+  cursor: pointer;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.9rem;
+  margin: 0.3rem 0 0.6rem;
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.76rem;
+  color: var(--ink-2);
+}
+
+.legend-swatch {
+  width: 11px;
+  height: 11px;
+  border-radius: 3px;
+  flex: none;
+}
+
+/* empty / disabled chart states */
+.chart-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 180px;
+  color: var(--ink-muted);
+  font-size: 0.85rem;
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  padding: 1.5rem;
+}
+
+/* data table view */
+.data-table-wrap {
+  overflow: auto;
+  max-height: 420px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+table.data-table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.8rem;
+}
+
+table.data-table th,
+table.data-table td {
+  text-align: left;
+  padding: 0.4rem 0.6rem;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+table.data-table th {
+  position: sticky;
+  top: 0;
+  background: var(--surface-2);
+  color: var(--ink-2);
+  font-weight: 600;
+}
+
+table.data-table td.num,
+table.data-table th.num {
+  text-align: right;
+}
+
+/* selection chip */
+.sel-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--series-1);
+  color: #fff;
+  border-radius: 999px;
+  padding: 0.25rem 0.35rem 0.25rem 0.7rem;
+  font-size: 0.78rem;
+}
+
+.sel-chip button {
+  appearance: none;
+  border: 0;
+  background: rgba(255, 255, 255, 0.25);
+  color: #fff;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+/* tooltip (shared) */
+.viz-tooltip {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.5rem 0.65rem;
+  font-size: 0.78rem;
+  color: var(--ink);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  pointer-events: none;
+  max-width: 260px;
+}
+
+.viz-tooltip .t-title {
+  font-weight: 650;
+  margin-bottom: 0.25rem;
+}
+
+.viz-tooltip .t-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  color: var(--ink-2);
+}
+
+.viz-tooltip .t-row b {
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── small screens ───────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  main {
+    padding: 0.85rem 0.8rem 4rem;
+  }
+
+  .app-header {
+    padding: 0.6rem 0.85rem;
+    gap: 0.5rem;
+  }
+
+  .app-header .brand h1 {
+    font-size: 0.95rem;
+  }
+
+  /* Give the charts as much width as possible before they must scroll. */
+  .card {
+    padding: 0.9rem 0.75rem 0.75rem;
+    border-radius: 12px;
+  }
+
+  .card-sub {
+    font-size: 0.8rem;
+  }
+
+  .btn {
+    padding: 0.35rem 0.55rem;
+    font-size: 0.78rem;
+  }
+}

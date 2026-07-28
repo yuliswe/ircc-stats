@@ -1,0 +1,216 @@
+'use client';
+
+/**
+ * Shared client store for the Bias Explorer. Holds the global controls (§5) and
+ * the single selected-country cross-filter state (§7), keeps them in the URL so
+ * a view is shareable by link, resolves + applies the theme, and exposes the
+ * derived metrics for the active stream. Charts read everything from `useViz()`
+ * and never take data as props, which keeps them self-contained.
+ */
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from 'react';
+import type { StreamId, ValueField, VizData } from './viz-types';
+import {
+  computeMetrics,
+  type StreamMetrics,
+  type TopDimFilter,
+} from './selectors';
+import type { ThemeMode } from './palette';
+
+export type Metric = 'seriousShare' | 'enrichment' | 'referralRate';
+
+export interface Selection {
+  cit: string;
+  iso3: string | null;
+}
+
+interface VizState {
+  data: VizData;
+  streamId: StreamId;
+  valueField: ValueField;
+  topDim: TopDimFilter;
+  minScreenings: number;
+  metric: Metric;
+  selection: Selection | null;
+  theme: ThemeMode;
+  userTheme: ThemeMode | null;
+
+  stream: VizData['streams'][StreamId];
+  metrics: StreamMetrics;
+
+  setStreamId: (s: StreamId) => void;
+  setValueField: (v: ValueField) => void;
+  setTopDim: (t: TopDimFilter) => void;
+  setMinScreenings: (n: number) => void;
+  setMetric: (m: Metric) => void;
+  select: (s: Selection | null) => void;
+  toggleTheme: () => void;
+}
+
+const Ctx = createContext<VizState | null>(null);
+
+const METRICS: Metric[] = ['seriousShare', 'enrichment', 'referralRate'];
+
+function readInitial(search: string) {
+  const p = new URLSearchParams(search);
+  const stream = p.get('stream') === 'TRV' ? 'TRV' : 'PR';
+  const valueField: ValueField =
+    p.get('basis') === 'total2025' ? 'total2025' : 'grand';
+  const catsRaw = p.get('cats');
+  const topDim: TopDimFilter = catsRaw
+    ? catsRaw.split('~').filter(Boolean)
+    : null;
+  const min = Number(p.get('min'));
+  const metric = (
+    METRICS.includes(p.get('metric') as Metric) ? p.get('metric') : 'enrichment'
+  ) as Metric;
+  const selCit = p.get('sel');
+  return {
+    streamId: stream as StreamId,
+    valueField,
+    topDim,
+    minScreenings: Number.isFinite(min) && min >= 0 ? min : 30,
+    metric,
+    selCit,
+  };
+}
+
+export function VizProvider({
+  data,
+  children,
+}: {
+  data: VizData;
+  children: ReactNode;
+}) {
+  // SSR renders defaults; the first client effect hydrates from the URL.
+  const [streamId, setStreamId] = useState<StreamId>('PR');
+  const [valueField, setValueField] = useState<ValueField>('grand');
+  const [topDim, setTopDim] = useState<TopDimFilter>(null);
+  const [minScreenings, setMinScreenings] = useState(30);
+  const [metric, setMetric] = useState<Metric>('enrichment');
+  const [selection, setSelection] = useState<Selection | null>(null);
+  const [userTheme, setUserTheme] = useState<ThemeMode | null>(null);
+  const [systemDark, setSystemDark] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
+
+  // hydrate controls + selection from the URL, once
+  useEffect(() => {
+    const init = readInitial(window.location.search);
+    setStreamId(init.streamId);
+    setValueField(init.valueField);
+    setTopDim(init.topDim);
+    setMinScreenings(init.minScreenings);
+    setMetric(init.metric);
+    if (init.selCit) {
+      const c = data.streams[init.streamId].cityCells.find(
+        x => x.cit === init.selCit
+      );
+      setSelection({ cit: init.selCit, iso3: c?.iso3 ?? null });
+    }
+    setHydrated(true);
+  }, [data]);
+
+  // theme: system preference + persisted user override
+  useEffect(() => {
+    const stored = window.localStorage.getItem('viz-theme');
+    if (stored === 'light' || stored === 'dark') setUserTheme(stored);
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    setSystemDark(mq.matches);
+    const on = (e: MediaQueryListEvent) => setSystemDark(e.matches);
+    mq.addEventListener('change', on);
+    return () => mq.removeEventListener('change', on);
+  }, []);
+
+  const theme: ThemeMode = userTheme ?? (systemDark ? 'dark' : 'light');
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (userTheme) root.setAttribute('data-theme', userTheme);
+    else root.removeAttribute('data-theme');
+  }, [userTheme]);
+
+  // write controls back to the URL (replaceState — no history spam)
+  useEffect(() => {
+    if (!hydrated) return;
+    const p = new URLSearchParams();
+    if (streamId !== 'PR') p.set('stream', streamId);
+    if (valueField !== 'grand') p.set('basis', valueField);
+    if (topDim && topDim.length) p.set('cats', topDim.join('~'));
+    if (minScreenings !== 30) p.set('min', String(minScreenings));
+    if (metric !== 'enrichment') p.set('metric', metric);
+    if (selection) p.set('sel', selection.cit);
+    const qs = p.toString();
+    window.history.replaceState(
+      null,
+      '',
+      qs ? `?${qs}` : window.location.pathname
+    );
+  }, [
+    hydrated,
+    streamId,
+    valueField,
+    topDim,
+    minScreenings,
+    metric,
+    selection,
+  ]);
+
+  const stream = data.streams[streamId];
+
+  const metrics = useMemo(
+    () => computeMetrics(stream, valueField, topDim),
+    [stream, valueField, topDim]
+  );
+
+  // switching stream invalidates the top-dim filter and any selection
+  const changeStream = useCallback((s: StreamId) => {
+    setStreamId(s);
+    setTopDim(null);
+    setSelection(null);
+  }, []);
+
+  const toggleTheme = useCallback(() => {
+    setUserTheme(prev => {
+      const next: ThemeMode =
+        (prev ?? (systemDark ? 'dark' : 'light')) === 'dark' ? 'light' : 'dark';
+      window.localStorage.setItem('viz-theme', next);
+      return next;
+    });
+  }, [systemDark]);
+
+  const value: VizState = {
+    data,
+    streamId,
+    valueField,
+    topDim,
+    minScreenings,
+    metric,
+    selection,
+    theme,
+    userTheme,
+    stream,
+    metrics,
+    setStreamId: changeStream,
+    setValueField,
+    setTopDim,
+    setMinScreenings,
+    setMetric,
+    select: setSelection,
+    toggleTheme,
+  };
+
+  return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
+}
+
+export function useViz(): VizState {
+  const v = useContext(Ctx);
+  if (!v) throw new Error('useViz must be used within VizProvider');
+  return v;
+}
