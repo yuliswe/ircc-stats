@@ -413,6 +413,8 @@ export function VolumeCompareChart() {
                   height={BAR_H}
                   rx={2}
                   fill={appsColor}
+                  className='viz-grow-x'
+                  style={{ animationDelay: `${i * 18}ms` }}
                 />
                 <text
                   x={APPS_VAL_X}
@@ -434,6 +436,8 @@ export function VolumeCompareChart() {
                   height={BAR_H}
                   rx={2}
                   fill={refColor}
+                  className='viz-grow-x'
+                  style={{ animationDelay: `${i * 18}ms` }}
                 />
                 <text
                   x={REF_VAL_X}

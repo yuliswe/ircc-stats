@@ -329,6 +329,8 @@ export function EnrichmentChart() {
                   height={BAR_THICK}
                   rx={2}
                   fill={fill}
+                  className='viz-grow-x'
+                  style={{ animationDelay: `${i * 18}ms` }}
                 />
 
                 {/* ratio label at the bar tip, reading outward */}

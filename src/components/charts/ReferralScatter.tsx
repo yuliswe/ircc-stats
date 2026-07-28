@@ -14,6 +14,7 @@
  * external application-volume table; that table is offered only as a toggle.
  */
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useRevealed } from '@/lib/reveal';
 import {
   CartesianGrid,
   Cell,
@@ -67,6 +68,9 @@ export function ReferralScatter() {
     'screenings'
   );
   useEffect(() => setMounted(true), []);
+  // Points animate in only once the card scrolls into view; the key remounts the
+  // series when that flips so Recharts replays its enter animation on reveal.
+  const revealed = useRevealed();
 
   const ink = INK[theme];
   const div = DIVERGING[theme];
@@ -270,8 +274,12 @@ export function ReferralScatter() {
               content={<ScatterTip />}
             />
             <Scatter
+              key={revealed ? 'shown' : 'hidden'}
               data={points}
-              isAnimationActive={false}
+              isAnimationActive={revealed}
+              animationBegin={0}
+              animationDuration={720}
+              animationEasing='ease-out'
               onClick={(pt: unknown) => {
                 const p = pt as {
                   cit?: string;

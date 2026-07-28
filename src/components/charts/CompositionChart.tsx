@@ -252,7 +252,7 @@ export function CompositionChart() {
             </p>
           ) : null}
           <div style={{ maxHeight: 520, overflowY: 'auto', paddingRight: 2 }}>
-            {visible.map(c => {
+            {visible.map((c, i) => {
               const dimmed = selection != null && selection.cit !== c.cit;
               const isSel = selection?.cit === c.cit;
               const segs = activityTypes
@@ -300,6 +300,7 @@ export function CompositionChart() {
                     {withFlag(c.cit, c.iso3)}
                   </div>
                   <div
+                    className='viz-grow-x'
                     style={{
                       flex: 1,
                       display: 'flex',
@@ -310,6 +311,7 @@ export function CompositionChart() {
                       background: 'var(--surface)',
                       outline: isSel ? '2px solid var(--focus)' : 'none',
                       outlineOffset: 1,
+                      animationDelay: `${i * 18}ms`,
                     }}
                   >
                     {segs.map(s => {

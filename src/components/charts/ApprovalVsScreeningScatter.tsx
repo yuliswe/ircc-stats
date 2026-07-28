@@ -26,6 +26,7 @@
  * width.
  */
 import { useId, useMemo, useState, useEffect, type ReactNode } from 'react';
+import { useRevealed } from '@/lib/reveal';
 import {
   CartesianGrid,
   Cell,
@@ -88,6 +89,9 @@ export function ApprovalVsScreeningScatter() {
   const minApplicationsLabelId = useId();
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
+  // Points animate in only once the card scrolls into view; the key remounts the
+  // series when that flips so Recharts replays its enter animation on reveal.
+  const revealed = useRevealed();
 
   const ink = INK[theme];
 
@@ -336,8 +340,12 @@ export function ApprovalVsScreeningScatter() {
               content={<ScatterTip nationalRatio={nationalRatio} />}
             />
             <Scatter
+              key={revealed ? 'shown' : 'hidden'}
               data={points}
-              isAnimationActive={false}
+              isAnimationActive={revealed}
+              animationBegin={0}
+              animationDuration={720}
+              animationEasing='ease-out'
               onClick={(pt: unknown) => {
                 const p = pt as {
                   cit?: string;

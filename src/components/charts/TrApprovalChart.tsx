@@ -389,6 +389,8 @@ export function TrApprovalChart() {
                   height={BAR_THICK}
                   rx={2}
                   fill={fill}
+                  className='viz-grow-x'
+                  style={{ animationDelay: `${i * 18}ms` }}
                 />
 
                 <text

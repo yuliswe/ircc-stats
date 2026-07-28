@@ -422,7 +422,7 @@ export function OfficeHeatmap() {
               })}
 
               {/* body: row header + cells */}
-              {orderedCountries.map(cit => {
+              {orderedCountries.map((cit, rowIdx) => {
                 const selected = selection?.cit === cit;
                 const dim = selection && !selected ? 0.25 : 1;
                 return (
@@ -453,7 +453,7 @@ export function OfficeHeatmap() {
                     >
                       {withFlag(cit, iso3For(cit))}
                     </button>
-                    {shownOffices.map(off => {
+                    {shownOffices.map((off, colIdx) => {
                       const mag = magOf(cit, off);
                       const bg =
                         mag === null
@@ -463,6 +463,7 @@ export function OfficeHeatmap() {
                         <div
                           key={off}
                           role='gridcell'
+                          className='viz-pop'
                           title={
                             mag === null
                               ? `${withFlag(cit, iso3For(cit))} · ${off}: no data`
@@ -475,6 +476,7 @@ export function OfficeHeatmap() {
                             height: CELL_H,
                             background: bg,
                             opacity: dim,
+                            animationDelay: `${Math.min((rowIdx + colIdx) * 12, 500)}ms`,
                           }}
                         />
                       );

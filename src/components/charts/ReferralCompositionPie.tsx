@@ -316,10 +316,12 @@ export function ReferralCompositionPie() {
           aria-label='Donut chart of the composition of total 2025 security-screening referrals by nationality, with labelled callouts'
         >
           {/* arcs */}
-          {slices.map(s => (
+          {slices.map((s, i) => (
             <g key={s.cit} {...interaction(s)}>
               {/* 2px surface stroke reveals the card between adjacent fills */}
               <path
+                className='viz-pop'
+                style={{ animationDelay: `${i * 18}ms` }}
                 d={arc(s.start, s.end)}
                 fill={s.color}
                 stroke='var(--surface)'

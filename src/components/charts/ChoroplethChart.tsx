@@ -206,7 +206,11 @@ export function ChoroplethChart() {
               }
               strokeWidth={isSelected ? 1.6 : 0.5}
               opacity={dimmed ? 0.25 : 1}
-              style={{ cursor: m ? 'pointer' : 'default' }}
+              className='viz-pop'
+              style={{
+                cursor: m ? 'pointer' : 'default',
+                animationDelay: `${Math.min(i * 12, 600)}ms`,
+              }}
               onMouseMove={e =>
                 iso3 && setHover({ iso3, x: e.clientX, y: e.clientY })
               }
