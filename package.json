@@ -4,8 +4,13 @@
   "description": "My App Template",
   "type": "module",
   "scripts": {
+    "predev": "npm run build:data",
+    "dev": "next dev",
+    "build:data": "tsx scripts/build-viz-data.mts",
+    "build": "npm run build:data && next build",
+    "start": "next start",
+    "parser:dev": "nodemon --config nodemon.json",
     "test": "jest",
-    "start": "nodemon --config nodemon.json",
     "postinstall": "scripts/postinstall.sh"
   },
   "repository": {},
@@ -16,7 +21,15 @@
   "homepage": "",
   "devDependencies": {
     "@eslint/js": "^9.31.0",
+    "@types/d3-array": "^3.2.2",
+    "@types/d3-geo": "^3.1.0",
+    "@types/d3-hierarchy": "^3.1.7",
+    "@types/d3-scale": "^4.0.9",
     "@types/jest": "^29.5.14",
+    "@types/papaparse": "^5.5.2",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@types/topojson-client": "^3.1.5",
     "@typescript-eslint/eslint-plugin": "^8.37.0",
     "@typescript-eslint/parser": "^8.37.0",
     "esbuild-jest-fixed": "^0.5.2",
@@ -35,6 +48,20 @@
     "prettier": "^3.6.2",
     "ts-jest": "^29.4.0",
     "tsx": "^4.20.3",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "world-countries": "^5.1.0"
+  },
+  "dependencies": {
+    "d3-array": "^3.2.4",
+    "d3-geo": "^3.1.1",
+    "d3-hierarchy": "^3.1.2",
+    "d3-scale": "^4.0.2",
+    "next": "^16.2.10",
+    "papaparse": "^5.5.4",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "recharts": "^3.9.2",
+    "topojson-client": "^3.1.0",
+    "world-atlas": "^2.0.2"
   }
 }

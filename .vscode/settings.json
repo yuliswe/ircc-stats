@@ -8,9 +8,7 @@
     "zsh": {
       "path": "zsh",
       "args": ["-l"],
-      "env": {
-        "ZDOTDIR": "${workspaceFolder}"
-      }
+      "env": {}
     },
     "fish": {
       "path": "fish",
