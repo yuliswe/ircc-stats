@@ -5,19 +5,19 @@ on:
     branches: ['release']
   workflow_dispatch:
 
-# Allow the workflow to publish to Pages.
+# The deploy job commits the built site to the `gh-pages` branch, so it needs
+# write access to repository contents. No Pages/id-token permissions are needed
+# because we publish through a branch rather than the Actions artifact source.
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 # Let a newer run supersede an in-flight one rather than queueing behind it.
 concurrency:
-  group: pages
+  group: pages-deploy
   cancel-in-progress: true
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -46,16 +46,18 @@ jobs:
       # Disable Jekyll so paths beginning with an underscore (e.g. _next) are served.
       - run: touch out/.nojekyll
 
-      - uses: actions/upload-pages-artifact@v3
+      # Publish the contents of out/ to the gh-pages branch. GitHub Pages is
+      # configured to serve the site from the root of that branch. The action
+      # force-pushes a single commit so the branch stays a clean mirror of the
+      # latest build rather than accumulating history.
+      - name: Publish to gh-pages branch
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          path: out
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: ./out
+          # Keep .nojekyll (see above); the action would otherwise not preserve it.
+          enable_jekyll: false
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
+          commit_message: 'Deploy site from ${{ github.sha }}'
