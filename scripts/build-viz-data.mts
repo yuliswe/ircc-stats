@@ -212,7 +212,10 @@ const MANUAL_ISO3: Record<string, string> = {
   'united kingdom and overseas territories': 'GBR',
   'condo democratic republic of the': 'COD',
   'condo peoples republic of the': 'COG',
-  'korea peoples democratic republic of': 'PRK',
+  // norm() turns the apostrophe in "People's" into a space, so the key must be
+  // "people s" (not "peoples") to match; otherwise the bare "korea" head falls
+  // through to KOR and North Korea collapses onto South Korea.
+  'korea people s democratic republic of': 'PRK',
 };
 
 /**

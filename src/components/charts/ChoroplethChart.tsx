@@ -54,9 +54,16 @@ const geo = feature(
 ) as unknown as {
   features: Array<{ id?: string | number }>;
 };
-const projection = geoNaturalEarth1().fitSize([W, H], geo as never);
+// Antarctica (Natural Earth id "10") carries no immigration stream and its
+// southern extent otherwise eats roughly a third of the frame, compressing the
+// populated latitudes. Drop it before fitting the projection and from the paths.
+const drawnFeatures = geo.features.filter(f => String(f.id ?? '') !== '10');
+const projection = geoNaturalEarth1().fitSize(
+  [W, H],
+  { type: 'FeatureCollection', features: drawnFeatures } as never
+);
 const pathGen = geoPath(projection);
-const FEATURE_PATHS: { id: string; d: string }[] = geo.features.map(f => ({
+const FEATURE_PATHS: { id: string; d: string }[] = drawnFeatures.map(f => ({
   id: String(f.id ?? ''),
   d: pathGen(f as never) ?? '',
 }));

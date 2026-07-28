@@ -106,7 +106,8 @@ function tickLabel(v: number): string {
 
 /** Compact per-row count label for the large application counts, e.g. 1.38M, 463k. */
 function compactInt(v: number): string {
-  if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(2)}M`;
+  // Unary + drops trailing zeros so a round million reads "1M", not "1.00M".
+  if (v >= 1_000_000) return `${+(v / 1_000_000).toFixed(2)}M`;
   if (v >= 10_000) return `${Math.round(v / 1_000)}k`;
   if (v >= 1_000) return `${(v / 1_000).toFixed(1)}k`;
   return String(Math.round(v));
