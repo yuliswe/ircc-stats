@@ -34,9 +34,11 @@ jobs:
       - run: npm ci
 
       - name: Build static export
-        # basePath must match the project-site subpath: <user>.github.io/ircc-stats
+        # The site is served from the apex custom domain irccreport.ca at the
+        # root path, so basePath is left empty. (When this deployed to the
+        # project site <user>.github.io/ircc-stats, NEXT_PUBLIC_BASE_PATH was
+        # set to /ircc-stats to match that subpath.)
         env:
-          NEXT_PUBLIC_BASE_PATH: /ircc-stats
           # Optional override for the GA4 Measurement ID. The production stream
           # ID is baked into the app, so this only needs to be set as a repo
           # variable (Settings → Secrets and variables → Actions → Variables)
