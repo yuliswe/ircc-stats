@@ -5,7 +5,6 @@ import jestPlugin from 'eslint-plugin-jest';
 import localRulesPlugin from 'eslint-plugin-local-rules';
 import reactPlugin from 'eslint-plugin-react';
 import reactHooksPlugin from 'eslint-plugin-react-hooks';
-import reactNativePlugin from 'eslint-plugin-react-native';
 import testingLibraryPlugin from 'eslint-plugin-testing-library';
 import unusedImportsPlugin from 'eslint-plugin-unused-imports';
 import { dirname, join } from 'node:path';
@@ -53,7 +52,6 @@ export default [
       import: importPlugin,
       jest: jestPlugin,
       react: reactPlugin,
-      'react-native': reactNativePlugin,
       'react-hooks': reactHooksPlugin,
       'testing-library': testingLibraryPlugin,
       'unused-imports': unusedImportsPlugin,
@@ -133,30 +131,6 @@ export default [
                 '**/sqsHandler',
               ],
               message: 'Do not import the entrypoint module.',
-            },
-            {
-              importNames: ['Animated'],
-              group: ['react-native'],
-              message:
-                'Do not import Animated from react-native. Use react-native-reanimated instead.',
-            },
-            {
-              importNames: ['SafeAreaView'],
-              group: ['react-native'],
-              message:
-                'Do not import SafeAreaView from "react-native". Import from "react-native-safe-area-context" instead.',
-            },
-            {
-              importNames: ['FlatList'],
-              group: ['react-native'],
-              message:
-                'Do not import FlatList from react-native. Use src/components/react-wrappers/FlatList.tsx instead.',
-            },
-            {
-              importNames: ['ScrollView'],
-              group: ['react-native'],
-              message:
-                'Do not import ScrollView from react-native. Use src/components/react-wrappers/ScrollView.tsx instead.',
             },
             {
               group: ['./*', '../*'],
@@ -300,28 +274,6 @@ export default [
             "CallExpression[callee.object.name='router'][callee.property.name='back']",
           message:
             'Do not use router.back(). Use `routerDismissTo` or `routerBackOrDismissTo` instead.',
-        },
-      ],
-
-      // React Native rules
-      'react-native/no-raw-text': [
-        'error',
-        {
-          skip: [
-            'ThemePurpleButton',
-            'ThemeOutlineButton',
-            'ThemeLinkButton',
-            'ThemeBlackButton',
-            'ScreenTitle',
-            'ScreenTitle2',
-            'SmallThemePurpleButton',
-            'SmallThemeWhiteButton',
-            'Heading1',
-            'Heading2',
-            'Heading3',
-            'Heading4',
-            'Heading5',
-          ],
         },
       ],
 
