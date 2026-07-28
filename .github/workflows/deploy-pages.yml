@@ -1,0 +1,61 @@
+name: Deploy site to GitHub Pages
+
+on:
+  push:
+    branches: ['release']
+  workflow_dispatch:
+
+# Allow the workflow to publish to Pages.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Let a newer run supersede an in-flight one rather than queueing behind it.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        # The raw ATIP PDFs are Git LFS pointers we do not need to build the
+        # site, so skip pulling LFS content to keep the checkout small.
+        with:
+          lfs: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Build static export
+        # basePath must match the project-site subpath: <user>.github.io/ircc-stats
+        env:
+          NEXT_PUBLIC_BASE_PATH: /ircc-stats
+          # GA4 Measurement ID for the irccreport.ca stream. Set it as a repo
+          # variable (Settings → Secrets and variables → Actions → Variables)
+          # named GA_MEASUREMENT_ID; when unset the site builds without analytics.
+          NEXT_PUBLIC_GA_ID: ${{ vars.GA_MEASUREMENT_ID }}
+        run: npm run build
+
+      # Disable Jekyll so paths beginning with an underscore (e.g. _next) are served.
+      - run: touch out/.nojekyll
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: out
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
