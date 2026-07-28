@@ -1,28 +1,61 @@
 # Monthly IRCC updates
 
 Monthly operational counts published by Immigration, Refugees and Citizenship
-Canada (IRCC), broken down by source country. The figures were originally
-distributed as three Excel workbooks ("Open Data - OPS … en.xlsx"), which have
-since been removed. This directory keeps the flattened CSV extracts and a
-SQLite database built from them.
+Canada (IRCC), broken down by source country. IRCC distributes the figures as
+Excel workbooks on its open-data site, and this directory keeps a flattened CSV
+extract of each workbook alongside a SQLite database built from them. The
+[Datasets](#datasets) section catalogues every extract, and [Sources](#sources)
+records the exact download URL behind each one so it can be traced back to, and
+refreshed from, its origin.
 
 ## Datasets
 
-| Key            | Description                          | Source workbook                          |
-| -------------- | ------------------------------------ | ---------------------------------------- |
-| `pr_intake`    | Permanent Residence – Intake         | Open Data - OPS PR Intake en.xlsx        |
-| `sp_processed` | Study Permit – Processed             | Open Data - OPS SP Processed en.xlsx     |
-| `trv_intake`   | Temporary Resident Visa – Intake     | Open Data - OPS TRV Intake en.xlsx       |
+Each CSV is a tidy long extract of one IRCC workbook.
 
-Each workbook is a wide cross-tab in which source countries run down the rows
-and a month band (January–December plus a per-year `Total` column) runs across
-the columns, with the year label printed once above each January. The extracts
-below reshape that cross-tab into a tidy long format, one observation per row.
+| CSV                   | Description                                                          |
+| --------------------- | ------------------------------------------------------------------- |
+| `pr_intake.csv`       | New permanent-residence applications received (intake).             |
+| `copr_issued.csv`     | Confirmation of Permanent Residence (COPR) documents issued.        |
+| `trv_intake.csv`      | New temporary-resident-visa applications received (intake).         |
+| `tr_processed.csv`    | Temporary-residence applications finalized (processed).             |
+| `tr_approved.csv`     | Temporary-residence applications approved.                          |
+| `sp_processed.csv`    | Study-permit applications finalized (processed).                    |
+| `trv_v1_approved.csv` | Temporary-resident (visitor, V-1) visas approved.                   |
+| `pr_citz.csv`         | Permanent residents admitted (landings), by country of citizenship. |
+
+Each workbook is a wide cross-tab in which countries run down the rows and a
+month band (January–December plus a per-year `Total` column) runs across the
+columns, with the year label printed once above each January. The extracts
+reshape that cross-tab into the tidy long format described under [Files](#files),
+one observation per row.
+
+The first seven extracts share the columns `country, year, month, value`.
+`pr_citz.csv` is the exception, because `EN_ODP-PR-Citz.xlsx` is a finer
+permanent-residence-by-citizenship series that reaches back to 2015 and carries
+quarter subtotals; its extract uses a `period` column in place of `month`, where
+`period` is one of `Jan`…`Dec` or a quarter subtotal `Q1 Total`…`Q4 Total`.
+
+## Sources
+
+The workbooks all live under
+`https://www.ircc.canada.ca/opendata-donneesouvertes/data/`, and the URLs below
+are that base followed by the (space-containing) workbook filename.
+
+| CSV                   | URL                                                                                                          |
+| --------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `pr_intake.csv`       | https://www.ircc.canada.ca/opendata-donneesouvertes/data/Open%20Data%20-%20OPS%20PR%20Intake%20en.xlsx        |
+| `copr_issued.csv`     | https://www.ircc.canada.ca/opendata-donneesouvertes/data/Open%20Data%20-%20OPS%20COPR%20Issued%20en.xlsx      |
+| `trv_intake.csv`      | https://www.ircc.canada.ca/opendata-donneesouvertes/data/Open%20Data%20-%20OPS%20TRV%20Intake%20en.xlsx       |
+| `tr_processed.csv`    | https://www.ircc.canada.ca/opendata-donneesouvertes/data/Open%20Data%20-%20OPS%20TR%20Processed%20en.xlsx     |
+| `tr_approved.csv`     | https://www.ircc.canada.ca/opendata-donneesouvertes/data/Open%20Data%20-%20OPS%20TR%20Approved%20en.xlsx      |
+| `sp_processed.csv`    | https://www.ircc.canada.ca/opendata-donneesouvertes/data/Open%20Data%20-%20OPS%20SP%20Processed%20en.xlsx     |
+| `trv_v1_approved.csv` | https://www.ircc.canada.ca/opendata-donneesouvertes/data/Open%20Data%20-%20OPS%20TRV%20V-1%20Approved%20en.xlsx |
+| `pr_citz.csv`         | https://www.ircc.canada.ca/opendata-donneesouvertes/data/EN_ODP-PR-Citz.xlsx                                  |
 
 ## Files
 
-- `pr_intake.csv`, `sp_processed.csv`, `trv_intake.csv` — tidy long extracts,
-  one row per (country, year, month), with columns:
+- The monthly extracts (every CSV except `pr_citz.csv`) are tidy long, one row
+  per (country, year, month), with columns:
 
   | Column    | Meaning                                                          |
   | --------- | ---------------------------------------------------------------- |
@@ -31,10 +64,14 @@ below reshape that cross-tab into a tidy long format, one observation per row.
   | `month`   | `January`…`December`, or `Total` for the workbook's per-year total column. |
   | `value`   | The count. Empty when IRCC suppressed the cell (see below).      |
 
-- `ircc-monthly-updates.sqlite3` — SQLite database holding all three datasets. The
-  per-country monthly observations live in `monthly_stats`, while the workbook's
-  aggregate rows are kept separately in `monthly_totals`. There is also one view
-  per dataset.
+  `pr_citz.csv` follows the same shape but replaces `month` with `period` (see
+  [Datasets](#datasets)).
+
+- `ircc-monthly-updates.sqlite3` — SQLite database built from the original three
+  monthly datasets (`pr_intake`, `sp_processed`, `trv_intake`) only; the other
+  five CSVs are not yet folded into it. The per-country monthly observations live
+  in `monthly_stats`, while the workbook's aggregate rows are kept separately in
+  `monthly_totals`. There is also one view per dataset.
 
 ## Suppression and zeros
 
@@ -45,83 +82,3 @@ in the source. These are distinct from a genuine count of `0`:
   written as `0`.
 - In the database, a suppressed cell has `value IS NULL` and `suppressed = 1`,
   whereas a true zero has `value = 0` and `suppressed = 0`.
-
-## Database schema
-
-`monthly_stats` holds only the real monthly observations, one row per
-(dataset, country, year, month), with no aggregate rows:
-
-```sql
-CREATE TABLE monthly_stats (
-    dataset       TEXT    NOT NULL,   -- pr_intake | sp_processed | trv_intake
-    dataset_label TEXT    NOT NULL,   -- human-readable dataset name
-    country       TEXT    NOT NULL,   -- source country (never 'Total')
-    year          INTEGER NOT NULL,
-    month         TEXT    NOT NULL,   -- 'January'..'December' (never 'Total')
-    value         INTEGER,            -- NULL where IRCC suppressed the cell ('--')
-    suppressed    INTEGER NOT NULL    -- 1 if the source cell was '--', else 0
-);
-```
-
-`monthly_totals` holds the aggregate rows lifted out of the workbook. It shares
-the same columns and adds an `agg_kind` tag identifying which kind of total each
-row is:
-
-```sql
-CREATE TABLE monthly_totals (
-    dataset       TEXT    NOT NULL,   -- pr_intake | sp_processed | trv_intake
-    dataset_label TEXT    NOT NULL,   -- human-readable dataset name
-    country       TEXT    NOT NULL,   -- source country, or 'Total' for the all-countries aggregate
-    year          INTEGER NOT NULL,
-    month         TEXT    NOT NULL,   -- 'January'..'December', or 'Total' for the per-year total
-    value         INTEGER,            -- NULL where IRCC suppressed the cell ('--')
-    suppressed    INTEGER NOT NULL,   -- 1 if the source cell was '--', else 0
-    agg_kind      TEXT    NOT NULL    -- see below
-);
-```
-
-`agg_kind` distinguishes the three ways a row can be an aggregate:
-
-| `agg_kind`      | Meaning                                                              |
-| --------------- | ------------------------------------------------------------------- |
-| `year_total`    | A country's per-year total (`month = 'Total'`, a real `country`).   |
-| `country_total` | The all-countries aggregate for one month (`country = 'Total'`).    |
-| `grand_total`   | The all-countries per-year total (`country = 'Total'` and `month = 'Total'`). |
-
-Each table has a covering index on `(dataset, country, year, month)`. The
-convenience view per dataset (`pr_intake`, `sp_processed`, `trv_intake`) reads
-from `monthly_stats` and exposes `country, year, month, value`, so the views
-contain only real monthly observations.
-
-`monthly_stats` has 25,338 rows (`pr_intake` 8,364, `sp_processed` 8,159,
-`trv_intake` 8,815). `monthly_totals` has 2,607 rows (`pr_intake` 861,
-`sp_processed` 841, `trv_intake` 905).
-
-## Querying
-
-Because `monthly_stats` no longer carries any aggregate rows, you can sum it
-directly without filtering. Read a precomputed total from `monthly_totals` when
-you want IRCC's own figure rather than one you derive yourself:
-
-```sql
--- Study permits processed for India, by month in 2024 (real months only):
-SELECT month, value
-FROM sp_processed              -- view over monthly_stats
-WHERE country = 'India' AND year = 2024;
-
--- Sum the detail table directly; no Total rows to exclude:
-SELECT country, SUM(value) AS total_2024
-FROM monthly_stats
-WHERE dataset = 'trv_intake'
-  AND year = 2024
-GROUP BY country
-ORDER BY total_2024 DESC;
-
--- IRCC's own published per-country year total for the same slice:
-SELECT country, value AS total_2024
-FROM monthly_totals
-WHERE dataset = 'trv_intake'
-  AND year = 2024
-  AND agg_kind = 'year_total'
-ORDER BY total_2024 DESC;
-```
