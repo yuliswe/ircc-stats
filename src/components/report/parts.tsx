@@ -22,9 +22,10 @@ export function Hero({
   /** headline figures */
   children?: ReactNode;
 }) {
-  // Grid masthead: the headline holds the left column while the standfirst and
-  // byline stack in the right, then the headline figures span the full width
-  // beneath. Collapses to a single column on narrow screens.
+  // Grid masthead: the headline holds the left column and the standfirst the
+  // right; the byline then runs full width on its own rule below the grid, and
+  // the headline figures span the full width beneath that. Collapses to a
+  // single column on narrow screens.
   return (
     <header className='report-hero'>
       <span className='eyebrow'>{eyebrow}</span>
@@ -32,9 +33,9 @@ export function Hero({
         <h1 className='hero-title'>{title}</h1>
         <div className='hero-aside'>
           <p className='dek prose'>{dek}</p>
-          {byline ? <p className='byline'>{byline}</p> : null}
         </div>
       </div>
+      {byline ? <p className='byline'>{byline}</p> : null}
       {children}
     </header>
   );

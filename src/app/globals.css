@@ -236,21 +236,23 @@ table th.num {
 .report-hero .dek {
   margin: 0 0 14px;
   max-width: 46ch;
-  font-size: clamp(15px, 1.15vw, 17px);
-  line-height: 1.5;
+  font-size: clamp(18px, 1.7vw, 21px);
+  line-height: 1.48;
   font-weight: 500;
   color: var(--ink);
 }
 
+/* Full-width byline on its own rule below the masthead grid (spans both
+   columns), matching the design — not tucked into the standfirst column. */
 .report-hero .byline {
   font-family: var(--font-sans);
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.55;
   color: var(--ink-muted);
-  margin: 1.1rem 0 0;
+  margin: 20px 0 0;
   padding-top: 12px;
   border-top: 2px solid var(--rule);
-  max-width: 56ch;
+  max-width: 80ch;
 }
 
 .report-hero .byline a {
@@ -318,7 +320,7 @@ table th.num {
    screens. Tinted per part: accent red for Part I, deep neutral for Part II. */
 .report-part {
   margin: clamp(26px, 3vw, 42px) 0 2rem;
-  padding: clamp(16px, 2vw, 24px);
+  padding: clamp(24px, 2.6vw, 34px);
   scroll-margin-top: 70px;
   display: grid;
   grid-template-columns: 1fr;
@@ -379,7 +381,8 @@ table th.num {
 .report-part .part-lede {
   margin-top: 0;
   max-width: 62ch;
-  line-height: 1.5;
+  font-size: clamp(15.5px, 1.35vw, 17.5px);
+  line-height: 1.52;
   font-weight: 500;
   color: inherit;
 }
@@ -394,9 +397,9 @@ table th.num {
 .section-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 0.9rem clamp(12px, 2vw, 32px);
+  gap: 0.9rem clamp(24px, 3.4vw, 44px);
   border-top: 2px solid var(--rule);
-  padding-top: 12px;
+  padding-top: 26px;
   margin-bottom: 1.4rem;
 }
 
@@ -419,7 +422,7 @@ table th.num {
    in the mockup), not a large display numeral. */
 .section-head .section-num {
   font-family: var(--font-sans);
-  font-size: clamp(13px, 1.4vw, 16px);
+  font-size: clamp(17px, 1.9vw, 23px);
   font-weight: 800;
   color: var(--accent);
   font-variant-numeric: tabular-nums;
@@ -429,8 +432,8 @@ table th.num {
 
 .section-head h2 {
   font-family: var(--font-sans);
-  font-size: clamp(21px, 2.1vw, 29px);
-  line-height: 1.04;
+  font-size: clamp(28px, 3.2vw, 42px);
+  line-height: 1.06;
   font-weight: 800;
   letter-spacing: -0.02em;
   text-wrap: balance;
@@ -438,6 +441,11 @@ table th.num {
 
 .report-section .commentary {
   margin-bottom: 0;
+  /* Section commentary reads larger on a tighter measure than base .prose, from
+     the Claude Design iteration — masthead → part → section → figure hierarchy. */
+  font-size: 17px;
+  line-height: 1.62;
+  max-width: 52ch;
 }
 
 /* the chart figure breaks out past the reading measure */
