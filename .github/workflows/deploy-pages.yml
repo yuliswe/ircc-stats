@@ -37,9 +37,10 @@ jobs:
         # basePath must match the project-site subpath: <user>.github.io/ircc-stats
         env:
           NEXT_PUBLIC_BASE_PATH: /ircc-stats
-          # GA4 Measurement ID for the irccreport.ca stream. Set it as a repo
+          # Optional override for the GA4 Measurement ID. The production stream
+          # ID is baked into the app, so this only needs to be set as a repo
           # variable (Settings → Secrets and variables → Actions → Variables)
-          # named GA_MEASUREMENT_ID; when unset the site builds without analytics.
+          # named GA_MEASUREMENT_ID to point a build at a different property.
           NEXT_PUBLIC_GA_ID: ${{ vars.GA_MEASUREMENT_ID }}
         run: npm run build
 

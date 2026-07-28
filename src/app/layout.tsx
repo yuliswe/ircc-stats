@@ -8,10 +8,15 @@ export const metadata: Metadata = {
     'Whether applicants of certain nationalities are disproportionately referred to CBSA/CSIS for comprehensive security screening, from IRCC ATIP request 1A-2025-08687.',
 };
 
-// GA4 Measurement ID (e.g. G-XXXXXXXXXX) for the irccreport.ca data stream.
-// Inlined at build time from the environment; when unset, no analytics script
-// is emitted so local dev and previews stay untracked.
-const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_ID;
+// GA4 Measurement ID for the irccreport.ca data stream. Defaults to the
+// production stream but can be overridden at build time via NEXT_PUBLIC_GA_ID
+// (e.g. to point a fork at a different property). `||` rather than `??` so an
+// empty env value from an unset CI variable still falls back to the default.
+const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_ID || 'G-E4Z9V2NCBX';
+
+// Only emit the analytics script in production builds so local `next dev`
+// sessions do not pollute the analytics data.
+const ANALYTICS_ENABLED = process.env.NODE_ENV === 'production';
 
 export default function RootLayout({
   children,
@@ -22,7 +27,7 @@ export default function RootLayout({
     <html lang='en'>
       <body>
         {children}
-        {GA_MEASUREMENT_ID ? (
+        {ANALYTICS_ENABLED ? (
           <>
             <Script
               src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
