@@ -20,29 +20,42 @@ const REPO_URL = 'https://github.com/yuliswe/ircc-stats';
 const HIDE_THRESHOLD = 120;
 const SCROLL_DELTA = 8;
 
-function useAutoHideHeader(): boolean {
+// Auto-hide the header on scroll-down and report how far the reader has moved
+// through the page, as a 0–1 fraction, so the header can show a progress strip.
+// Both derive from the same scroll listener to avoid a second handler.
+function useHeaderScroll(): { hidden: boolean; progress: number } {
   const [hidden, setHidden] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     let lastY = window.scrollY;
     let ticking = false;
+    const update = () => {
+      const doc = document.documentElement;
+      const y = window.scrollY;
+      const max = doc.scrollHeight - doc.clientHeight;
+      setProgress(max > 0 ? Math.min(1, Math.max(0, y / max)) : 0);
+      if (Math.abs(y - lastY) > SCROLL_DELTA) {
+        setHidden(y > lastY && y > HIDE_THRESHOLD);
+        lastY = y;
+      }
+      ticking = false;
+    };
     const onScroll = () => {
       if (ticking) return;
       ticking = true;
-      requestAnimationFrame(() => {
-        const y = window.scrollY;
-        if (Math.abs(y - lastY) > SCROLL_DELTA) {
-          setHidden(y > lastY && y > HIDE_THRESHOLD);
-          lastY = y;
-        }
-        ticking = false;
-      });
+      requestAnimationFrame(update);
     };
+    update();
     window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    window.addEventListener('resize', onScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+    };
   }, []);
 
-  return hidden;
+  return { hidden, progress };
 }
 
 function SelectionChip() {
@@ -66,7 +79,7 @@ function SelectionChip() {
 
 export function Shell({ children }: { children: ReactNode }) {
   const { data, theme, toggleTheme, locale } = useViz();
-  const headerHidden = useAutoHideHeader();
+  const { hidden: headerHidden, progress } = useHeaderScroll();
 
   // The language switch is a route change (`/` ↔ `/zh`), not a client toggle.
   // Carry the current query string across so the reader's filters and selection
@@ -80,6 +93,7 @@ export function Shell({ children }: { children: ReactNode }) {
     <>
       <header className={`app-header${headerHidden ? ' is-hidden' : ''}`}>
         <div className='brand'>
+          <span className='brand-square' aria-hidden />
           <span className='mark'>{pick(locale, SHELL.brand)}</span>
           <span className='atip'>ATIP {data.meta.atip}</span>
         </div>
@@ -119,6 +133,12 @@ export function Shell({ children }: { children: ReactNode }) {
           </svg>
           GitHub
         </a>
+        <div className='app-progress' aria-hidden>
+          <div
+            className='app-progress-fill'
+            style={{ transform: `scaleX(${progress})` }}
+          />
+        </div>
       </header>
 
       <main>

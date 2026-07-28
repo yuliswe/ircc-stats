@@ -1,6 +1,17 @@
 import type { Metadata } from 'next';
 import Script from 'next/script';
+import { Archivo } from 'next/font/google';
 import './globals.css';
+
+// The report's display + text face. Archivo is a variable font, so the full
+// weight axis (the report uses 400–900) loads from one file; next/font
+// self-hosts it into the static bundle, which the GitHub Pages export needs.
+// Exposed as a CSS variable that the font tokens in theme.css point at.
+const archivo = Archivo({
+  subsets: ['latin'],
+  variable: '--font-archivo',
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: 'IRCC Report 2025',
@@ -24,7 +35,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang='en'>
+    <html lang='en' className={archivo.variable}>
       <body>
         {children}
         {ANALYTICS_ENABLED ? (

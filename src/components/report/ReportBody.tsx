@@ -8,8 +8,9 @@
  * only the strings passed into it change with the locale.
  */
 import { useViz } from '@/lib/store';
-import { getReportContent, type Headline } from '@/content/strings';
+import { getReportContent, type Headline, SHELL } from '@/content/strings';
 import { Hero, Findings, Stat, Part, Section } from '@/components/report/parts';
+import { pick } from '@/lib/i18n';
 import { fmtInt, fmtPct } from '@/lib/format';
 import type { VizData } from '@/lib/viz-types';
 import { ScreeningRateChart } from '@/components/charts/ScreeningRateChart';
@@ -50,7 +51,12 @@ export function ReportBody() {
 
   return (
     <>
-      <Hero eyebrow={c.heroEyebrow(atip)} title={c.heroTitle} dek={c.heroDek}>
+      <Hero
+        eyebrow={c.heroEyebrow(atip)}
+        title={c.heroTitle}
+        dek={c.heroDek}
+        byline={c.byline}
+      >
         <Findings>
           <Stat
             label={c.stats.referral.label}
@@ -68,10 +74,14 @@ export function ReportBody() {
             note={c.stats.nationalities.note}
           />
         </Findings>
-        <p className='byline'>{c.byline}</p>
       </Hero>
 
-      <Part kicker={c.part1.kicker} title={c.part1.title} lede={c.part1.lede} />
+      <Part
+        kicker={c.part1.kicker}
+        title={c.part1.title}
+        lede={c.part1.lede}
+        variant='accent'
+      />
 
       <Section n={1} title={c.sections[1].title} intro={c.sections[1].intro}>
         <ScreeningRateChart />
@@ -89,7 +99,12 @@ export function ReportBody() {
         <ScreeningScatter />
       </Section>
 
-      <Part kicker={c.part2.kicker} title={c.part2.title} lede={c.part2.lede} />
+      <Part
+        kicker={c.part2.kicker}
+        title={c.part2.title}
+        lede={c.part2.lede}
+        variant='ink'
+      />
 
       <Section n={5} title={c.sections[5].title} intro={c.sections[5].intro}>
         <ChoroplethChart />
@@ -103,35 +118,46 @@ export function ReportBody() {
         <ApprovalVsScreeningScatter />
       </Section>
 
-      <footer className='report-footer'>
-        <h2>{c.footer.aboutTitle}</h2>
-        <p>{c.footer.aboutP1}</p>
-        <p>{c.footer.aboutP2}</p>
-
-        <h2>{c.footer.sourcesTitle}</h2>
-        <p>{c.footer.sourcesIntro}</p>
-        <ul className='data-sources'>
-          <li>
-            <span className='src-name'>{c.footer.screeningSrcName(atip)}</span>
-            <span className='src-desc'>{c.footer.screeningSrcDesc}</span>
-            <a
-              href='https://open.canada.ca/en/search/ati?search_api_fulltext=1A-2025-08687'
-              target='_blank'
-              rel='noopener noreferrer'
-            >
-              open.canada.ca &rarr; ATIP request 1A-2025-08687
-            </a>
-          </li>
-          <li>
-            <span className='src-name'>{c.footer.monthlySrcName}</span>
-            <span className='src-desc'>{c.footer.monthlySrcDesc}</span>
-            <ul className='src-files'>
-              {c.footer.monthlyFiles.map((f, i) => (
-                <li key={i}>{f}</li>
-              ))}
+      <footer className='report-footer' id='about'>
+        <div className='footer-grid'>
+          <div className='footer-col'>
+            <h2>{c.footer.aboutTitle}</h2>
+            <p>{c.footer.aboutP1}</p>
+            <p>{c.footer.aboutP2}</p>
+          </div>
+          <div className='footer-col'>
+            <h2>{c.footer.sourcesTitle}</h2>
+            <p>{c.footer.sourcesIntro}</p>
+            <ul className='data-sources'>
+              <li>
+                <span className='src-name'>
+                  {c.footer.screeningSrcName(atip)}
+                </span>
+                <span className='src-desc'>{c.footer.screeningSrcDesc}</span>
+                <a
+                  href='https://open.canada.ca/en/search/ati?search_api_fulltext=1A-2025-08687'
+                  target='_blank'
+                  rel='noopener noreferrer'
+                >
+                  open.canada.ca &rarr; ATIP request 1A-2025-08687
+                </a>
+              </li>
+              <li>
+                <span className='src-name'>{c.footer.monthlySrcName}</span>
+                <span className='src-desc'>{c.footer.monthlySrcDesc}</span>
+                <ul className='src-files'>
+                  {c.footer.monthlyFiles.map((f, i) => (
+                    <li key={i}>{f}</li>
+                  ))}
+                </ul>
+              </li>
             </ul>
-          </li>
-        </ul>
+          </div>
+        </div>
+        <div className='footer-bar'>
+          <span>{pick(locale, SHELL.brand)}</span>
+          <span>ATIP {atip}</span>
+        </div>
       </footer>
     </>
   );

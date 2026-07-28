@@ -16,11 +16,26 @@
   /* editorial layer (report shell). The accent is deliberately the same blue
      that means "Security Screening" in the charts, so the reading furniture and
      the data share one hue; it resolves per-theme because --series-1 does. */
-  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --font-serif:
-    'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', Palatino, Charter,
-    Georgia, Cambria, 'Times New Roman', serif;
-  --accent: var(--series-1);
+  /* The report now runs a single Archivo family in the flat modernist style, so
+     both tokens resolve to Archivo; the system-ui fallback carries CJK glyphs on
+     the Chinese route, which Archivo (latin subset) does not cover. --font-serif
+     is retained as a name only so the rules that reference it need no rewrite. */
+  --font-sans:
+    var(--font-archivo), system-ui, -apple-system, 'Segoe UI', Roboto,
+    sans-serif;
+  --font-serif: var(--font-sans);
+  /* Report furniture runs the modernist single red, decoupled from the chart
+     palette: --accent is the bright red on large marks and fills, --accent-2 a
+     darker red that keeps small uppercase labels and links above contrast on
+     paper. The charts keep their own blue/warm/cool encodings (they never read
+     --accent). */
+  --accent: #ec3013;
+  --accent-2: #ae1800;
+  /* 2px near-black hairline rules and their soft internal divider, the flat
+     system's only structural lines. Kept apart from --border/--grid so chart
+     gridlines stay on the neutral border. */
+  --rule: rgba(32, 30, 29, 0.42);
+  --rule-soft: rgba(32, 30, 29, 0.16);
   /* reading measure for prose, and the wider measure figures break out to */
   --measure: 44rem;
   --wide: 66rem;
@@ -59,8 +74,17 @@
   --div-mid: #f0efec;
   --div-warm: #e34948;
 
-  /* focus ring */
-  --focus: #2a78d6;
+  /* part-divider bands (layout furniture). Part I rides the accent, Part II a
+     deep neutral; both carry a fixed light foreground so text stays legible on
+     the saturated/dark fill in either theme. Kept as their own tokens because
+     --ink flips to white in dark mode and cannot back a dark band. */
+  --band-1-bg: var(--accent);
+  --band-1-fg: #f6f7f8;
+  --band-2-bg: #201e1d;
+  --band-2-fg: #f3f2f2;
+
+  /* focus ring — the modernist red */
+  --focus: var(--accent);
 }
 
 :root[data-theme='dark'] {
@@ -96,7 +120,21 @@
   --div-mid: #383835;
   --div-warm: #e66767;
 
-  --focus: #3987e5;
+  /* Red lifts toward the mockup's dark-surface reds so it clears the dark page;
+     rules invert to a light hairline. */
+  --accent: #ff563c;
+  --accent-2: #ff8a6e;
+  --rule: rgba(243, 242, 242, 0.42);
+  --rule-soft: rgba(243, 242, 242, 0.16);
+
+  /* Part II reads as an elevated band against the dark page rather than a
+     darker-than-surface block that would sink into it. */
+  --band-1-bg: var(--accent);
+  --band-1-fg: #f6f7f8;
+  --band-2-bg: #322f2c;
+  --band-2-fg: #f3f2f2;
+
+  --focus: var(--accent);
 }
 
 /* OS-driven dark, only when the user has not pinned a theme */
@@ -133,6 +171,16 @@
     --div-mid: #383835;
     --div-warm: #e66767;
 
-    --focus: #3987e5;
+    --accent: #ff563c;
+    --accent-2: #ff8a6e;
+    --rule: rgba(243, 242, 242, 0.42);
+    --rule-soft: rgba(243, 242, 242, 0.16);
+
+    --band-1-bg: var(--accent);
+    --band-1-fg: #f6f7f8;
+    --band-2-bg: #322f2c;
+    --band-2-fg: #f3f2f2;
+
+    --focus: var(--accent);
   }
 }

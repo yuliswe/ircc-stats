@@ -10,26 +10,27 @@ body {
   padding: 0;
   background: var(--surface-2);
   color: var(--ink);
-  font-family:
-    system-ui,
-    -apple-system,
-    'Segoe UI',
-    Roboto,
-    sans-serif;
+  font-family: var(--font-sans);
   font-size: 18px;
   line-height: 1.45;
 }
 
+/* Modernist display default: headings run heavy and tightly tracked in Archivo;
+   the report furniture below pushes the largest ones to 800. */
 h1,
 h2,
 h3 {
   margin: 0;
-  font-weight: 650;
-  letter-spacing: -0.01em;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 a {
-  color: var(--series-1);
+  color: var(--accent-2);
+}
+
+a:hover {
+  color: var(--accent);
 }
 
 :focus-visible {
@@ -72,9 +73,19 @@ table th.num {
   padding: 0.55rem 1.25rem;
   background: color-mix(in srgb, var(--surface-2) 82%, transparent);
   backdrop-filter: blur(8px);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 2px solid var(--rule);
   transition: transform 240ms ease;
   will-change: transform;
+}
+
+/* Red square lockup ahead of the wordmark — the mockup's masthead mark. */
+.app-header .brand-square {
+  display: block;
+  width: 14px;
+  height: 14px;
+  flex: none;
+  background: var(--accent);
+  align-self: center;
 }
 
 /* Slide out of view on scroll-down; the class is toggled from Shell. Translate
@@ -98,8 +109,9 @@ table th.num {
 
 .app-header .brand .mark {
   font-size: 0.82rem;
-  font-weight: 650;
-  letter-spacing: -0.01em;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -118,9 +130,28 @@ table th.num {
   flex: 1;
 }
 
+/* Scroll-progress strip pinned to the header's bottom edge, full-bleed past the
+   header padding, filling left-to-right as the reader moves down the report. */
+.app-progress {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 3px;
+  background: transparent;
+  overflow: hidden;
+}
+
+.app-progress-fill {
+  height: 100%;
+  background: var(--accent);
+  transform-origin: left center;
+  will-change: transform;
+}
+
 /* ── editorial report layer ──────────────────────────────────────────────────── */
-/* Prose reads in a serif at a comfortable measure; the sans stays on labels,
-   data furniture, and every chart, so the charts are untouched. */
+/* Prose reads in Archivo at a comfortable measure — the report runs one flat
+   modernist family throughout; only the charts keep their own encodings. */
 .prose {
   max-width: var(--measure);
   font-family: var(--font-serif);
@@ -146,34 +177,55 @@ table th.num {
   display: inline-block;
   font-family: var(--font-sans);
   font-size: 0.72rem;
-  font-weight: 650;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.09em;
-  color: var(--accent);
+  letter-spacing: 0.16em;
+  color: var(--accent-2);
 }
 
-/* masthead */
+/* masthead — grid layout: headline in the left column, standfirst + byline in
+   the right, headline figures spanning full width beneath. Single column first,
+   two columns once there is room. */
 .report-hero {
   padding: 2.5rem 0 2rem;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 2px solid var(--rule);
   margin-bottom: 2.5rem;
 }
 
+.report-hero .hero-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.4rem 2.5rem;
+  align-items: start;
+  margin-top: 0.7rem;
+}
+
+@media (min-width: 780px) {
+  .report-hero .hero-grid {
+    grid-template-columns: 1.15fr 1fr;
+  }
+}
+
+.report-hero .hero-aside {
+  min-width: 0;
+}
+
 .report-hero .hero-title {
-  font-family: var(--font-serif);
-  font-weight: 700;
-  font-size: clamp(2rem, 6vw, 3.3rem);
-  line-height: 1.05;
-  letter-spacing: -0.02em;
+  font-family: var(--font-sans);
+  font-weight: 800;
+  font-size: clamp(2rem, 6vw, 3.5rem);
+  line-height: 0.98;
+  letter-spacing: -0.035em;
   text-wrap: balance;
-  margin: 0.7rem 0 0;
+  margin: 0;
   max-width: 18ch;
 }
 
 .report-hero .dek {
-  margin-top: 1.1rem;
-  font-size: clamp(1.2rem, 2.6vw, 1.45rem);
-  line-height: 1.55;
+  margin-top: 0;
+  font-size: clamp(1.1rem, 2.4vw, 1.3rem);
+  line-height: 1.5;
+  font-weight: 500;
   color: var(--ink-2);
 }
 
@@ -182,50 +234,55 @@ table th.num {
   font-size: 0.88rem;
   line-height: 1.55;
   color: var(--ink-muted);
-  margin: 1.4rem 0 0;
+  margin: 1.1rem 0 0;
+  padding-top: 0.9rem;
+  border-top: 2px solid var(--rule);
   max-width: var(--measure);
 }
 
 .report-hero .byline a {
-  color: var(--ink-2);
+  color: var(--accent-2);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 
-/* headline figures */
+/* headline figures — flat stat cells sitting between two 2px rules, split by
+   soft vertical dividers, no rounded box. */
 .findings {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1px;
   margin: 1.8rem 0 0;
-  background: var(--border);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  overflow: hidden;
+  border-top: 2px solid var(--rule);
+  border-bottom: 2px solid var(--rule);
 }
 
 .findings .stat {
-  background: var(--surface);
-  padding: 1rem 1.1rem;
+  background: transparent;
+  padding: 1.1rem 1.2rem 1.1rem 0;
   margin: 0;
+}
+
+/* The headline referral rate leads in the accent red, as in the mockup. */
+.findings .stat:first-child dd {
+  color: var(--accent);
 }
 
 .findings .stat dt {
   font-family: var(--font-sans);
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.14em;
   color: var(--ink-muted);
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .findings .stat dd {
   margin: 0.35rem 0 0;
   font-family: var(--font-sans);
-  font-size: 1.95rem;
-  font-weight: 650;
-  line-height: 1.05;
-  letter-spacing: -0.01em;
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
   color: var(--ink);
   font-variant-numeric: tabular-nums;
 }
@@ -241,68 +298,120 @@ table th.num {
   color: var(--ink-2);
 }
 
-/* part divider */
+/* part divider — a full-width flat band that opens each part. Kicker + title
+   lead the first column, the lede fills the next; single column on narrow
+   screens. Tinted per part: accent red for Part I, deep neutral for Part II. */
 .report-part {
   margin: 3.5rem 0 2rem;
-  padding-top: 1.4rem;
-  border-top: 2px solid var(--accent);
+  padding: clamp(1.2rem, 2.4vw, 1.8rem) clamp(1.2rem, 2.6vw, 2rem);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem 2.5rem;
+  align-items: start;
+}
+
+@media (min-width: 720px) {
+  .report-part {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+}
+
+.report-part--accent {
+  background: var(--band-1-bg);
+  color: var(--band-1-fg);
+}
+
+.report-part--ink {
+  background: var(--band-2-bg);
+  color: var(--band-2-fg);
+}
+
+.report-part .part-head {
+  min-width: 0;
 }
 
 .report-part .part-kicker {
   font-family: var(--font-sans);
   font-size: 0.72rem;
-  font-weight: 650;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.09em;
-  color: var(--accent);
+  letter-spacing: 0.2em;
+  color: inherit;
+  opacity: 0.85;
 }
 
 .report-part .part-title {
-  font-family: var(--font-serif);
-  font-size: clamp(1.5rem, 4vw, 2.1rem);
-  line-height: 1.1;
-  letter-spacing: -0.015em;
+  font-family: var(--font-sans);
+  font-size: clamp(1.55rem, 4vw, 2.2rem);
+  line-height: 1;
+  font-weight: 800;
+  letter-spacing: -0.03em;
   text-wrap: balance;
   margin: 0.5rem 0 0;
+  color: inherit;
 }
 
+/* The lede sits on the band, so it drops the prose measure and inherits the
+   band foreground rather than the page ink. */
 .report-part .part-lede {
-  margin-top: 0.9rem;
-  color: var(--ink-2);
+  margin-top: 0;
+  max-width: 62ch;
+  color: inherit;
+  opacity: 0.92;
 }
 
-/* a numbered analytical section: framing prose, then the chart as its figure */
+/* a numbered analytical section: a two-column head on a top rule — the numbered
+   title leads the left column, the framing commentary fills the right — then the
+   chart runs full width as the section's figure. Single column on narrow. */
 .report-section {
   margin: 2.75rem 0;
+}
+
+.section-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.9rem 2.5rem;
+  border-top: 2px solid var(--rule);
+  padding-top: 1.1rem;
+  margin-bottom: 1.4rem;
+}
+
+@media (min-width: 780px) {
+  .section-grid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    align-items: start;
+  }
 }
 
 .section-head {
   display: flex;
   align-items: baseline;
-  gap: 0.85rem;
-  margin-bottom: 0.9rem;
+  gap: 0.7rem;
+  min-width: 0;
+  margin-bottom: 0;
 }
 
 .section-head .section-num {
   font-family: var(--font-sans);
-  font-size: 0.95rem;
-  font-weight: 700;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 800;
   color: var(--accent);
   font-variant-numeric: tabular-nums;
-  padding-top: 0.25rem;
+  line-height: 1;
   flex: none;
 }
 
 .section-head h2 {
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
   font-size: clamp(1.45rem, 3.4vw, 1.9rem);
-  line-height: 1.15;
-  letter-spacing: -0.015em;
+  line-height: 1.06;
+  font-weight: 800;
+  letter-spacing: -0.02em;
   text-wrap: balance;
 }
 
 .report-section .commentary {
-  margin-bottom: 1.4rem;
+  margin-bottom: 0;
 }
 
 /* the chart figure breaks out past the reading measure */
@@ -317,7 +426,7 @@ table th.num {
 .report-footer {
   margin: 4rem 0 0;
   padding-top: 1.6rem;
-  border-top: 1px solid var(--border);
+  border-top: 2px solid var(--rule);
   font-family: var(--font-sans);
   font-size: 0.92rem;
   line-height: 1.62;
@@ -339,15 +448,44 @@ table th.num {
 }
 
 .report-footer a {
-  color: var(--ink-2);
+  color: var(--accent-2);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 
-/* The footer carries two headed blocks ("About this report" then "Data
-   sources"); give the second heading room to read as a fresh section. */
-.report-footer p + h2 {
+/* The footer's two headed blocks — "About this report" and "Data sources" —
+   sit side by side in a grid, collapsing to a single column on narrow screens. */
+.footer-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem 3rem;
+}
+
+@media (min-width: 780px) {
+  .footer-grid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+}
+
+.footer-col {
+  min-width: 0;
+}
+
+/* A closing rule with the wordmark and release id, mirroring the mockup's
+   footer bar. */
+.footer-bar {
   margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 2px solid var(--rule);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  font-weight: 650;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
 }
 
 .data-sources {
@@ -365,7 +503,7 @@ table th.num {
   flex-direction: column;
   gap: 0.3rem;
   padding-left: 0.9rem;
-  border-left: 2px solid var(--border);
+  border-left: 2px solid var(--rule);
 }
 
 .data-sources .src-name {
@@ -401,12 +539,15 @@ table th.num {
 
 .btn {
   appearance: none;
-  border: 1px solid var(--border);
-  background: var(--surface);
+  border: 2px solid var(--rule);
+  background: transparent;
   color: var(--ink);
-  border-radius: 8px;
-  padding: 0.4rem 0.7rem;
-  font-size: 0.82rem;
+  border-radius: 0;
+  padding: 0.55rem 0.8rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -415,7 +556,9 @@ table th.num {
 }
 
 .btn:hover {
-  background: var(--surface-3);
+  background: var(--ink);
+  color: var(--surface);
+  border-color: var(--ink);
 }
 
 main {
@@ -424,10 +567,15 @@ main {
   padding: 0.5rem 1.25rem 5rem;
 }
 
-/* headline figures widen once there is room */
+/* headline figures widen once there is room, split by soft vertical rules */
 @media (min-width: 620px) {
   .findings {
     grid-template-columns: repeat(3, 1fr);
+  }
+
+  .findings .stat + .stat {
+    border-left: 2px solid var(--rule-soft);
+    padding-left: 1.2rem;
   }
 }
 
@@ -820,8 +968,8 @@ table.data-table th.num {
   gap: 0.5rem;
   background: var(--series-1);
   color: #fff;
-  border-radius: 999px;
-  padding: 0.25rem 0.35rem 0.25rem 0.7rem;
+  border-radius: 0;
+  padding: 0.3rem 0.4rem 0.3rem 0.7rem;
   font-size: 0.78rem;
 }
 
@@ -832,7 +980,7 @@ table.data-table th.num {
   color: #fff;
   width: 18px;
   height: 18px;
-  border-radius: 999px;
+  border-radius: 0;
   cursor: pointer;
   line-height: 1;
 }
