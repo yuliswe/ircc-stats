@@ -682,38 +682,38 @@ export const chartText = {
 // ─────────────────────────────────────────────────────────────────────────────
 
 /** A nationality that tops one of the masthead rankings, with its winning count. */
-export interface HeadlineLeader {
+export type HeadlineLeader = {
   cit: string;
   iso3: string | null;
   count: number;
-}
+};
 
-export interface Headline {
+export type Headline = {
   referralRate: number;
   approvalRate: number;
   /** Nationality with the most approved temporary-residence applications in 2025. */
   topApproval: HeadlineLeader;
   /** Nationality with the most comprehensive security screenings in 2025. */
   topScreening: HeadlineLeader;
-}
+};
 
-interface StatText {
+type StatText = {
   label: string;
   note: ReactNode;
-}
+};
 
-interface SectionText {
+type SectionText = {
   title: string;
   intro: ReactNode;
-}
+};
 
-interface PartText {
+type PartText = {
   kicker: string;
   title: string;
   lede: ReactNode;
-}
+};
 
-export interface ReportContent {
+export type ReportContent = {
   heroEyebrow: (atip: string) => string;
   heroTitle: string;
   heroDek: ReactNode;
@@ -736,7 +736,7 @@ export interface ReportContent {
     reportPrompt: ReactNode;
     reportIssue: string;
   };
-}
+};
 
 /** The report's issue tracker, linked from the footer bar. */
 export const REPO_ISSUES_HREF = 'https://github.com/yuliswe/ircc-stats/issues';

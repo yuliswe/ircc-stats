@@ -48,11 +48,11 @@ function truncate(s: string, max = 30): string {
   return s.length > max ? s.slice(0, max - 1) + '…' : s;
 }
 
-interface HoverState {
+type HoverState = {
   row: CountryMetric;
   x: number;
   y: number;
-}
+};
 
 export function EnrichmentChart() {
   const {

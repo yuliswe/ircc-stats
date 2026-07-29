@@ -38,7 +38,7 @@ import type { Column } from '@/components/viz/TableView';
 /** Log-scale floor so a country with zero serious screenings still plots near the bottom. */
 const SERIOUS_FLOOR = 0.5;
 
-interface Point {
+type Point = {
   cit: string;
   iso3: string | null;
   x: number; // total screenings (denominator)
@@ -51,7 +51,7 @@ interface Point {
   residual: number;
   logEnr: number;
   below: boolean; // under the min-screenings threshold → dimmed
-}
+};
 
 export function ReferralScatter() {
   const {
@@ -88,7 +88,7 @@ export function ReferralScatter() {
     return metrics.countries
       .filter(c => c.serious != null && c.total > 0)
       .map(c => {
-        const serious = c.serious;
+        const { serious } = c;
         const expected = share * c.total;
         const seriousShare = c.seriousShare ?? serious / c.total;
         return {
@@ -121,7 +121,6 @@ export function ReferralScatter() {
   }, [points]);
 
   const selectedCit = selection?.cit ?? null;
-  const hiddenCount = points.filter(p => p.below).length;
 
   const opacityFor = (p: Point): number => {
     if (selectedCit) return p.cit === selectedCit ? 1 : 0.25;

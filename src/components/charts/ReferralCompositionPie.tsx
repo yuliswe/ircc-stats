@@ -63,7 +63,7 @@ const ROW_GAP = 17;
 const TOP_BOUND = 14;
 const BOT_BOUND = VBH - 14;
 
-interface Slice {
+type Slice = {
   cit: string;
   iso3: string | null;
   /** true for the aggregated tail slice, which cannot be cross-filtered. */
@@ -73,9 +73,9 @@ interface Slice {
   color: string;
   start: number; // degrees, clockwise from 12 o'clock
   end: number;
-}
+};
 
-interface Label extends Slice {
+type Label = {
   side: 'left' | 'right';
   ax: number; // anchor on the outer arc
   ay: number;
@@ -84,13 +84,13 @@ interface Label extends Slice {
   lineEndX: number;
   textX: number;
   y: number; // resolved (de-collided) label y
-}
+} & Slice;
 
-interface Hover {
+type Hover = {
   slice: Slice;
   x: number;
   y: number;
-}
+};
 
 /** Point on a circle of radius `r`, `deg` measured clockwise from 12 o'clock. */
 function polar(r: number, deg: number): [number, number] {

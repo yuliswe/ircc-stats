@@ -78,7 +78,7 @@ function pctTick(v: number): string {
   return `${+(v * 100).toFixed(2)}%`;
 }
 
-interface Point {
+type Point = {
   cit: string;
   iso3: string | null;
   x: number; // security-screening rate (referred ÷ applications)
@@ -89,7 +89,7 @@ interface Point {
   approved: number;
   processed: number;
   ratio: number; // y ÷ x
-}
+};
 
 export function ApprovalVsScreeningScatter() {
   const { data, theme, selection, select, locale } = useViz();

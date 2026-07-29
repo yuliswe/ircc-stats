@@ -62,7 +62,7 @@ function tickLabel(v: number): string {
   return String(v);
 }
 
-interface Point {
+type Point = {
   cit: string;
   iso3: string | null;
   x: number; // total applications
@@ -71,7 +71,7 @@ interface Point {
   applications: number;
   referred: number;
   pct: number;
-}
+};
 
 export function ScreeningScatter() {
   const { data, theme, selection, select, locale } = useViz();

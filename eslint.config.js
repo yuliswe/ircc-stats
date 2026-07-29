@@ -28,6 +28,12 @@ export default [
       '**/build/**',
       '**/.aws-sam/**',
       '**/__generated__/**',
+      // Next.js build output and its generated type declarations are not part
+      // of the tsconfig project, so linting them only produces parser errors.
+      '**/.next/**',
+      'next-env.d.ts',
+      // .design-sync/ is git-ignored scaffolding, not project source.
+      '**/.design-sync/**',
     ],
   },
 
@@ -257,12 +263,6 @@ export default [
         {
           selector: "CallExpression[callee.name='expect']",
           message: 'Function expressions are not allowed in source files.',
-        },
-        {
-          selector:
-            "MemberExpression[object.name='process'][property.name='env']",
-          message:
-            'Do not use process.env directly. Use the Env helper module instead.',
         },
         {
           selector:

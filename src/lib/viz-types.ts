@@ -20,7 +20,7 @@ export type ValueField = 'grand' | 'total2025';
  * country metrics; office breakdowns live in `OfficeCell`. The build derives it
  * by summing the office leaves of each (category, activity, citizenship) group.
  */
-export interface CityCell {
+export type CityCell = {
   /** Top-dimension value: immigration category (PR) or application type (TRV). */
   cat: string;
   /** Activity (screening) type. */
@@ -33,19 +33,19 @@ export interface CityCell {
   g: number;
   /** total_2025 count. */
   t: number;
-}
+};
 
 /** An office-tier cell: adds the processing office beneath a `CityCell`. */
-export interface OfficeCell {
+export type OfficeCell = {
   cat: string;
   act: string;
   cit: string;
   off: string;
   g: number;
   t: number;
-}
+};
 
-export interface StreamData {
+export type StreamData = {
   id: StreamId;
   /** Raw hierarchy column name, e.g. "immigration_category". */
   topDimension: string;
@@ -71,7 +71,7 @@ export interface StreamData {
   placeholders: { grand: number; total2025: number };
   /** Citizenships that could not be mapped to an ISO3 code (map footnote). */
   unmatchedCitizenships: string[];
-}
+};
 
 /**
  * One nationality's 2025 screening-vs-applications row, from
@@ -83,7 +83,7 @@ export interface StreamData {
  * "Unspecified", "Stateless") and rows without an application denominator are
  * dropped at build time, so `applications` is always > 0 here.
  */
-export interface ScreeningAppRow {
+export type ScreeningAppRow = {
   /** Citizenship, as printed in the CSV. */
   cit: string;
   /** ISO 3166-1 alpha-3, resolved from `cit`; null when unmatched. */
@@ -102,7 +102,7 @@ export interface ScreeningAppRow {
   spProcessed: number;
   /** TRV application intake. */
   trvIntake: number;
-}
+};
 
 /**
  * One nationality's 2025 temporary-residence approval outcome, from
@@ -114,7 +114,7 @@ export interface ScreeningAppRow {
  * aggregate rows ("Total", "Other*") are removed as well: "Total" becomes
  * `trApprovalTotal` and the residual "Other*" bucket is discarded.
  */
-export interface TrApprovalRow {
+export type TrApprovalRow = {
   /** Source-country label, as printed in the CSV. */
   cit: string;
   /** ISO 3166-1 alpha-3, resolved from `cit`; null when unmatched. */
@@ -127,14 +127,14 @@ export interface TrApprovalRow {
   nonApproval: number;
   /** approved ÷ processed. */
   rate: number;
-}
+};
 
 /** The all-countries "Total" aggregate row, used as the national-average baseline. */
-export interface TrApprovalTotal {
+export type TrApprovalTotal = {
   approved: number;
   processed: number;
   rate: number;
-}
+};
 
 /**
  * One country's 2025 permanent-residence outcome, from
@@ -145,7 +145,7 @@ export interface TrApprovalTotal {
  * application intake. The non-country aggregate rows ("Other*", "Stateless")
  * are dropped at build time because a country map cannot place them.
  */
-export interface CoprRow {
+export type CoprRow = {
   /** Source-country label, as printed in the CSV. */
   cit: string;
   /** ISO 3166-1 alpha-3, resolved from `cit`; null when unmatched. */
@@ -154,9 +154,9 @@ export interface CoprRow {
   prIntake: number;
   /** Confirmations of Permanent Residence issued in 2025 (copr_issued). */
   coprIssued: number;
-}
+};
 
-export interface VizData {
+export type VizData = {
   meta: {
     atip: string;
     generatedFrom: string[];
@@ -174,4 +174,4 @@ export interface VizData {
   trApprovalTotal: TrApprovalTotal;
   /** 2025 CoPRs issued (permanent residents admitted) per country. */
   coprByCountry: CoprRow[];
-}
+};

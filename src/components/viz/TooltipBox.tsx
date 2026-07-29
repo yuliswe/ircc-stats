@@ -5,10 +5,10 @@
  * scatter, treemap). The chart positions it; this just renders the box. Values
  * wear ink tokens, never a series color (§8).
  */
-export interface TipRow {
+export type TipRow = {
   label: string;
   value: string;
-}
+};
 
 export function TooltipBox({
   title,

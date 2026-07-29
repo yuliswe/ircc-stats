@@ -1,9 +1,9 @@
 'use client';
 
-export interface LegendItem {
+export type LegendItem = {
   label: string;
   color: string;
-}
+};
 
 /** A legend is present for every chart with ≥2 series (§8). */
 export function Legend({ items }: { items: LegendItem[] }) {

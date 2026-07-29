@@ -16,23 +16,23 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import type { StreamId, ValueField, VizData } from './viz-types';
+import type { StreamId, ValueField, VizData } from '@/lib/viz-types';
 import {
   computeMetrics,
   type StreamMetrics,
   type TopDimFilter,
-} from './selectors';
-import type { ThemeMode } from './palette';
-import { DEFAULT_LOCALE, type Locale } from './i18n';
+} from '@/lib/selectors';
+import type { ThemeMode } from '@/lib/palette';
+import { DEFAULT_LOCALE, type Locale } from '@/lib/i18n';
 
 export type Metric = 'seriousShare' | 'enrichment' | 'referralRate';
 
-export interface Selection {
+export type Selection = {
   cit: string;
   iso3: string | null;
-}
+};
 
-interface VizState {
+type VizState = {
   data: VizData;
   streamId: StreamId;
   valueField: ValueField;
@@ -54,7 +54,7 @@ interface VizState {
   setMetric: (m: Metric) => void;
   select: (s: Selection | null) => void;
   toggleTheme: () => void;
-}
+};
 
 const Ctx = createContext<VizState | null>(null);
 

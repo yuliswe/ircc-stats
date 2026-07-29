@@ -33,12 +33,12 @@ const CELL_H = 26;
 
 type TopN = 10 | 20 | 40;
 
-interface Tip {
+type Tip = {
   title: string;
   rows: TipRow[];
   x: number;
   y: number;
-}
+};
 
 export function OfficeHeatmap() {
   const {

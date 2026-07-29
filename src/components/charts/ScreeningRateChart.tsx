@@ -65,16 +65,16 @@ function truncate(s: string, max = 30): string {
   return s.length > max ? s.slice(0, max - 1) + '…' : s;
 }
 
-interface RateRow extends ScreeningAppRow {
+type RateRow = {
   rate: number;
   logVsAvg: number | null;
-}
+} & ScreeningAppRow;
 
-interface HoverState {
+type HoverState = {
   row: RateRow;
   x: number;
   y: number;
-}
+};
 
 /** Round up to a "nice" axis maximum (0.05, 0.10, …) above the largest rate. */
 function niceCeil(x: number): number {

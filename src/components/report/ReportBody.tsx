@@ -76,7 +76,7 @@ function headline(d: VizData): Headline {
 export function ReportBody() {
   const { data, locale } = useViz();
   const h = headline(data);
-  const atip = data.meta.atip;
+  const { atip } = data.meta;
   const c = getReportContent(locale, h, atip);
 
   return (

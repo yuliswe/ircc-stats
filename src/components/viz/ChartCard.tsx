@@ -8,7 +8,7 @@
  * and the CVD floor, so it is always available.
  */
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
-import { TableView, type Column } from './TableView';
+import { TableView, type Column } from '@/components/viz/TableView';
 import { RevealContext } from '@/lib/reveal';
 import { useViz } from '@/lib/store';
 import { pick } from '@/lib/i18n';
@@ -16,7 +16,7 @@ import { CHART_CARD } from '@/content/strings';
 
 type RevealState = 'armed' | 'in' | null;
 
-interface ChartCardProps {
+type ChartCardProps = {
   title: string;
   subtitle: ReactNode;
   /** per-chart controls (sort, normalize, log/linear…) rendered in the head */
@@ -28,7 +28,7 @@ interface ChartCardProps {
   tableRows: Record<string, ReactNode>[];
   className?: string;
   children: ReactNode;
-}
+};
 
 export function ChartCard({
   title,

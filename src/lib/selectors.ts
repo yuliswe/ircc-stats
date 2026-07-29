@@ -7,10 +7,10 @@
  * chart (helper `applyThreshold`), not a change to the global denominators, so
  * filtering small countries out never repaints the shares of the rest.
  */
-import type { StreamData, ValueField } from './viz-types';
-import { log2 } from './format';
+import type { StreamData, ValueField } from '@/lib/viz-types';
+import { log2 } from '@/lib/format';
 
-export interface CountryMetric {
+export type CountryMetric = {
   cit: string;
   iso3: string | null;
   /** value per activity type, for the active value field + top-dim filter */
@@ -25,9 +25,9 @@ export interface CountryMetric {
   enrichment: number | null;
   /** log2(enrichment) for the diverging log axis; null when enrichment is null */
   logEnrichment: number | null;
-}
+};
 
-export interface StreamMetrics {
+export type StreamMetrics = {
   countries: CountryMetric[];
   globalSerious: number;
   globalTotal: number;
@@ -36,7 +36,7 @@ export interface StreamMetrics {
   seriousTypes: string[];
   routineType: string;
   seriousMappingKnown: boolean;
-}
+};
 
 const pick = (g: number, t: number, field: ValueField) =>
   field === 'grand' ? g : t;
@@ -129,14 +129,14 @@ export function applyThreshold<T extends { total: number }>(
 }
 
 // ── office matrix (Chart 3) ──────────────────────────────────────────────────────
-export interface OfficeMatrix {
+export type OfficeMatrix = {
   countries: string[];
   offices: string[];
   /** value[cit][office] */
   value: Map<string, Map<string, number>>;
   rowTotal: Map<string, number>;
   colTotal: Map<string, number>;
-}
+};
 
 export function computeOfficeMatrix(
   stream: StreamData,
@@ -172,11 +172,11 @@ export function computeOfficeMatrix(
 }
 
 // ── hierarchy (Chart 6) ────────────────────────────────────────────────────────
-export interface HierNode {
+export type HierNode = {
   name: string;
   value?: number;
   children?: HierNode[];
-}
+};
 
 /** Build a category → activity → citizenship tree sized by the active value field. */
 export function computeHierarchy(

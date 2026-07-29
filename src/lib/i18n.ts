@@ -15,8 +15,8 @@
  * label dictionary colocated with the chart. The shared helper `pick` selects a
  * value for the active locale everywhere else.
  */
-import { flagOf } from './format';
-import { COUNTRY_ZH } from './country-zh';
+import { flagOf } from '@/lib/format';
+import { COUNTRY_ZH } from '@/lib/country-zh';
 
 export type Locale = 'en' | 'zh';
 export const LOCALES: readonly Locale[] = ['en', 'zh'] as const;

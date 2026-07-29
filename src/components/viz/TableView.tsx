@@ -4,12 +4,12 @@ import { useViz } from '@/lib/store';
 import { pick } from '@/lib/i18n';
 import { TABLE } from '@/content/strings';
 
-export interface Column {
+export type Column = {
   key: string;
   label: string;
   /** right-align + tabular-nums for numeric columns */
   num?: boolean;
-}
+};
 
 export function TableView({
   columns,

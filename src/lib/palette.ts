@@ -5,7 +5,7 @@
  * the CSS. If you change a value, change it in both files and re-run
  * scripts/validate_palette.js.
  */
-import type { StreamId } from './viz-types';
+import type { StreamId } from '@/lib/viz-types';
 
 export type ThemeMode = 'light' | 'dark';
 

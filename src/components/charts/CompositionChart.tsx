@@ -16,14 +16,14 @@
  * (no client-only lib, no DOM measurement, so no mounted-flag gate is needed).
  */
 import { useState, type ReactNode } from 'react';
-import { useViz } from '../../lib/store';
-import { applyThreshold, type CountryMetric } from '../../lib/selectors';
-import { activityColor } from '../../lib/palette';
-import { fmtInt, fmtPct, withFlag } from '../../lib/format';
-import { ChartCard } from '../viz/ChartCard';
-import { Legend } from '../viz/Legend';
-import { TooltipBox } from '../viz/TooltipBox';
-import type { Column } from '../viz/TableView';
+import { useViz } from '@/lib/store';
+import { applyThreshold, type CountryMetric } from '@/lib/selectors';
+import { activityColor } from '@/lib/palette';
+import { fmtInt, fmtPct, withFlag } from '@/lib/format';
+import { ChartCard } from '@/components/viz/ChartCard';
+import { Legend } from '@/components/viz/Legend';
+import { TooltipBox } from '@/components/viz/TooltipBox';
+import type { Column } from '@/components/viz/TableView';
 
 const COLLAPSED = 25;
 
@@ -33,13 +33,13 @@ const short = (act: string) => act.replace(/\s*Screening$/i, '');
 const share = (c: CountryMetric, act: string) =>
   c.total > 0 ? (c.byActivity[act] ?? 0) / c.total : 0;
 
-interface SortOpt {
+type SortOpt = {
   key: string;
   label: string;
   val: (c: CountryMetric) => number;
-}
+};
 
-interface Tip {
+type Tip = {
   cit: string;
   iso3: string | null;
   act: string;
@@ -47,7 +47,7 @@ interface Tip {
   pct: number;
   x: number;
   y: number;
-}
+};
 
 export function CompositionChart() {
   const {

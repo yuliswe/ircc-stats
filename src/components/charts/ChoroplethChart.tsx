@@ -26,13 +26,13 @@ import { geoNaturalEarth1, geoPath } from 'd3-geo';
 import { useEffect, useMemo, useState } from 'react';
 import { feature } from 'topojson-client';
 import topo from 'world-atlas/countries-110m.json';
-import { fmtInt } from '../../lib/format';
-import { grayRedBlueColor, type ThemeMode } from '../../lib/palette';
-import { useViz } from '../../lib/store';
-import type { CoprRow } from '../../lib/viz-types';
-import { ChartCard } from '../viz/ChartCard';
-import type { Column } from '../viz/TableView';
-import { TooltipBox, type TipRow } from '../viz/TooltipBox';
+import { fmtInt } from '@/lib/format';
+import { grayRedBlueColor, type ThemeMode } from '@/lib/palette';
+import { useViz } from '@/lib/store';
+import type { CoprRow } from '@/lib/viz-types';
+import { ChartCard } from '@/components/viz/ChartCard';
+import type { Column } from '@/components/viz/TableView';
+import { TooltipBox, type TipRow } from '@/components/viz/TooltipBox';
 
 // All user-facing copy for this chart lives in `@/content/strings`
 // (`CHARTS.choropleth` for static labels, `chartText.choropleth` for

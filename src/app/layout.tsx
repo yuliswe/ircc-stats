@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Script from 'next/script';
 import { Archivo } from 'next/font/google';
-import './globals.css';
+import '@/app/globals.css';
 
 // The report's display + text face. Archivo is a variable font, so the full
 // weight axis (the report uses 400–900) loads from one file; next/font

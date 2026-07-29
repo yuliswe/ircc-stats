@@ -91,11 +91,11 @@ function truncate(s: string, max = 28): string {
   return s.length > max ? s.slice(0, max - 1) + '…' : s;
 }
 
-interface HoverState {
+type HoverState = {
   row: ScreeningAppRow;
   x: number;
   y: number;
-}
+};
 
 /** Compact absolute-count tick label: 1, 10, 1k, 100k, 1M. */
 function tickLabel(v: number): string {
