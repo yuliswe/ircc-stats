@@ -162,11 +162,22 @@ const RAMP_GRAY: Record<ThemeMode, string> = {
 };
 
 /**
+ * High-end anchor for {@link grayRedBlueColor}: a deeper blue than the diverging
+ * `cool`, so the most-admitted nationalities read as a strong, saturated blue.
+ * Kept local to the ramp rather than shared with {@link DIVERGING} so darkening
+ * it here does not shift the diverging charts.
+ */
+const RAMP_BLUE: Record<ThemeMode, string> = {
+  light: '#134a91',
+  dark: '#2f74cc',
+};
+
+/**
  * Position of the red peak on the gray→red→blue ramp: gray→red fills [0, this]
  * and red→blue fills [this, 1]. Keeping it well below 0.5 lets blue dominate the
  * upper range, so mid-volume quantities already read blue rather than red.
  */
-const RAMP_RED_AT = 0.3;
+const RAMP_RED_AT = 0.2;
 
 /**
  * Sequential gray→red→blue color for a normalized magnitude t in [0,1]. Unlike
@@ -174,13 +185,15 @@ const RAMP_RED_AT = 0.3;
  * one: the low end reads as neutral gray (matching the empty surface, so zero
  * and near-zero barely register), red peaks at {@link RAMP_RED_AT} for medium
  * quantities, and the high end resolves to blue for the largest quantities. Red
- * and blue reuse the diverging warm/cool anchors so the ends match the palette.
+ * reuses the diverging warm anchor, while blue uses the deeper {@link RAMP_BLUE}
+ * so the high end reads darker than the diverging charts.
  */
 export function grayRedBlueColor(t: number, theme: ThemeMode): string {
-  const { cool, warm } = DIVERGING[theme];
+  const { warm } = DIVERGING[theme];
   const gray = RAMP_GRAY[theme];
+  const blue = RAMP_BLUE[theme];
   const x = Math.max(0, Math.min(1, t));
   return x <= RAMP_RED_AT
     ? lerpHex(gray, warm, x / RAMP_RED_AT)
-    : lerpHex(warm, cool, (x - RAMP_RED_AT) / (1 - RAMP_RED_AT));
+    : lerpHex(warm, blue, (x - RAMP_RED_AT) / (1 - RAMP_RED_AT));
 }

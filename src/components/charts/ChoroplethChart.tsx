@@ -58,10 +58,10 @@ const geo = feature(
 // southern extent otherwise eats roughly a third of the frame, compressing the
 // populated latitudes. Drop it before fitting the projection and from the paths.
 const drawnFeatures = geo.features.filter(f => String(f.id ?? '') !== '10');
-const projection = geoNaturalEarth1().fitSize(
-  [W, H],
-  { type: 'FeatureCollection', features: drawnFeatures } as never
-);
+const projection = geoNaturalEarth1().fitSize([W, H], {
+  type: 'FeatureCollection',
+  features: drawnFeatures,
+} as never);
 const pathGen = geoPath(projection);
 const FEATURE_PATHS: { id: string; d: string }[] = drawnFeatures.map(f => ({
   id: String(f.id ?? ''),
@@ -218,7 +218,11 @@ export function ChoroplethChart() {
       >
         {FEATURE_PATHS.map((fp, i) => {
           if (!fp.d) return null;
-          const iso3 = ccn3ToIso3[fp.id];
+          // The world-atlas topology zero-pads numeric country codes to three
+          // digits (e.g. Australia is "036"), but `ccn3ToIso3` keys them without
+          // leading zeros ("36"), so codes below 100 miss unless we also try the
+          // unpadded form.
+          const iso3 = ccn3ToIso3[fp.id] ?? ccn3ToIso3[String(Number(fp.id))];
           const isCanada = iso3 === CANADA_ISO3;
           const m = iso3 && !isCanada ? byIso.get(iso3) : undefined;
           const fill = isCanada
