@@ -91,12 +91,12 @@ export const OPINION_CHARTS = {
     },
     axisLabel: { en: 'Country', zh: '国家/地区' },
     subtitle: (minLabel: string, shown: number): Pair => ({
-      en: `Each bar is one country, filled to its lag-1 failure rate — failed (non-favourable) results in 2020–2025 over referrals in 2019–2024, offset by a year because a screening concludes about a year after referral. The whisker extends to the same-window rate, so its length shows how much the lag assumption moves the figure. The dashed line is the national mean. Only countries with at least ${minLabel} screenings appear (${shown} in all), sorted so the nationalities screening genuinely catches sit on top.`,
-      zh: `每个国家一根条形，长度是「滞后一年」口径下的审查失败率——用 2020–2025 年出现的失败（非通过）结果，除以 2019–2024 年被送审的人数（因为一次审查通常在送审约一年后才出结论，所以两端各错开一年）。须状线延伸到「同窗」口径，其长度显示这个滞后假设会把数字挪动多少。虚线是全国均值。仅显示审查数不少于 ${minLabel} 的国家（共 ${shown} 个），按失败率从高到低排列，真正被审查查出问题最多的国家排在最上面。`,
+      en: `Each bar is one country, filled to its failure rate — failed (non-favourable) results in 2020–2025 over referrals in 2019–2024, offset by a year because a screening concludes about a year after referral. The dashed line is the national mean. Only countries with at least ${minLabel} screenings appear (${shown} in all), sorted so the nationalities screening genuinely catches sit on top.`,
+      zh: `每个国家一根条形，长度是该国的审查失败率——用 2020–2025 年出现的失败（非通过）结果，除以 2019–2024 年被送审的人数（因为一次审查通常在送审约一年后才出结论，所以两端各错开一年）。虚线是全国均值。仅显示审查数不少于 ${minLabel} 的国家（共 ${shown} 个），按失败率从高到低排列，真正被审查查出问题最多的国家排在最上面。`,
     }),
     footnote: (natLag: string): Pair => ({
-      en: `Failed results come from ATIP release OPP-DART-2025-34337 (non-favourable screening results by nationality and year, January 2019 – July 2025). The referral counts come from 1A-2025-08687. A suppressed cell (printed “--”, meaning a count of 1–4) is counted as zero, so every rate is a lower bound. The most recent referral cohorts have not finished concluding, so heavy recent screeners read slightly low. The national mean is ${natLag}. Switch to the table view for every country on both bases.`,
-      zh: `失败结果来自 ATIP 公开档案 OPP-DART-2025-34337（按国籍与年度统计的非通过审查结果，2019 年 1 月至 2025 年 7 月）；被送审人数来自 1A-2025-08687。被隐去的单元格（印作「--」，表示 1–4 之间）按零计入，因此每个比率都是下限。最近几年的送审队列尚未全部出结论，所以近年送审量大的国家读数略偏低。全国均值 ${natLag}。切换到表格视图可查看每个国家在两种口径下的数值。`,
+      en: `Failed results come from ATIP release OPP-DART-2025-34337 (non-favourable screening results by nationality and year, January 2019 – July 2025). The referral counts come from 1A-2025-08687. A suppressed cell (printed “--”, meaning a count of 1–4) is counted as zero, so every rate is a lower bound. The most recent referral cohorts have not finished concluding, so heavy recent screeners read slightly low. The national mean is ${natLag}. Switch to the table view for every country.`,
+      zh: `失败结果来自 ATIP 公开档案 OPP-DART-2025-34337（按国籍与年度统计的非通过审查结果，2019 年 1 月至 2025 年 7 月）；被送审人数来自 1A-2025-08687。被隐去的单元格（印作「--」，表示 1–4 之间）按零计入，因此每个比率都是下限。最近几年的送审队列尚未全部出结论，所以近年送审量大的国家读数略偏低。全国均值 ${natLag}。切换到表格视图可查看每个国家的数值。`,
     }),
   },
   outliers: {
@@ -279,15 +279,14 @@ function prose(locale: Locale): ReactNode {
         (OPP-DART-2025-34337) that reports non-favourable results by nationality
         and year. Because a screening concludes about a year after referral, the
         headline failure rate offsets the windows by a year — failed results in
-        2020&ndash;2025 over referrals in 2019&ndash;2024 — and each bar&rsquo;s
-        whisker shows the same-window figure, keeping the lag assumption
-        visible. Suppressed result counts (a printed &ldquo;--&rdquo;, meaning
-        1&ndash;4) are floored to zero, so every failure rate is a lower bound,
-        and the most recent referral cohorts have not finished concluding, so
-        heavy recent screeners read slightly low. Both make China&rsquo;s low
-        rate conservative rather than flattering. The original files are scanned
-        images, so the figures were read by OCR and checked against the source
-        one by one. Every chart can be switched to its underlying data table.
+        2020&ndash;2025 over referrals in 2019&ndash;2024. Suppressed result
+        counts (a printed &ldquo;--&rdquo;, meaning 1&ndash;4) are floored to
+        zero, so every failure rate is a lower bound, and the most recent
+        referral cohorts have not finished concluding, so heavy recent screeners
+        read slightly low. Both make China&rsquo;s low rate conservative rather
+        than flattering. The original files are scanned images, so the figures
+        were read by OCR and checked against the source one by one. Every chart
+        can be switched to its underlying data table.
       </p>
     </>
   ) : (
@@ -350,7 +349,7 @@ function prose(locale: Locale): ReactNode {
         送审档案统计的是审查被<em>发起</em>
         的次数，不是被审查的人数——同一位申请人若被开启多种类型的审查会被重复计入，因此以「申请数」为分母算出的比例应读作「每份申请对应的审查次数」。失败率取自另一份档案（OPP-DART-2025-34337），它按国籍与年度列出非通过结果。由于一次审查通常在送审约一年后才出结论，本文的失败率把两端各错开一年——用
         2020–2025 年出现的失败结果，除以 2019–2024
-        年的送审人数——每根条形的须状线则显示同窗口径，好让这个滞后假设一目了然。被隐去的结果计数（印作「--」，表示
+        年的送审人数。被隐去的结果计数（印作「--」，表示
         1–4）按零计入，因此每个失败率都是下限；最近几年的送审队列尚未全部出结论，近年送审量大的国家读数略偏低——这两点都让中国的低失败率偏保守，而非偏高。原始档案均为扫描图片，数字经文字识别读出后逐一对照核对。所有图表均可切换到原始数据表核验。
       </p>
     </>

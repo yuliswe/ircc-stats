@@ -162,12 +162,12 @@ export type CoprRow = {
  * from `1A-2025-08687`. The failed-results file reports failures by nationality
  * and calendar year (2019 → Jul 2025); the referral counts come from the stream
  * cells (cumulative `g` and 2025 `t`). Because a screening concludes roughly a
- * year after referral, the honest rate divides failures observed in a window by
- * the referral cohort that generated them, so this row carries both a same-window
- * (naive) basis and a one-year lag-aligned basis, and the chart shows the range
- * between them. Suppressed failure cells (printed `--`, meaning 1–4) are counted
- * as 0, so every failure figure is a lower bound. Only nationalities coded to an
- * ISO3 with a positive referral denominator are emitted.
+ * year after referral, the failure rate divides failures observed in 2020–2025
+ * by the referral cohort that generated them (2019–2024). The row also carries
+ * the cumulative referral and all-years failure counts, so a same-window rate can
+ * still be computed off it if needed. Suppressed failure cells (printed `--`,
+ * meaning 1–4) are counted as 0, so every failure figure is a lower bound. Only
+ * nationalities coded to an ISO3 with a positive referral denominator are emitted.
  */
 export type ScreeningOutcomeRow = {
   /** Citizenship, as printed in the failed-results CSV. */

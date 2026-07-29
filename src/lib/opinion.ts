@@ -489,12 +489,10 @@ export function grounds(a: Profile, b: Profile, locale: Locale) {
 // ── 04 — screening outcomes: how often a screening actually fails ────────────
 /**
  * The per-country failure rate, joining the failed-results release to the
- * referral counts. A screening concludes ~a year after referral, so the honest
- * rate offsets the windows: the headline is the lag-1 rate (failures 2020–2025
- * over referrals 2019–2024), and each mark carries a whisker to the same-window
- * (naive) rate so the reader sees the range. Suppressed failure cells are floored
- * to zero, so every rate is a lower bound. Sorted by the lag-1 rate, China and
- * India highlighted, with the national mean marked.
+ * referral counts. A screening concludes ~a year after referral, so the rate
+ * offsets the windows by a year: failures 2020–2025 over referrals 2019–2024.
+ * Suppressed failure cells are floored to zero, so every rate is a lower bound.
+ * Sorted by the rate, China and India highlighted, with the national mean marked.
  */
 export function screeningOutcome(
   d: VizData,
@@ -506,9 +504,7 @@ export function screeningOutcome(
     flags = true,
     highlight = ['CHN', 'IND'],
   } = opts;
-  const naive = (r: { failuresAll: number; referralsCum: number }) =>
-    r.referralsCum > 0 ? r.failuresAll / r.referralsCum : 0;
-  const lag1 = (r: {
+  const rate = (r: {
     failures2020to2025: number;
     referrals2019to2024: number;
   }) =>
@@ -516,53 +512,42 @@ export function screeningOutcome(
       ? r.failures2020to2025 / r.referrals2019to2024
       : 0;
 
-  const t = d.screeningOutcomeTotal;
-  const natLag = lag1(t);
+  const nat = rate(d.screeningOutcomeTotal);
 
   const kept = d.screeningOutcomes
     .filter(r => r.referralsCum >= minReferrals)
-    .map(r => ({ r, n: naive(r), l: lag1(r) }))
-    .sort((a, b) => b.l - a.l);
+    .map(r => ({ r, v: rate(r) }))
+    .sort((a, b) => b.v - a.v);
 
-  const maxHi = Math.max(...kept.map(k => Math.max(k.n, k.l)), natLag);
+  const max = Math.max(...kept.map(k => k.v), nat);
   // Whole-percent axis so the ticks read 0%, 1%, 2%… against the linear scale.
-  const axisMax = Math.max(0.01, Math.ceil(maxHi * 100) / 100);
+  const axisMax = Math.max(0.01, Math.ceil(max * 100) / 100);
   const tickCount = Math.round(axisMax * 100);
-  const naiveWord = L(locale, { en: 'same-window', zh: '同窗' });
 
   return {
     shown: kept.length,
     minLabel: fmtInt(minReferrals),
-    natLag,
-    natLagLabel: fmtPct(natLag),
-    meanLeft: pctOf(natLag, axisMax),
+    natLag: nat,
+    natLagLabel: fmtPct(nat),
+    meanLeft: pctOf(nat, axisMax),
     meanLabel:
-      L(locale, { en: 'national avg ', zh: '全国均值 ' }) + fmtPct(natLag),
+      L(locale, { en: 'national avg ', zh: '全国均值 ' }) + fmtPct(nat),
     ticks: Array.from({ length: tickCount + 1 }, (_, i) => `${i}%`),
-    bars: kept.map((k, i) => {
-      const lo = Math.min(k.n, k.l);
-      const hi = Math.max(k.n, k.l);
-      const isHi = highlight.includes(k.r.iso3);
-      return {
-        key: `${k.r.iso3}${i}`,
-        ...label(k.r.iso3, k.r.cit, flags, locale),
-        wLag: pctOf(k.l, axisMax),
-        wLo: pctOf(lo, axisMax),
-        wHi: pctOf(hi, axisMax),
-        wSpan: pctOf(hi - lo, axisMax),
-        value: fmtPct(k.l),
-        naiveNote: naiveWord + ' ' + fmtPct(k.n),
-        fill:
-          k.r.iso3 === 'CHN'
-            ? 'var(--div-warm)'
-            : k.r.iso3 === 'IND'
-              ? 'var(--series-1)'
-              : 'var(--ink-muted)',
-        delay: i * 22 + 'ms',
-        strong: isHi,
-        above: k.l >= natLag,
-      };
-    }),
+    bars: kept.map((k, i) => ({
+      key: `${k.r.iso3}${i}`,
+      ...label(k.r.iso3, k.r.cit, flags, locale),
+      w: pctOf(k.v, axisMax),
+      value: fmtPct(k.v),
+      fill:
+        k.r.iso3 === 'CHN'
+          ? 'var(--div-warm)'
+          : k.r.iso3 === 'IND'
+            ? 'var(--series-1)'
+            : 'var(--ink-muted)',
+      delay: i * 22 + 'ms',
+      strong: highlight.includes(k.r.iso3),
+      above: k.v >= nat,
+    })),
     table: {
       columns: [
         { key: 'c', label: L(locale, { en: 'Country', zh: '国家/地区' }) },
@@ -580,13 +565,8 @@ export function screeningOutcome(
           num: true,
         },
         {
-          key: 'n',
-          label: L(locale, { en: 'Rate (same-window)', zh: '失败率(同窗)' }),
-          num: true,
-        },
-        {
-          key: 'l',
-          label: L(locale, { en: 'Rate (lag-1)', zh: '失败率(滞后一年)' }),
+          key: 'v',
+          label: L(locale, { en: 'Failure rate', zh: '失败率' }),
           num: true,
         },
       ],
@@ -596,8 +576,7 @@ export function screeningOutcome(
           c: label(r.iso3, r.cit, false, locale).zh,
           ref: fmtInt(r.referralsCum),
           f: fmtInt(r.failuresAll),
-          n: fmtPct(naive(r)),
-          l: fmtPct(lag1(r)),
+          v: fmtPct(rate(r)),
         })),
     } satisfies ChartTable,
   };
