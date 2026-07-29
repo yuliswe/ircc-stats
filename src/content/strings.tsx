@@ -30,8 +30,10 @@ type Pair<T = string> = { en: T; zh: T };
 export const SHELL = {
   brand: { en: 'IRCC Report 2025', zh: 'IRCC 报告 2025' },
   toggleThemeAria: { en: 'Toggle color theme', zh: '切换配色主题' },
-  light: { en: '☀︎ Light', zh: '☀︎ 浅色' },
-  dark: { en: '☾ Dark', zh: '☾ 深色' },
+  // Word only; the glyph is rendered as a separate icon span so the word can
+  // collapse on mobile while the icon remains.
+  light: { en: 'Light', zh: '浅色' },
+  dark: { en: 'Dark', zh: '深色' },
   toggleLangAria: { en: 'Switch language', zh: '切换语言' },
   // The label names the language you switch *to*: shown on the English page it
   // reads 中文, on the Chinese page it reads EN.

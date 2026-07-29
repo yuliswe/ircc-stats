@@ -626,12 +626,24 @@ table th.num {
   align-items: center;
   gap: 0.4rem;
   text-decoration: none;
+  /* Keep multi-character labels (notably the CJK 中文 switch) on one line so the
+     button never breaks into stacked glyphs when the flex row is tight. */
+  white-space: nowrap;
 }
 
 .btn:hover {
   background: var(--ink);
   color: var(--surface);
   border-color: var(--ink);
+}
+
+/* The glyph/SVG half of a button. Kept as its own centred box so it stays put
+   when its sibling label is collapsed on small screens (icon-only controls). */
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
 }
 
 main {
@@ -1109,6 +1121,29 @@ table.data-table th.num {
   .header-inner {
     padding: 0.6rem 16px;
     gap: 0.5rem;
+  }
+
+  /* The utility buttons keep their intrinsic width; only the brand is allowed to
+     shrink (its wordmark ellipsises), so the controls never get squeezed into
+     stacked glyphs or overlapped by the brand text. A fixed height makes the
+     three controls line up exactly regardless of icon vs text content. */
+  .app-header .btn {
+    flex: none;
+    height: 34px;
+    padding: 0 10px;
+  }
+
+  /* Theme and source buttons go icon-only to save the narrow row; the language
+     switch keeps its short 中文 / EN label since that is its whole point. */
+  .app-header .btn-label {
+    display: none;
+  }
+
+  /* The ATIP release id already leads the masthead directly below the bar, so
+     dropping the badge here frees the row instead of colliding with the
+     controls on a narrow screen. */
+  .app-header .atip {
+    display: none;
   }
 
   /* Give the charts as much width as possible before they must scroll. */
