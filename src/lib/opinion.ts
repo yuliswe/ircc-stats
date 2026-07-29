@@ -486,82 +486,119 @@ export function grounds(a: Profile, b: Profile, locale: Locale) {
   };
 }
 
-// ── 04 — share of screening effort beside share of refusals ─────────────────
-export function mismatch(
+// ── 04 — screening outcomes: how often a screening actually fails ────────────
+/**
+ * The per-country failure rate, joining the failed-results release to the
+ * referral counts. A screening concludes ~a year after referral, so the honest
+ * rate offsets the windows: the headline is the lag-1 rate (failures 2020–2025
+ * over referrals 2019–2024), and each mark carries a whisker to the same-window
+ * (naive) rate so the reader sees the range. Suppressed failure cells are floored
+ * to zero, so every rate is a lower bound. Sorted by the lag-1 rate, China and
+ * India highlighted, with the national mean marked.
+ */
+export function screeningOutcome(
   d: VizData,
   locale: Locale,
-  opts: { top?: number; flags?: boolean }
+  opts: { minReferrals?: number; flags?: boolean; highlight?: string[] }
 ) {
-  const { top = 14, flags = true } = opts;
-  const t = totals(d);
-  const byIso = new Map(
-    d.trApprovals.filter(r => r.processed > 0).map(r => [r.iso3, r])
-  );
-  const kept = d.screeningApplications
-    .filter(r => r.referred > 0 && r.iso3 !== null && byIso.has(r.iso3))
-    .sort((x, y) => y.referred - x.referred)
-    .slice(0, top)
-    .map(r => {
-      const ap = byIso.get(r.iso3)!;
-      const sShare = r.referred / t.referred;
-      const rShare = ap.nonApproval / t.nonApproval;
-      return {
-        r,
-        ap,
-        sShare,
-        rShare,
-        m: rShare > 0 ? sShare / rShare : Infinity,
-      };
-    });
-  const maxS = Math.max(...kept.map(k => k.sShare));
-  const maxR = Math.max(...kept.map(k => k.rShare));
-  const under: Pair = { en: '× under', zh: '× 不足' };
-  const tickPct = (max: number, n: number) =>
-    Array.from({ length: n + 1 }, (_, i) => fmtPct((max / n) * i));
+  const {
+    minReferrals = 3000,
+    flags = true,
+    highlight = ['CHN', 'IND'],
+  } = opts;
+  const naive = (r: { failuresAll: number; referralsCum: number }) =>
+    r.referralsCum > 0 ? r.failuresAll / r.referralsCum : 0;
+  const lag1 = (r: {
+    failures2020to2025: number;
+    referrals2019to2024: number;
+  }) =>
+    r.referrals2019to2024 > 0
+      ? r.failures2020to2025 / r.referrals2019to2024
+      : 0;
+
+  const t = d.screeningOutcomeTotal;
+  const natLag = lag1(t);
+
+  const kept = d.screeningOutcomes
+    .filter(r => r.referralsCum >= minReferrals)
+    .map(r => ({ r, n: naive(r), l: lag1(r) }))
+    .sort((a, b) => b.l - a.l);
+
+  const maxHi = Math.max(...kept.map(k => Math.max(k.n, k.l)), natLag);
+  // Whole-percent axis so the ticks read 0%, 1%, 2%… against the linear scale.
+  const axisMax = Math.max(0.01, Math.ceil(maxHi * 100) / 100);
+  const tickCount = Math.round(axisMax * 100);
+  const naiveWord = L(locale, { en: 'same-window', zh: '同窗' });
+
   return {
     shown: kept.length,
-    ticksS: tickPct(maxS, 3),
-    ticksR: tickPct(maxR, 3),
-    rows: kept.map((k, i) => ({
-      key: `${k.r.iso3}${i}`,
-      ...label(k.r.iso3, k.r.cit, flags, locale),
-      ws: pctOf(k.sShare, maxS),
-      wr: pctOf(k.rShare, maxR),
-      vs: fmtPct(k.sShare),
-      vr: fmtPct(k.rShare),
-      delay: i * 22 + 'ms',
-      m: k.m >= 1 ? fmtX(k.m) : (1 / k.m).toFixed(1) + L(locale, under),
-      mColor: k.m >= 1 ? 'var(--div-warm)' : 'var(--div-cool)',
-      mWeight: k.m >= 4 || k.m <= 0.35 ? '700' : '500',
-    })),
+    minLabel: fmtInt(minReferrals),
+    natLag,
+    natLagLabel: fmtPct(natLag),
+    meanLeft: pctOf(natLag, axisMax),
+    meanLabel:
+      L(locale, { en: 'national avg ', zh: '全国均值 ' }) + fmtPct(natLag),
+    ticks: Array.from({ length: tickCount + 1 }, (_, i) => `${i}%`),
+    bars: kept.map((k, i) => {
+      const lo = Math.min(k.n, k.l);
+      const hi = Math.max(k.n, k.l);
+      const isHi = highlight.includes(k.r.iso3);
+      return {
+        key: `${k.r.iso3}${i}`,
+        ...label(k.r.iso3, k.r.cit, flags, locale),
+        wLag: pctOf(k.l, axisMax),
+        wLo: pctOf(lo, axisMax),
+        wHi: pctOf(hi, axisMax),
+        wSpan: pctOf(hi - lo, axisMax),
+        value: fmtPct(k.l),
+        naiveNote: naiveWord + ' ' + fmtPct(k.n),
+        fill:
+          k.r.iso3 === 'CHN'
+            ? 'var(--div-warm)'
+            : k.r.iso3 === 'IND'
+              ? 'var(--series-1)'
+              : 'var(--ink-muted)',
+        delay: i * 22 + 'ms',
+        strong: isHi,
+        above: k.l >= natLag,
+      };
+    }),
     table: {
       columns: [
         { key: 'c', label: L(locale, { en: 'Country', zh: '国家/地区' }) },
         {
-          key: 's',
-          label: L(locale, { en: 'Share of screening', zh: '占全国审查量' }),
-          num: true,
-        },
-        {
-          key: 'r',
-          label: L(locale, { en: 'Share of refusals', zh: '占全国拒签量' }),
-          num: true,
-        },
-        {
-          key: 'm',
+          key: 'ref',
           label: L(locale, {
-            en: 'Screening ÷ refusal',
-            zh: '审查/拒签 份额比',
+            en: 'Screenings (2019–25)',
+            zh: '审查数(2019–25)',
           }),
           num: true,
         },
+        {
+          key: 'f',
+          label: L(locale, { en: 'Failed results', zh: '审查失败数' }),
+          num: true,
+        },
+        {
+          key: 'n',
+          label: L(locale, { en: 'Rate (same-window)', zh: '失败率(同窗)' }),
+          num: true,
+        },
+        {
+          key: 'l',
+          label: L(locale, { en: 'Rate (lag-1)', zh: '失败率(滞后一年)' }),
+          num: true,
+        },
       ],
-      rows: kept.map(k => ({
-        c: label(k.r.iso3, k.r.cit, false, locale).zh,
-        s: fmtPct(k.sShare),
-        r: fmtPct(k.rShare),
-        m: fmtX(k.m),
-      })),
+      rows: [...d.screeningOutcomes]
+        .sort((a, b) => b.referralsCum - a.referralsCum)
+        .map(r => ({
+          c: label(r.iso3, r.cit, false, locale).zh,
+          ref: fmtInt(r.referralsCum),
+          f: fmtInt(r.failuresAll),
+          n: fmtPct(naive(r)),
+          l: fmtPct(lag1(r)),
+        })),
     } satisfies ChartTable,
   };
 }

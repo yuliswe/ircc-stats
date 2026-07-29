@@ -156,6 +156,42 @@ export type CoprRow = {
   coprIssued: number;
 };
 
+/**
+ * One nationality's security-screening *outcome*, joining the non-favourable
+ * (failed) results from ATIP release OPP-DART-2025-34337 to the referral counts
+ * from `1A-2025-08687`. The failed-results file reports failures by nationality
+ * and calendar year (2019 → Jul 2025); the referral counts come from the stream
+ * cells (cumulative `g` and 2025 `t`). Because a screening concludes roughly a
+ * year after referral, the honest rate divides failures observed in a window by
+ * the referral cohort that generated them, so this row carries both a same-window
+ * (naive) basis and a one-year lag-aligned basis, and the chart shows the range
+ * between them. Suppressed failure cells (printed `--`, meaning 1–4) are counted
+ * as 0, so every failure figure is a lower bound. Only nationalities coded to an
+ * ISO3 with a positive referral denominator are emitted.
+ */
+export type ScreeningOutcomeRow = {
+  /** Citizenship, as printed in the failed-results CSV. */
+  cit: string;
+  /** ISO 3166-1 alpha-3; always present (uncoded rows are dropped). */
+  iso3: string;
+  /** Referrals to security screening, cumulative 2019–2025 (naive denominator). */
+  referralsCum: number;
+  /** Referrals 2019–2024 (cumulative − 2025), the lag-aligned denominator. */
+  referrals2019to2024: number;
+  /** Failed (non-favourable) results, all years 2019–2025 (naive numerator). */
+  failuresAll: number;
+  /** Failed results 2020–2025, the lag-aligned numerator (all years but 2019). */
+  failures2020to2025: number;
+};
+
+/** All-nationalities screening-outcome totals, the national-average baseline. */
+export type ScreeningOutcomeTotal = {
+  referralsCum: number;
+  referrals2019to2024: number;
+  failuresAll: number;
+  failures2020to2025: number;
+};
+
 export type VizData = {
   meta: {
     atip: string;
@@ -174,4 +210,8 @@ export type VizData = {
   trApprovalTotal: TrApprovalTotal;
   /** 2025 CoPRs issued (permanent residents admitted) per country. */
   coprByCountry: CoprRow[];
+  /** Security-screening failure outcomes per nationality (OPP-DART-2025-34337). */
+  screeningOutcomes: ScreeningOutcomeRow[];
+  /** All-nationalities screening-outcome totals, the national baseline. */
+  screeningOutcomeTotal: ScreeningOutcomeTotal;
 };
