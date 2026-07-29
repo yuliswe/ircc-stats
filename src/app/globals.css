@@ -181,6 +181,29 @@ table th.num {
   color: var(--surface);
 }
 
+/* The opinion column runs a deep blue in place of the report's red: the nav chip,
+   section numbers, links, pull-quote rule and focus ring all read --accent
+   directly, so overriding it here re-tints them blue. The accent Part dividers
+   (section banners) read --band-1-bg, which theme.css defines at :root as
+   `var(--accent)` — but that var() resolves against :root's red --accent and
+   inherits down as red, so overriding --accent alone leaves the bands red. We must
+   redefine --band-1-bg to the blue here as well. The override rides a
+   display:contents wrapper (OpinionRoot) so only the custom properties cascade and
+   the layout is untouched; dark mode lifts both so they clear the dark surface,
+   mirroring theme.css. The foot cross-link banner is the one exception: it pins
+   --band-1-bg back to red (see .crosslink--report) so it previews the report. */
+.theme-opinion {
+  display: contents;
+  --accent: #0d366b;
+  --accent-2: #17508f;
+  --band-1-bg: #0d366b;
+}
+:root[data-theme='dark'] .theme-opinion {
+  --accent: #3987e5;
+  --accent-2: #5a9ae8;
+  --band-1-bg: #3987e5;
+}
+
 /* Opinion-column prose: a wider, more literary measure than the report's framing
    copy, with a pull-quote and rule-topped subheads. */
 .op-prose {
@@ -425,6 +448,154 @@ table th.num {
 .report-part--ink {
   background: var(--band-2-bg);
   color: var(--band-2-fg);
+}
+
+/* cross-link banner — a full-width teaser at the foot of each page linking across
+   to its sister page (the report ↔ the opinion column). The background is the
+   accent colour of the page it links TO — red for the report, blue for the opinion
+   column — so the banner previews its destination. Every text element uses one
+   light foreground (--cl-fg) and keeps it in every state, including hover, so the
+   text never takes on an accent/highlight colour (the global a:hover recolour is
+   overridden below). A slow sheen sweeps across and the arrow nudges; both are
+   stilled under reduced-motion below. */
+.crosslink {
+  --cl-bg: #ec3013;
+  --cl-fg: #f3f2f2;
+  --cl-sheen: rgba(255, 255, 255, 0.18);
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  align-items: end;
+  margin: clamp(26px, 3vw, 42px) 0 0;
+  padding: clamp(24px, 2.6vw, 34px);
+  background: var(--cl-bg);
+  color: var(--cl-fg);
+  text-decoration: none;
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+/* On the opinion column the foot banner links to the report → the report's red. */
+.crosslink--to-report {
+  --cl-bg: #ec3013;
+}
+:root[data-theme='dark'] .crosslink--to-report {
+  --cl-bg: #ff563c;
+}
+
+/* On the report the foot banner links to the opinion column → the column's blue. */
+.crosslink--to-opinion {
+  --cl-bg: #0d366b;
+}
+:root[data-theme='dark'] .crosslink--to-opinion {
+  --cl-bg: #3987e5;
+}
+
+/* Lock the text colour across hover/focus so the global a:hover { color: accent }
+   never repaints the banner copy. */
+.crosslink:hover,
+.crosslink:focus-visible {
+  color: var(--cl-fg);
+  transform: translateY(-3px);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.24);
+}
+
+.crosslink-sheen {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 30%,
+    var(--cl-sheen) 50%,
+    transparent 70%
+  );
+  animation: rn-sheen 3.4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.crosslink-body {
+  min-width: 0;
+}
+
+.crosslink-eyebrow {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--cl-fg);
+  opacity: 0.85;
+  margin-bottom: 8px;
+}
+
+.crosslink-title {
+  display: block;
+  font-size: clamp(26px, 3.1vw, 40px);
+  line-height: 0.97;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+  max-width: 26ch;
+}
+
+.crosslink-dek {
+  display: block;
+  margin-top: 14px;
+  font-size: clamp(15.5px, 1.35vw, 17.5px);
+  line-height: 1.52;
+  font-weight: 500;
+  max-width: 62ch;
+}
+
+.crosslink-cta {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  padding: 0.4rem 0.9rem;
+  border: 2px solid var(--cl-fg);
+  color: var(--cl-fg);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.rn-arrow {
+  animation: rn-nudge 1.7s ease-in-out infinite;
+}
+
+@keyframes rn-nudge {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(5px);
+  }
+}
+
+@keyframes rn-sheen {
+  0% {
+    opacity: 0;
+  }
+  45% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .crosslink-sheen,
+  .rn-arrow {
+    animation: none;
+  }
 }
 
 .report-part .part-head {

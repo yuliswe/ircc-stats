@@ -15,6 +15,7 @@ import {
   REPO_ISSUES_HREF,
 } from '@/content/strings';
 import { Hero, Findings, Stat, Part, Section } from '@/components/report/parts';
+import { CrossLinkBanner } from '@/components/report/CrossLinkBanner';
 import { pick } from '@/lib/i18n';
 import { fmtInt, fmtPct } from '@/lib/format';
 import type { VizData } from '@/lib/viz-types';
@@ -147,6 +148,15 @@ export function ReportBody() {
       <Section n={7} title={c.sections[7].title} intro={c.sections[7].intro}>
         <ApprovalVsScreeningScatter />
       </Section>
+
+      <CrossLinkBanner
+        href={locale === 'zh' ? '/opinions/china/zh/' : '/opinions/china/'}
+        tone='to-opinion'
+        eyebrow={c.crossLink.eyebrow}
+        title={c.crossLink.title}
+        dek={c.crossLink.dek}
+        cta={c.crossLink.cta}
+      />
 
       <footer className='report-footer' id='about'>
         <div className='footer-grid'>

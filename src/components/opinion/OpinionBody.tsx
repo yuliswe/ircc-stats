@@ -10,6 +10,7 @@
  */
 import { useViz } from '@/lib/store';
 import { Hero, Findings, Stat, Part, Section } from '@/components/report/parts';
+import { CrossLinkBanner } from '@/components/report/CrossLinkBanner';
 import { REPO_ISSUES_HREF } from '@/content/strings';
 import { getOpinionContent } from '@/content/opinion';
 import { profile, totals, fmtPct, fmtPct1, fmtX } from '@/lib/opinion';
@@ -123,6 +124,15 @@ export function OpinionBody() {
       <Section n={7} title={c.sections[7].title} intro={c.sections[7].intro}>
         {c.prose}
       </Section>
+
+      <CrossLinkBanner
+        href={locale === 'zh' ? '/zh/' : '/'}
+        tone='to-report'
+        eyebrow={c.crossLink.eyebrow}
+        title={c.crossLink.title}
+        dek={c.crossLink.dek}
+        cta={c.crossLink.cta}
+      />
 
       <footer className='report-footer' id='about'>
         <div className='footer-grid'>

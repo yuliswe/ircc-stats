@@ -513,6 +513,18 @@ export function getOpinionContent(locale: Locale) {
       },
     } as Record<number, { title: string; intro: string }>,
     prose: prose(locale),
+    crossLink: {
+      eyebrow: t('Start with the data · Full report', '先看数据 · 完整报告'),
+      title: t(
+        'Who Canada screens, and who it lets in',
+        '加拿大审查了谁，又放行了谁'
+      ),
+      dek: t(
+        'This piece looks at just two countries. The companion data report spreads the same file across all 184 countries and territories, with seven charts from screening rate and screening make-up to the world map and approval rate — stating the numbers only, without comment.',
+        '本文只看两个国家。姐妹篇的数据报告把同一份档案铺开到全部 184 个国家/地区，七张图表从审查率、审查构成、世界地图到获批率，只陈述数字，不作评论。'
+      ),
+      cta: t('Read the full data report', '阅读完整数据报告'),
+    },
     footer: {
       aboutTitle: t('About this commentary', '关于这篇评论'),
       aboutP1: t(

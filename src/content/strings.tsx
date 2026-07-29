@@ -729,6 +729,13 @@ export type ReportContent = {
   part1: PartText;
   part2: PartText;
   sections: Record<number, SectionText>;
+  /** Foot-of-page teaser linking across to the opinion column. */
+  crossLink: {
+    eyebrow: string;
+    title: string;
+    dek: ReactNode;
+    cta: string;
+  };
   footer: {
     aboutTitle: string;
     aboutP1: ReactNode;
@@ -936,6 +943,13 @@ function reportEn(h: Headline, atip: string): ReportContent {
           </p>
         ),
       },
+    },
+    crossLink: {
+      eyebrow: 'Read next · Opinion column',
+      title:
+        'Canada’s most-suspected applicants are also the ones it approves most',
+      dek: 'This report gives the full picture. The companion opinion column trains its lens on the two largest source countries — China and India — and uses the same file to ask three things: is extra screening the exception or the norm for a Chinese applicant? Does the basis for it hold up? And what does the screening resource it spends buy?',
+      cta: 'Read the opinion column',
     },
     footer: {
       aboutTitle: 'About this report',
@@ -1171,6 +1185,12 @@ function reportZh(h: Headline, atip: string): ReportContent {
           </p>
         ),
       },
+    },
+    crossLink: {
+      eyebrow: '接下来读 · 观点专栏',
+      title: '加拿大最怀疑的申请人，也是它批得最多的人',
+      dek: '本报告给出的是全景。姐妹篇的观点专栏把镜头对准两个最大的来源国——中国与印度——用同一份档案追问三件事：被额外审查对中国申请人是例外还是常态？审查的依据是否站得住？花掉的审查资源，换回了什么？',
+      cta: '阅读观点专栏',
     },
     footer: {
       aboutTitle: '关于本报告',
