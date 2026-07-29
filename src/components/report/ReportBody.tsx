@@ -31,7 +31,12 @@ import { ApprovalVsScreeningScatter } from '@/components/charts/ApprovalVsScreen
  * so the numbers in the lede foot to the numbers in the plots. The referral rate
  * is pooled 2025 referrals over pooled 2025 applications, matching the national
  * average line in the first chart; the approval rate is IRCC's all-countries
- * total.
+ * total. The two leaders are the single nationalities that top the approval and
+ * screening rows, each carrying its own winning count for the masthead tiles.
+ * The approval leader is ranked by total admissions — temporary-residence
+ * approvals plus permanent residents actually admitted (CoPRs issued) — joined
+ * to the TR rows by ISO3, so a country with no matching CoPR row contributes
+ * only its TR approvals.
  */
 function headline(d: VizData): Headline {
   const rows = d.screeningApplications;
@@ -41,10 +46,30 @@ function headline(d: VizData): Headline {
     referred += r.referred;
     applications += r.applications;
   }
+  const coprByIso3 = new Map(
+    d.coprByCountry.filter(r => r.iso3).map(r => [r.iso3, r.coprIssued])
+  );
+  const admissions = (r: (typeof d.trApprovals)[number]) =>
+    r.approved + (r.iso3 ? (coprByIso3.get(r.iso3) ?? 0) : 0);
+  const topApproval = d.trApprovals.reduce((best, r) =>
+    admissions(r) > admissions(best) ? r : best
+  );
+  const topScreening = rows.reduce((best, r) =>
+    r.referred > best.referred ? r : best
+  );
   return {
     referralRate: applications > 0 ? referred / applications : 0,
-    nationalities: rows.filter(r => r.referred > 0).length,
     approvalRate: d.trApprovalTotal.rate,
+    topApproval: {
+      cit: topApproval.cit,
+      iso3: topApproval.iso3,
+      count: admissions(topApproval),
+    },
+    topScreening: {
+      cit: topScreening.cit,
+      iso3: topScreening.iso3,
+      count: topScreening.referred,
+    },
   };
 }
 
@@ -70,13 +95,13 @@ export function ReportBody() {
           />
           <Stat
             label={c.stats.approval.label}
-            value={fmtPct(h.approvalRate, 1)}
+            value={fmtInt(h.topApproval.count)}
             note={c.stats.approval.note}
           />
           <Stat
-            label={c.stats.nationalities.label}
-            value={fmtInt(h.nationalities)}
-            note={c.stats.nationalities.note}
+            label={c.stats.screening.label}
+            value={fmtInt(h.topScreening.count)}
+            note={c.stats.screening.note}
           />
         </Findings>
       </Hero>
@@ -159,8 +184,8 @@ export function ReportBody() {
             </ul>
           </div>
         </div>
-        <div className='footer-bar'>
-          <span>{pick(locale, SHELL.brand)}</span>
+        <div className='footer-report'>
+          <p className='footer-report-prompt'>{c.footer.reportPrompt}</p>
           <a
             className='footer-report-issue'
             href={REPO_ISSUES_HREF}
@@ -169,6 +194,9 @@ export function ReportBody() {
           >
             {c.footer.reportIssue}
           </a>
+        </div>
+        <div className='footer-bar'>
+          <span>{pick(locale, SHELL.brand)}</span>
           <span>ATIP {atip}</span>
         </div>
       </footer>

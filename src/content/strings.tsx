@@ -19,7 +19,7 @@
  */
 import type { ReactNode } from 'react';
 import { fmtInt, fmtPct, fmtRatio } from '@/lib/format';
-import { pick, type Locale } from '@/lib/i18n';
+import { flagName, pick, type Locale } from '@/lib/i18n';
 
 type Pair<T = string> = { en: T; zh: T };
 
@@ -681,10 +681,20 @@ export const chartText = {
 // Report editorial prose
 // ─────────────────────────────────────────────────────────────────────────────
 
+/** A nationality that tops one of the masthead rankings, with its winning count. */
+export interface HeadlineLeader {
+  cit: string;
+  iso3: string | null;
+  count: number;
+}
+
 export interface Headline {
   referralRate: number;
-  nationalities: number;
   approvalRate: number;
+  /** Nationality with the most approved temporary-residence applications in 2025. */
+  topApproval: HeadlineLeader;
+  /** Nationality with the most comprehensive security screenings in 2025. */
+  topScreening: HeadlineLeader;
 }
 
 interface StatText {
@@ -708,7 +718,7 @@ export interface ReportContent {
   heroTitle: string;
   heroDek: ReactNode;
   byline: ReactNode;
-  stats: { referral: StatText; approval: StatText; nationalities: StatText };
+  stats: { referral: StatText; approval: StatText; screening: StatText };
   part1: PartText;
   part2: PartText;
   sections: Record<number, SectionText>;
@@ -723,6 +733,7 @@ export interface ReportContent {
     monthlySrcName: string;
     monthlySrcDesc: ReactNode;
     monthlyFiles: ReactNode[];
+    reportPrompt: ReactNode;
     reportIssue: string;
   };
 }
@@ -774,12 +785,12 @@ function reportEn(h: Headline, atip: string): ReportContent {
         note: 'of 2025 applicants sent for comprehensive security screening',
       },
       approval: {
-        label: 'TR approval rate',
-        note: 'of processed temporary-residence applications, 2025',
+        label: 'Most approvals',
+        note: `${flagName('en', h.topApproval.cit, h.topApproval.iso3)} — more temporary-residence approvals plus permanent residents admitted than any other nationality in 2025`,
       },
-      nationalities: {
-        label: 'Nationalities',
-        note: 'with a 2025 comprehensive security screening rate on record',
+      screening: {
+        label: 'Most comprehensive security screenings',
+        note: `${flagName('en', h.topScreening.cit, h.topScreening.iso3)} — more applicants sent for comprehensive security screening than any other nationality in 2025`,
       },
     },
     part1: {
@@ -1016,7 +1027,14 @@ function reportEn(h: Headline, atip: string): ReportContent {
           Month &mdash; temporary-residence applications finalized
         </>,
       ],
-      reportIssue: 'Report an issue with this page',
+      reportPrompt: (
+        <>
+          Spot a wrong number, a chart that won&rsquo;t read, or a reading of
+          the text you disagree with? Tell us where on the page it is and what
+          you saw, and every correction will be logged at the end of the report.
+        </>
+      ),
+      reportIssue: 'Report an issue on this page',
     },
   };
 }
@@ -1050,12 +1068,12 @@ function reportZh(h: Headline, atip: string): ReportContent {
         note: '2025 年被送去接受全面安全审查的申请人占比',
       },
       approval: {
-        label: '临时居民获批率',
-        note: '2025 年已处理的临时居民申请中，获批的占比',
+        label: '获批人数最多',
+        note: `${flagName('zh', h.topApproval.cit, h.topApproval.iso3)}——2025 年临时居民获批数与获准入境的永久居民数之和居各国/地区之首`,
       },
-      nationalities: {
-        label: '国家/地区数量',
-        note: '有 2025 年安全审查率数据在案的国家/地区',
+      screening: {
+        label: '全面安全审查最多',
+        note: `${flagName('zh', h.topScreening.cit, h.topScreening.iso3)}——2025 年被送去接受全面安全审查的人数居各国/地区之首`,
       },
     },
     part1: {
@@ -1221,7 +1239,12 @@ function reportZh(h: Headline, atip: string): ReportContent {
           Month &mdash; 已办结的临时居民申请
         </>,
       ],
-      reportIssue: '报告本页面的问题',
+      reportPrompt: (
+        <>
+          发现数字有误、图表读不出来，或对文中的解读有异议？请把页面位置和你看到的问题一并告诉我们——每一处更正都会记录在文末。
+        </>
+      ),
+      reportIssue: '报告本页问题',
     },
   };
 }
