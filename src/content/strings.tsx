@@ -740,12 +740,16 @@ function reportEn(h: Headline, atip: string): ReportContent {
     heroTitle: 'Who Canada screens, and who it lets in',
     heroDek: (
       <>
-        Almost everyone who applies to enter Canada can be referred to CBSA/CSIS
-        for comprehensive security screening before a decision is reached.
-        Drawing on a records release obtained under the Access to Information
-        Act, this report asks whether that comprehensive screening falls evenly
-        across nationalities, how the pattern looks on a map, and how it lines
-        up with who is ultimately approved.
+        Almost everyone who applies to enter Canada &mdash; whether to
+        immigrate, study, visit, or work &mdash; can be singled out by
+        Immigration, Refugees and Citizenship Canada (IRCC) and referred to the
+        Canada Border Services Agency (CBSA) and the Canadian Security
+        Intelligence Service (CSIS) for an additional, more thorough
+        comprehensive security screening before a decision is reached. Drawing
+        on a records release obtained under the Access to Information Act, this
+        report asks whether that comprehensive screening falls evenly across
+        nationalities, how the pattern looks on a map, and how it lines up with
+        who is ultimately approved.
       </>
     ),
     byline: (
@@ -756,12 +760,10 @@ function reportEn(h: Headline, atip: string): ReportContent {
         </a>
         , covering comprehensive security screenings initiated between 2019 and
         2025, alongside 2025 application and approval totals from IRCC&rsquo;s
-        published operational figures. Every count is OCR output from the
-        released PDF, corrected and reconciled against the printed tables. A
-        disproportion in comprehensive security screening rates is an observed
-        pattern in the records, not evidence of wrongdoing by any applicant.
-        Every chart can be read as a data table through its own{' '}
-        <b>View as table</b> toggle.
+        published operational figures. A disproportion in comprehensive security
+        screening rates is an observed pattern in the records, not evidence of
+        wrongdoing by any applicant. Every chart can be read as a data table
+        through its own <b>View as table</b> toggle.
       </>
     ),
     stats: {
@@ -788,7 +790,9 @@ function reportEn(h: Headline, atip: string): ReportContent {
           the serious categories. The four views below move from a single
           per-nationality rate outward to every nationality at once, each one
           guarding against the easy mistake of reading a large count as a high
-          rate.
+          rate: a populous country naturally files many applications and so has
+          many applicants screened, but that does not mean its applicants are
+          any more likely to be picked out for screening.
         </>
       ),
     },
@@ -808,7 +812,7 @@ function reportEn(h: Headline, atip: string): ReportContent {
     },
     sections: {
       1: {
-        title: 'How often is each nationality referred?',
+        title: 'How often is each nationality security screened?',
         intro: (
           <p>
             The fairest way to ask whether one nationality is screened more than
@@ -825,7 +829,7 @@ function reportEn(h: Headline, atip: string): ReportContent {
         ),
       },
       2: {
-        title: 'Who are the referrals, though?',
+        title: 'Who gets security screened, though?',
         intro: (
           <p>
             A rate answers how often, but not how many. This view turns to the
@@ -850,21 +854,6 @@ function reportEn(h: Headline, atip: string): ReportContent {
               less; Iran is starker still &mdash; far fewer applications than
               either, yet the second-most screenings of any country (behind only
               China) at a rate (about 4.7%) higher even than China&rsquo;s.
-            </p>
-            <p>
-              Read &ldquo;difficulty&rdquo; as two things &mdash; the chance of
-              being pulled for screening and the chance of final approval
-              &mdash; and the eight most-screened countries and territories
-              differ sharply. The Palestinian Territories carry the highest
-              screening rate (about 14.5%, roughly one in seven) yet an approval
-              rate under 40%; Pakistan is screened only modestly but has the
-              lowest approval of the eight (about 33%). Iran and China are
-              screened heavily (about 4.7% and 3.5%, well above the 0.86%
-              national average) yet approved often &mdash; China highest at
-              about 80%, Iran about two-thirds. India, despite by far the most
-              applications, has one of the lowest screening rates (about 0.3%)
-              and middling approval (about 64%). The full approval comparison is
-              in Part&nbsp;II.
             </p>
           </>
         ),
@@ -912,7 +901,7 @@ function reportEn(h: Headline, atip: string): ReportContent {
         ),
       },
       7: {
-        title: 'Does comprehensive security screening travel with refusal?',
+        title: 'Are the most-screened nationalities also the most refused?',
         intro: (
           <p>
             The final view sets the two questions against each other, plotting
@@ -953,9 +942,7 @@ function reportEn(h: Headline, atip: string): ReportContent {
           not a judgement of any application. The patterns here describe how
           comprehensive security screening referrals and approvals were
           distributed across nationalities in the records, and nothing in the
-          release speaks to the reasons behind an individual decision. Full
-          definitions, the serious-type mapping, and the residual limitations
-          are in the Methodology panel, reachable from the header.
+          release speaks to the reasons behind an individual decision.
         </>
       ),
       sourcesTitle: 'Data sources & attribution',
