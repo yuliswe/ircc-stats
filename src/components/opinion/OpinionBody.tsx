@@ -76,11 +76,6 @@ export function OpinionBody() {
             note={c.stats.share.note(s)}
           />
           <Stat
-            label={c.stats.approval.label}
-            value={s.cnApproval}
-            note={c.stats.approval.note(s)}
-          />
-          <Stat
             label={c.stats.outcome.label}
             value={s.cnFailRate}
             note={c.stats.outcome.note(s)}

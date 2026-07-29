@@ -410,14 +410,6 @@ export function getOpinionContent(locale: Locale) {
             `而中国只占全部申请量的 ${s.cnAppShare}`
           ),
       },
-      approval: {
-        label: t('China’s TR approval rate', '中国临时居民获批率'),
-        note: (s: OpinionStats) =>
-          t(
-            `highest of any large source country; national average ${s.natApproval}`,
-            `所有大型来源国中最高；全国平均 ${s.natApproval}`
-          ),
-      },
       outcome: {
         label: t('China’s unfavourable-result rate', '中国安全审查非通过率'),
         note: (s: OpinionStats) =>
