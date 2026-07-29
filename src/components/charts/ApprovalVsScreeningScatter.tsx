@@ -340,6 +340,11 @@ export function ApprovalVsScreeningScatter() {
                 <ScatterTip nationalRatio={nationalRatio} locale={locale} />
               }
             />
+            <NationalRatioCurve
+              nationalRatio={nationalRatio}
+              xDomain={xDomain}
+              theme={theme}
+            />
             <Scatter
               key={revealed ? 'shown' : 'hidden'}
               data={points}
@@ -397,6 +402,94 @@ export function ApprovalVsScreeningScatter() {
     >
       {body}
     </ChartCard>
+  );
+}
+
+/**
+ * The national-ratio baseline, drawn as a dashed SVG curve under the dots. This is
+ * the locus of points whose approval-to-screening ratio equals the national ratio
+ * R, i.e. y = R·x — the same midpoint the dot color diverges about, made explicit
+ * as a line so a reader can see at a glance which countries sit above it (approved
+ * more relative to screening than the national average, coloured cool) and which
+ * sit below (coloured warm). Because x is on a log axis the relationship is not a
+ * straight line in pixel space, so it is sampled across the x domain and mapped
+ * through the axis scales; the curve is cut where it would leave the top of the
+ * plot at y = 1 (x = 1/R).
+ */
+function NationalRatioCurve({
+  nationalRatio,
+  xDomain,
+  theme,
+}: {
+  nationalRatio: number;
+  xDomain: [number, number];
+  theme: 'light' | 'dark';
+}) {
+  const xScale = useXAxisScale();
+  const yScale = useYAxisScale();
+  const plot = usePlotArea();
+  if (!xScale || !yScale || !plot || nationalRatio <= 0) return null;
+
+  const ink = INK[theme];
+  const [xLo, xHi] = xDomain;
+  const SAMPLES = 64;
+  const pt = (x: number, y: number): string | null => {
+    const px = xScale(x);
+    const py = yScale(y);
+    return px == null || py == null
+      ? null
+      : `${px.toFixed(1)},${py.toFixed(1)}`;
+  };
+
+  const coords: string[] = [];
+  let exitPx: string | null = null;
+  for (let i = 0; i <= SAMPLES; i++) {
+    const x = xLo * Math.pow(xHi / xLo, i / SAMPLES);
+    const y = nationalRatio * x;
+    if (y > 1) {
+      // The line leaves the top of the plot at y = 1; stop there cleanly.
+      exitPx = pt(1 / nationalRatio, 1);
+      break;
+    }
+    const c = pt(x, y);
+    if (c) coords.push(c);
+  }
+  if (exitPx) coords.push(exitPx);
+  if (coords.length < 2) return null;
+  const d = `M${coords.join('L')}`;
+
+  // Anchor a small "×" ratio label at the curve's upper end, tucked just below
+  // the plot's top edge so it does not collide with the 100% tick.
+  const labelX = xScale(exitPx ? 1 / nationalRatio : xHi);
+  const labelY = plot.y + 12;
+
+  return (
+    <g style={{ pointerEvents: 'none' }}>
+      <path
+        d={d}
+        fill='none'
+        stroke={ink.ink2}
+        strokeWidth={1.5}
+        strokeDasharray='6 3'
+        opacity={0.8}
+      />
+      {labelX != null && (
+        <text
+          x={labelX}
+          y={labelY}
+          dx={-6}
+          textAnchor='end'
+          fontSize={11}
+          fontWeight={600}
+          fill={ink.ink2}
+          stroke={ink.surface}
+          strokeWidth={3}
+          paintOrder='stroke'
+        >
+          {fmtRatio(nationalRatio)}
+        </text>
+      )}
+    </g>
   );
 }
 
