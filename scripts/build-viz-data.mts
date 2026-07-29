@@ -295,7 +295,7 @@ export function buildIsoIndex(): IsoIndex {
   return { byName, iso3ToName, ccn3ToIso3, candidates };
 }
 
-function resolveIso3(raw: string, idx: IsoIndex): string | null {
+export function resolveIso3(raw: string, idx: IsoIndex): string | null {
   const cands = candidatesFor(raw);
   if (!cands.length) return null;
 

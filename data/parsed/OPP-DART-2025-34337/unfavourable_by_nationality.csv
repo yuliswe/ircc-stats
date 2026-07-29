@@ -1,0 +1,186 @@
+application_type,country_raw,country,iso3,2019,2020,2021,2022,2023,2024,2025_jan_jul
+PR,Afghanistan,Afghanistan,AFG,--,--,70,50,55,35,5
+PR,Albania,Albania,ALB,--,0,0,0,0,--,0
+PR,Algeria,Algeria,DZA,--,--,0,0,0,0,0
+PR,Angola,Angola,AGO,0,0,--,--,0,--,0
+PR,Armenia,Armenia,ARM,0,0,0,--,0,0,0
+PR,Australia,Australia,AUS,0,0,0,0,--,0,0
+PR,Austria,Austria,AUT,0,--,0,0,0,0,0
+PR,Azerbaijan,Azerbaijan,AZE,--,0,0,0,0,0,0
+PR,Bangladesh,Bangladesh,BGD,15,5,10,10,--,--,0
+PR,Barbados,Barbados,BRB,0,--,0,0,0,0,0
+PR,Belgium,Belgium,BEL,0,0,--,0,0,0,0
+PR,Bosnia-Hercegovina,Bosnia and Herzegovina,BIH,0,0,0,--,0,0,0
+PR,Bulgaria,Bulgaria,BGR,--,--,0,--,0,0,0
+PR,Burundi,Burundi,BDI,--,--,--,0,--,--,0
+PR,"Chad, Republic of",Chad,TCD,--,0,0,0,0,0,0
+PR,Colombia,Colombia,COL,--,--,5,0,0,5,0
+PR,"Congo, Democratic Repu","Congo, Democratic Republic of the",COD,--,0,--,0,--,0,0
+PR,Cuba,Cuba,CUB,--,--,0,0,0,0,0
+PR,Democratic Republic of S,Sudan,SDN,--,--,--,0,--,--,0
+PR,Denmark,Denmark,DNK,0,0,0,--,0,0,0
+PR,Dominican Republic,Dominican Republic,DOM,--,0,0,0,0,0,0
+PR,"East Timor, Democratic F",East Timor (Timor-Leste),TLS,--,0,0,0,0,0,0
+PR,Ecuador,Ecuador,ECU,--,0,0,0,0,0,0
+PR,Egypt,Egypt,EGY,--,--,0,--,0,--,0
+PR,El Salvador,El Salvador,SLV,--,0,0,0,--,0,0
+PR,Eritrea,Eritrea,ERI,--,--,--,5,--,--,0
+PR,Ethiopia,Ethiopia,ETH,5,0,5,--,--,--,0
+PR,Federal Republic of Came,Cameroon,CMR,0,0,0,--,0,0,0
+PR,France,France,FRA,0,--,0,0,0,0,0
+PR,Georgia,Georgia,GEO,--,0,0,--,0,0,0
+PR,Ghana,Ghana,GHA,--,0,--,0,0,0,0
+PR,"Guinea, Republic of",Guinea,GIN,0,0,--,--,0,0,0
+PR,Haiti,Haiti,HTI,0,--,--,--,--,--,0
+PR,Honduras,Honduras,HND,--,0,0,0,0,0,0
+PR,Hungary,Hungary,HUN,0,0,--,0,0,0,0
+PR,India,India,IND,20,10,15,20,20,0,0
+PR,Iran,Iran,IRN,10,5,10,15,10,--,0
+PR,Iraq,Iraq,IRQ,5,10,10,5,--,0,0
+PR,Israel,Israel,ISR,0,--,--,--,0,0,0
+PR,Italy,Italy,ITA,0,0,0,0,0,--,0
+PR,Jordan,Jordan,JOR,--,0,0,0,0,0,0
+PR,Kenya,Kenya,KEN,0,0,--,0,0,0,0
+PR,"Kosovo, Republic of",Kosovo,UNK,--,0,0,--,0,0,0
+PR,Lebanon,Lebanon,LBN,--,5,5,--,5,--,--
+PR,Liberia,Liberia,LBR,0,0,--,0,0,0,0
+PR,Libya,Libya,LBY,--,0,--,0,0,0,0
+PR,Mexico,Mexico,MEX,0,--,0,--,0,0,0
+PR,Moldova,Moldova,MDA,0,0,0,--,--,0,0
+PR,Morocco,Morocco,MAR,--,0,0,0,--,0,0
+PR,Nepal,Nepal,NPL,--,--,0,0,0,0,0
+PR,Nigeria,Nigeria,NGA,--,0,10,10,5,--,0
+PR,Pakistan,Pakistan,PAK,--,5,--,--,--,--,0
+PR,Palestinian Authority (Ga,Palestinian Authority (Gaza/West Bank),PSE,--,--,0,0,--,0,0
+PR,People's Republic of Chin,China,CHN,20,15,40,20,--,5,0
+PR,Peru,Peru,PER,0,0,0,--,--,0,0
+PR,Philippines,Philippines,PHL,--,--,--,5,15,--,0
+PR,Poland,Poland,POL,0,0,0,--,0,0,0
+PR,Portugal,Portugal,PRT,0,--,0,0,0,0,0
+PR,Republic of Indonesia,Indonesia,IDN,0,0,0,--,0,0,0
+PR,Republic of Ivory Coast,Ivory Coast,CIV,--,0,--,--,0,0,0
+PR,Republic of South Africa,South Africa,ZAF,0,0,0,0,--,0,0
+PR,Romania,Romania,ROU,--,--,--,0,0,--,0
+PR,Russia,Russia,RUS,--,--,--,--,0,--,0
+PR,Rwanda,Rwanda,RWA,0,--,--,--,--,0,0
+PR,Saudi Arabia,Saudi Arabia,SAU,0,--,0,0,0,0,0
+PR,Singapore,Singapore,SGP,0,--,0,0,0,0,0
+PR,Socialist Republic of Viet,Vietnam,VNM,0,0,--,0,0,--,0
+PR,"Somalia, Democratic Rep",Somalia,SOM,--,0,--,0,0,0,0
+PR,Sri Lanka,Sri Lanka,LKA,15,5,10,--,--,0,0
+PR,Stateless,Stateless,,--,0,--,0,--,0,0
+PR,Sweden,Sweden,SWE,0,0,--,0,0,0,0
+PR,Switzerland,Switzerland,CHE,0,0,--,0,0,0,0
+PR,Syria,Syria,SYR,20,15,15,--,--,--,0
+PR,"Trinidad and Tobago, Re",Trinidad and Tobago,TTO,0,0,0,--,0,0,0
+PR,Turkey,Turkey,TUR,--,0,--,--,--,0,0
+PR,Uganda,Uganda,UGA,0,0,--,0,0,--,0
+PR,Ukraine,Ukraine,UKR,--,--,--,--,--,--,0
+PR,United Kingdom and Ove,United Kingdom and Overseas Territories,GBR,--,--,--,0,0,0,0
+PR,United States of America,United States of America,USA,0,--,0,0,0,0,0
+PR,Uzbekistan,Uzbekistan,UZB,0,0,0,--,0,0,0
+PR,Venezuela,Venezuela,VEN,--,--,--,0,0,0,0
+PR,"Yemen, Republic of",Yemen,YEM,--,--,--,--,--,0,0
+PR,Zimbabwe,Zimbabwe,ZWE,0,--,0,0,0,0,0
+TR,Afghanistan,Afghanistan,AFG,0,0,--,0,5,--,0
+TR,Algeria,Algeria,DZA,--,0,0,0,0,0,0
+TR,Angola,Angola,AGO,0,0,0,0,0,--,0
+TR,Argentina,Argentina,ARG,0,0,0,0,--,0,0
+TR,Armenia,Armenia,ARM,0,0,--,0,--,0,0
+TR,Azerbaijan,Azerbaijan,AZE,0,0,0,--,0,0,0
+TR,Bangladesh,Bangladesh,BGD,45,15,5,20,10,--,0
+TR,Belarus,Belarus,BLR,--,--,0,--,--,0,0
+TR,Belgium,Belgium,BEL,--,--,0,0,0,0,0
+TR,Bosnia-Hercegovina,Bosnia and Herzegovina,BIH,5,--,0,--,--,--,0
+TR,Brazil,Brazil,BRA,--,0,--,--,0,0,0
+TR,Bulgaria,Bulgaria,BGR,0,0,--,0,0,0,0
+TR,Burkina-Faso,Burkina Faso,BFA,0,0,0,0,10,0,0
+TR,Burundi,Burundi,BDI,0,0,0,0,0,--,0
+TR,Cambodia,Cambodia,KHM,0,0,0,--,0,0,0
+TR,"Chad, Republic of",Chad,TCD,--,0,0,0,0,0,--
+TR,Colombia,Colombia,COL,--,--,5,5,--,--,0
+TR,"Congo, Democratic Repu","Congo, Democratic Republic of the",COD,--,0,0,--,0,0,0
+TR,Croatia,Croatia,HRV,0,0,0,0,0,--,0
+TR,Cuba,Cuba,CUB,--,0,0,--,--,0,--
+TR,Cyprus,Cyprus,CYP,--,--,0,0,--,0,0
+TR,Czech Republic,Czech Republic,CZE,0,--,0,0,--,0,0
+TR,Democratic Republic of S,Sudan,SDN,0,5,0,--,--,0,0
+TR,Denmark,Denmark,DNK,0,0,0,0,--,0,0
+TR,Ecuador,Ecuador,ECU,0,0,0,--,0,0,0
+TR,Egypt,Egypt,EGY,5,5,5,5,--,--,0
+TR,El Salvador,El Salvador,SLV,--,--,0,0,--,--,0
+TR,Ethiopia,Ethiopia,ETH,--,0,--,--,--,--,0
+TR,Federal Republic of Came,Cameroon,CMR,0,0,0,--,0,--,0
+TR,Federal Republic of Germ,Germany,DEU,0,--,--,0,--,0,0
+TR,France,France,FRA,0,--,0,0,0,0,0
+TR,Georgia,Georgia,GEO,0,0,0,0,0,--,0
+TR,Ghana,Ghana,GHA,0,0,0,--,0,0,0
+TR,Grenada,Grenada,GRD,0,0,0,0,--,--,0
+TR,Guatemala,Guatemala,GTM,--,0,0,0,0,0,0
+TR,"Guinea, Republic of",Guinea,GIN,0,--,0,--,0,0,0
+TR,Guyana,Guyana,GUY,--,0,0,0,--,0,0
+TR,Haiti,Haiti,HTI,--,0,--,--,--,0,0
+TR,Honduras,Honduras,HND,0,0,--,0,0,0,0
+TR,Hong Kong SAR,Hong Kong,HKG,--,--,0,0,0,0,0
+TR,India,India,IND,35,10,30,95,60,15,--
+TR,Iran,Iran,IRN,30,5,15,15,10,5,--
+TR,Iraq,Iraq,IRQ,10,--,--,15,0,--,0
+TR,Israel,Israel,ISR,--,0,0,0,0,0,0
+TR,Italy,Italy,ITA,--,0,0,--,0,--,0
+TR,Japan,Japan,JPN,--,0,0,0,0,0,0
+TR,Jordan,Jordan,JOR,--,--,--,--,--,0,0
+TR,Kazakhstan,Kazakhstan,KAZ,--,0,0,0,--,--,0
+TR,"Kosovo, Republic of",Kosovo,UNK,10,0,0,10,10,--,0
+TR,Kuwait,Kuwait,KWT,--,0,0,0,0,0,0
+TR,Kyrgyzstan,Kyrgyzstan,KGZ,--,0,0,0,0,0,0
+TR,Lebanon,Lebanon,LBN,15,10,15,15,10,5,0
+TR,Mauritania,Mauritania,MRT,0,0,0,0,0,--,0
+TR,Mexico,Mexico,MEX,--,--,--,--,--,0,0
+TR,Moldova,Moldova,MDA,0,0,0,--,0,0,0
+TR,"Mongolia, People's Repu",Mongolia,MNG,0,0,0,0,--,0,0
+TR,"Montenegro, Republic of",Montenegro,MNE,0,0,0,--,0,0,0
+TR,Morocco,Morocco,MAR,5,0,--,--,0,0,0
+TR,Nepal,Nepal,NPL,--,0,0,0,--,0,0
+TR,Nicaragua,Nicaragua,NIC,--,0,0,0,--,0,0
+TR,Nigeria,Nigeria,NGA,0,0,--,--,10,--,5
+TR,Norway,Norway,NOR,--,--,0,0,0,0,0
+TR,Pakistan,Pakistan,PAK,55,10,--,5,10,5,--
+TR,Palestinian Authority (Ga,Palestinian Authority (Gaza/West Bank),PSE,--,0,--,0,--,50,--
+TR,"Panama, Republic of",Panama,PAN,0,0,--,0,0,0,0
+TR,Peoples Republic of Beni,Benin,BEN,0,0,0,0,0,--,0
+TR,People's Republic of Chin,China,CHN,320,45,135,100,105,20,20
+TR,Peru,Peru,PER,5,--,--,--,10,--,0
+TR,Philippines,Philippines,PHL,5,0,0,5,--,--,5
+TR,Poland,Poland,POL,0,0,0,0,--,0,0
+TR,Portugal,Portugal,PRT,0,0,0,0,--,0,0
+TR,Republic of Ireland,Ireland,IRL,--,0,--,0,--,--,0
+TR,Republic of Ivory Coast,Ivory Coast,CIV,0,0,0,0,--,--,0
+TR,Republic of South Africa,South Africa,ZAF,10,--,--,5,--,--,--
+TR,Romania,Romania,ROU,--,0,0,0,0,0,0
+TR,Russia,Russia,RUS,110,50,50,15,20,20,10
+TR,Rwanda,Rwanda,RWA,5,--,0,0,10,--,--
+TR,Saudi Arabia,Saudi Arabia,SAU,5,--,--,5,0,0,0
+TR,"Serbia, Republic of",Serbia,SRB,--,--,--,--,--,--,0
+TR,Sierra Leone,Sierra Leone,SLE,--,0,0,0,0,0,0
+TR,Socialist Republic of Viet,Vietnam,VNM,10,--,--,--,--,--,--
+TR,"Somalia, Democratic Rep",Somalia,SOM,0,0,0,0,--,0,--
+TR,"South Sudan, Republic O",South Sudan,SSD,--,0,0,0,0,0,0
+TR,Sri Lanka,Sri Lanka,LKA,5,--,0,--,5,--,0
+TR,St. Kitts-Nevis,Saint Kitts and Nevis,KNA,0,0,0,--,0,0,0
+TR,Stateless,Stateless,,0,--,0,0,0,0,0
+TR,Sweden,Sweden,SWE,--,0,--,0,--,0,0
+TR,Switzerland,Switzerland,CHE,--,--,0,0,0,--,0
+TR,Syria,Syria,SYR,--,0,--,0,--,--,0
+TR,Tajikistan,Tajikistan,TJK,0,0,0,0,0,--,0
+TR,Thailand,Thailand,THA,5,0,0,0,0,0,0
+TR,The Netherlands,Netherlands,NLD,--,0,0,0,0,0,0
+TR,"Trinidad and Tobago, Re",Trinidad and Tobago,TTO,--,0,--,0,0,0,0
+TR,Tunisia,Tunisia,TUN,0,--,--,--,--,0,--
+TR,Turkey,Turkey,TUR,--,0,--,--,0,--,0
+TR,Uganda,Uganda,UGA,0,0,0,0,--,5,--
+TR,Ukraine,Ukraine,UKR,15,--,--,150,205,25,5
+TR,United Arab Emirates,United Arab Emirates,ARE,0,0,0,--,0,0,--
+TR,United Kingdom and Ove,United Kingdom and Overseas Territories,GBR,--,--,--,--,--,--,--
+TR,United States of America,United States of America,USA,--,0,0,0,0,0,0
+TR,"Yemen, Republic of",Yemen,YEM,--,--,0,0,0,0,0
+TR,Zimbabwe,Zimbabwe,ZWE,--,--,0,--,--,--,0
