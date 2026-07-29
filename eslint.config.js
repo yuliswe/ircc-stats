@@ -34,6 +34,8 @@ export default [
       'next-env.d.ts',
       // .design-sync/ is git-ignored scaffolding, not project source.
       '**/.design-sync/**',
+      // .claude/worktrees/ holds git-ignored worktrees, not project source.
+      '**/.claude/worktrees/**',
     ],
   },
 
