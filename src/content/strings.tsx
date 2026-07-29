@@ -28,7 +28,14 @@ type Pair<T = string> = { en: T; zh: T };
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const SHELL = {
+  // Umbrella site wordmark in the masthead, above the Facts/Opinion nav. `brand`
+  // stays the report's own page name, used in the report footer bar.
+  wordmark: { en: 'IRCC data commentary', zh: 'IRCC 数据评论' },
   brand: { en: 'IRCC Report 2025', zh: 'IRCC 报告 2025' },
+  // Section nav in the utility bar: the data report vs. the opinion column.
+  navFacts: { en: 'Facts', zh: '事实' },
+  navOpinion: { en: 'Opinion', zh: '观点' },
+  navAria: { en: 'Sections', zh: '栏目导航' },
   toggleThemeAria: { en: 'Toggle color theme', zh: '切换配色主题' },
   // Word only; the glyph is rendered as a separate icon span so the word can
   // collapse on mobile while the icon remains.

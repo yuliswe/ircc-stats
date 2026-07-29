@@ -78,17 +78,38 @@ function SelectionChip() {
   );
 }
 
-export function Shell({ children }: { children: ReactNode }) {
+export function Shell({
+  children,
+  page = 'report',
+}: {
+  children: ReactNode;
+  /** Which section is active, so the Facts/Opinion nav marks the current page. */
+  page?: 'report' | 'opinion';
+}) {
   const { data, theme, toggleTheme, locale } = useViz();
   const { hidden: headerHidden, progress } = useHeaderScroll();
 
-  // The language switch is a route change (`/` ↔ `/zh`), not a client toggle.
-  // Carry the current query string across so the reader's filters and selection
-  // survive the switch; it is read after mount to avoid an SSR/hydration
-  // mismatch, so the first paint links to the bare counterpart route.
+  // The language switch is a route change, not a client toggle. On the report it
+  // swaps `/` ↔ `/zh` and carries the query string across so the reader's filters
+  // and selection survive; it is read after mount to avoid an SSR/hydration
+  // mismatch, so the first paint links to the bare counterpart route. The opinion
+  // column is Chinese-only, so its language button leads to the English report
+  // instead of an English opinion that does not exist.
   const [search, setSearch] = useState('');
   useEffect(() => setSearch(window.location.search), []);
-  const otherLocaleHref = (locale === 'zh' ? '/' : '/zh') + search;
+
+  // Report and opinion each have an English and a Chinese route; the section nav
+  // and language switch stay within their own section and follow the reader's
+  // current language.
+  const factsHref = locale === 'zh' ? '/zh' : '/';
+  const opinionHref =
+    locale === 'zh' ? '/opinions/china/zh' : '/opinions/china';
+  const otherLocaleHref =
+    page === 'opinion'
+      ? locale === 'zh'
+        ? '/opinions/china'
+        : '/opinions/china/zh'
+      : (locale === 'zh' ? '/' : '/zh') + search;
 
   return (
     <>
@@ -96,9 +117,23 @@ export function Shell({ children }: { children: ReactNode }) {
         <div className='header-inner'>
           <div className='brand'>
             <span className='brand-square' aria-hidden />
-            <span className='mark'>{pick(locale, SHELL.brand)}</span>
+            <span className='mark'>{pick(locale, SHELL.wordmark)}</span>
             <span className='atip'>ATIP {data.meta.atip}</span>
           </div>
+          <nav className='app-nav' aria-label={pick(locale, SHELL.navAria)}>
+            <Link
+              href={factsHref}
+              aria-current={page === 'report' ? 'page' : undefined}
+            >
+              {pick(locale, SHELL.navFacts)}
+            </Link>
+            <Link
+              href={opinionHref}
+              aria-current={page === 'opinion' ? 'page' : undefined}
+            >
+              {pick(locale, SHELL.navOpinion)}
+            </Link>
+          </nav>
           <span className='spacer' />
           <Link
             className='btn'

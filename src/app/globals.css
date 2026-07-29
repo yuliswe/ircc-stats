@@ -137,6 +137,89 @@ table th.num {
   flex: 1;
 }
 
+/* Facts / Opinion section nav in the utility bar, sitting on a thin divider
+   after the wordmark. The active section reads as a filled accent chip. */
+.app-header .app-nav {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex: none;
+}
+.app-header .app-nav::before {
+  content: '';
+  width: 1px;
+  height: 20px;
+  background: var(--rule);
+  margin: 0 6px;
+  flex: none;
+}
+.app-header .app-nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 6px 13px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  color: var(--ink-muted);
+  white-space: nowrap;
+  border-radius: 2px;
+  transition:
+    color 0.15s ease,
+    background 0.15s ease;
+}
+.app-header .app-nav a:hover,
+.app-header .app-nav a:focus-visible {
+  color: var(--ink);
+  background: var(--surface-3);
+}
+.app-header .app-nav a[aria-current='page'],
+.app-header .app-nav a[aria-current='page']:hover,
+.app-header .app-nav a[aria-current='page']:focus-visible {
+  background: var(--accent);
+  color: var(--surface);
+}
+
+/* Opinion-column prose: a wider, more literary measure than the report's framing
+   copy, with a pull-quote and rule-topped subheads. */
+.op-prose {
+  font-size: 17px;
+  line-height: 1.68;
+  max-width: 66ch;
+  margin: 0 0 18px;
+  color: var(--ink-2);
+}
+.op-prose strong {
+  color: var(--ink);
+  font-weight: 700;
+}
+.op-prose--fine {
+  font-size: 14.5px;
+  color: var(--ink-muted);
+}
+.op-pull {
+  margin: 26px 0;
+  padding: 18px 0 18px 22px;
+  border-left: 4px solid var(--accent);
+  font-size: clamp(19px, 1.9vw, 25px);
+  line-height: 1.35;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  max-width: 44ch;
+}
+.op-h3 {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink);
+  margin: 32px 0 12px;
+  padding-top: 18px;
+  border-top: 2px solid var(--rule);
+}
+
 /* Scroll-progress strip pinned to the header's bottom edge, full-bleed past the
    header padding, filling left-to-right as the reader moves down the report. */
 .app-progress {
