@@ -91,11 +91,11 @@ export const OPINION_CHARTS = {
     },
     axisLabel: { en: 'Country', zh: '国家/地区' },
     subtitle: (minLabel: string, shown: number): Pair => ({
-      en: `One bar per country, filled to the lag-1 failure rate — failed (non-favourable) results in 2020–2025 over referrals in 2019–2024, offset by a year because a screening concludes about a year after referral. The whisker runs to the same-window rate, so its length shows how much the lag assumption moves the figure. The dashed line is the national mean. Only countries with at least ${minLabel} screenings appear (${shown} in all), sorted so the nationalities screening genuinely catches sit on top.`,
+      en: `Each bar is one country, filled to its lag-1 failure rate — failed (non-favourable) results in 2020–2025 over referrals in 2019–2024, offset by a year because a screening concludes about a year after referral. The whisker extends to the same-window rate, so its length shows how much the lag assumption moves the figure. The dashed line is the national mean. Only countries with at least ${minLabel} screenings appear (${shown} in all), sorted so the nationalities screening genuinely catches sit on top.`,
       zh: `每个国家一根条形，长度是「滞后一年」口径下的审查失败率——用 2020–2025 年出现的失败（非通过）结果，除以 2019–2024 年被送审的人数（因为一次审查通常在送审约一年后才出结论，所以两端各错开一年）。须状线延伸到「同窗」口径，其长度显示这个滞后假设会把数字挪动多少。虚线是全国均值。仅显示审查数不少于 ${minLabel} 的国家（共 ${shown} 个），按失败率从高到低排列，真正被审查查出问题最多的国家排在最上面。`,
     }),
     footnote: (natLag: string): Pair => ({
-      en: `Failed results come from ATIP release OPP-DART-2025-34337 (non-favourable screening results by nationality and year, January 2019 – July 2025); the referral counts come from 1A-2025-08687. A suppressed cell (printed “--”, meaning a count of 1–4) is counted as zero, so every rate is a lower bound. The most recent referral cohorts have not finished concluding, so heavy recent screeners read slightly low. National mean ${natLag}. Switch to the table view for every country on both bases.`,
+      en: `Failed results come from ATIP release OPP-DART-2025-34337 (non-favourable screening results by nationality and year, January 2019 – July 2025). The referral counts come from 1A-2025-08687. A suppressed cell (printed “--”, meaning a count of 1–4) is counted as zero, so every rate is a lower bound. The most recent referral cohorts have not finished concluding, so heavy recent screeners read slightly low. The national mean is ${natLag}. Switch to the table view for every country on both bases.`,
       zh: `失败结果来自 ATIP 公开档案 OPP-DART-2025-34337（按国籍与年度统计的非通过审查结果，2019 年 1 月至 2025 年 7 月）；被送审人数来自 1A-2025-08687。被隐去的单元格（印作「--」，表示 1–4 之间）按零计入，因此每个比率都是下限。最近几年的送审队列尚未全部出结论，所以近年送审量大的国家读数略偏低。全国均值 ${natLag}。切换到表格视图可查看每个国家在两种口径下的数值。`,
     }),
   },
@@ -199,7 +199,7 @@ function prose(locale: Locale): ReactNode {
         <strong>Third</strong>, we no longer have to infer the payoff. IRCC has
         since released the screening results, and they are meagre: only 0.62% of
         the screenings of Chinese applicants end in a non-favourable finding,
-        below the national average of 0.80% and below India&rsquo;s 1.35%, while
+        below both the national average of 0.80% and India&rsquo;s 1.35%, while
         the nationalities screening genuinely catches — Afghanistan, Ukraine,
         Russia — fail at four to five times China&rsquo;s rate.
       </p>
@@ -280,14 +280,14 @@ function prose(locale: Locale): ReactNode {
         and year. Because a screening concludes about a year after referral, the
         headline failure rate offsets the windows by a year — failed results in
         2020&ndash;2025 over referrals in 2019&ndash;2024 — and each bar&rsquo;s
-        whisker shows the same-window figure so the lag assumption stays
+        whisker shows the same-window figure, keeping the lag assumption
         visible. Suppressed result counts (a printed &ldquo;--&rdquo;, meaning
         1&ndash;4) are floored to zero, so every failure rate is a lower bound,
         and the most recent referral cohorts have not finished concluding, so
-        heavy recent screeners read slightly low; both make China&rsquo;s low
+        heavy recent screeners read slightly low. Both make China&rsquo;s low
         rate conservative rather than flattering. The original files are scanned
-        images; the figures were read by OCR and checked against the source one
-        by one. Every chart can be switched to its underlying data table.
+        images, so the figures were read by OCR and checked against the source
+        one by one. Every chart can be switched to its underlying data table.
       </p>
     </>
   ) : (
@@ -498,7 +498,7 @@ export function getOpinionContent(locale: Locale) {
           '对中国申请人的加码审查，几乎什么也没查出'
         ),
         intro: t(
-          'Now the outcome data lets us look directly rather than through a proxy. Across every nationality a security screening almost never ends in a failure: the national rate is 0.80%. China’s is lower still at 0.62%, below the national average and below India’s 1.35%; the countries where screening genuinely catches something are Afghanistan, Ukraine and Russia, all around 3%, four to five times China’s rate. Iran, one of the two most-screened countries of all, fails at just 0.20%. One caveat runs the other way and has to be stated: China is first in the raw count of failed screenings, 845 of them — but only because it is screened so much. Its share of failures, 28.5%, is roughly its share of screening, 31.1%. The disproportion is not in the share; it is in the rate — a Chinese applicant is screened at some ten times an Indian applicant’s rate, and each of those screenings fails at a lower rate.',
+          'Now the outcome data lets us look directly rather than through a proxy. Across every nationality a security screening almost never ends in a failure: the national rate is 0.80%. China’s is lower still at 0.62%, below both the national average and India’s 1.35%. The countries where screening genuinely catches something are Afghanistan, Ukraine and Russia, all around 3%, four to five times China’s rate. Iran, one of the two most-screened countries of all, fails at just 0.20%. One caveat runs the other way: China is first in the raw count of failed screenings, 845 of them — but only because it is screened so much. Its share of failures, 28.5%, is roughly its share of screening, 31.1%. The disproportion is in the rate, not the share — a Chinese applicant is screened at some ten times an Indian applicant’s rate, and each of those screenings fails at a lower rate.',
           '现在有了结论数据，可以直接看，而不必再用替代指标。对所有国籍来说，一次安全审查几乎不会以失败收场——全国失败率是 0.80%。中国更低，只有 0.62%，低于全国均值，也低于印度的 1.35%；真正被审查查出问题的是阿富汗、乌克兰和俄罗斯，都在 3% 上下，是中国的四到五倍。被审查最多的两个国家之一伊朗，失败率只有 0.20%。有一点必须朝相反方向说清楚：论失败的绝对数量，中国排第一，845 次——但这只因为它被审查得太多。它占全部失败的 28.5%，与它占全部审查的 31.1% 大体相当。失衡不在份额，而在比率——一个中国申请人被审查的比例大约是印度申请人的十倍，而这些审查每一次查出问题的比率反而更低。'
         ),
       },
@@ -549,7 +549,7 @@ export function getOpinionContent(locale: Locale) {
         'IRCC ATIP 公开档案 OPP-DART-2025-34337 — 非通过审查结果'
       ),
       outcomeSrcDesc: t(
-        'The number of screenings that ended in a non-favourable (failed) result, by nationality and calendar year, January 2019 – July 2025, for the permanent- and temporary-residence streams. Joined to the referral counts above to give the failure rate in Part Three. Counts are rounded to a multiple of 5, and small counts (1–4) are suppressed; those are treated as zero, so the rates are lower bounds.',
+        'The number of screenings that ended in a non-favourable (failed) result, by nationality and calendar year, January 2019 – July 2025, for the permanent- and temporary-residence streams. It is joined to the referral counts above to give the failure rate in Part Three. Counts are rounded to a multiple of 5, and small counts (1–4) are suppressed and treated as zero, so the rates are lower bounds.',
         '以「非通过」（失败）结果收场的审查次数，按国籍与年度统计，覆盖 2019 年 1 月至 2025 年 7 月，含永久居民与临时居民两条通道。与上面的送审人数相除，得出第三部分的审查失败率。数字四舍五入到 5 的倍数，1–4 之间的小数被隐去；本文将其按零处理，因此各失败率均为下限。'
       ),
       monthlyName: t(
