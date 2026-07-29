@@ -16,10 +16,12 @@ const data = vizData as unknown as VizData;
  */
 export function OpinionRoot({ locale }: { locale: Locale }) {
   return (
-    <VizProvider data={data} locale={locale}>
-      <Shell page='opinion'>
-        <OpinionBody />
-      </Shell>
-    </VizProvider>
+    <div className='theme-opinion'>
+      <VizProvider data={data} locale={locale}>
+        <Shell page='opinion'>
+          <OpinionBody />
+        </Shell>
+      </VizProvider>
+    </div>
   );
 }
