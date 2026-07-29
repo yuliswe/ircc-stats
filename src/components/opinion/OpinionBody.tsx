@@ -18,11 +18,20 @@ import { StreamCompareChart } from '@/components/charts/opinion/StreamCompareCha
 import { WaffleChart } from '@/components/charts/opinion/WaffleChart';
 import { GroundsChart } from '@/components/charts/opinion/GroundsChart';
 import { CumulativeChart } from '@/components/charts/opinion/CumulativeChart';
-import { MismatchChart } from '@/components/charts/opinion/MismatchChart';
+import { ScreeningOutcomeChart } from '@/components/charts/opinion/ScreeningOutcomeChart';
 import { OutliersScatter } from '@/components/charts/opinion/OutliersScatter';
 
 const ATIP_SEARCH_HREF =
   'https://open.canada.ca/en/search/ati?search_api_fulltext=1A-2025-08687';
+const OUTCOME_SEARCH_HREF =
+  'https://open.canada.ca/en/search/ati?search_api_fulltext=OPP-DART-2025-34337';
+
+/** Unfavourable-result rate = results 2020–2025 ÷ referrals 2019–2024. */
+const failRate = (r: {
+  failures2020to2025: number;
+  referrals2019to2024: number;
+}): number =>
+  r.referrals2019to2024 > 0 ? r.failures2020to2025 / r.referrals2019to2024 : 0;
 
 export function OpinionBody() {
   const { data, locale } = useViz();
@@ -32,6 +41,8 @@ export function OpinionBody() {
   const cn = profile(data, 'CHN', locale);
   const inn = profile(data, 'IND', locale);
   const t = totals(data);
+  const outCn = data.screeningOutcomes.find(r => r.iso3 === 'CHN');
+  const outIn = data.screeningOutcomes.find(r => r.iso3 === 'IND');
   const s = {
     cnRate: fmtPct(cn.rate),
     cnVsIn: fmtX(cn.rate / inn.rate),
@@ -40,8 +51,9 @@ export function OpinionBody() {
     cnAppShare: fmtPct(cn.applications / t.applications),
     cnApproval: fmtPct1(cn.approvalRate),
     natApproval: fmtPct1(t.approvalRate),
-    cnRefusalShare: fmtPct(cn.refusalShare),
-    cnMismatch: fmtX(cn.mismatch),
+    cnFailRate: outCn ? fmtPct(failRate(outCn)) : '—',
+    inFailRate: outIn ? fmtPct(failRate(outIn)) : '—',
+    natFailRate: fmtPct(failRate(data.screeningOutcomeTotal)),
   };
 
   return (
@@ -69,9 +81,9 @@ export function OpinionBody() {
             note={c.stats.approval.note(s)}
           />
           <Stat
-            label={c.stats.mismatch.label}
-            value={s.cnMismatch}
-            note={c.stats.mismatch.note(s)}
+            label={c.stats.outcome.label}
+            value={s.cnFailRate}
+            note={c.stats.outcome.note(s)}
           />
         </Findings>
       </Hero>
@@ -114,7 +126,7 @@ export function OpinionBody() {
       />
 
       <Section n={5} title={c.sections[5].title} intro={c.sections[5].intro}>
-        <MismatchChart />
+        <ScreeningOutcomeChart />
       </Section>
 
       <Section n={6} title={c.sections[6].title} intro={c.sections[6].intro}>
@@ -154,6 +166,17 @@ export function OpinionBody() {
                   rel='noopener noreferrer'
                 >
                   open.canada.ca &rarr; ATIP request 1A-2025-08687
+                </a>
+              </li>
+              <li>
+                <span className='src-name'>{c.footer.outcomeSrcName}</span>
+                <span className='src-desc'>{c.footer.outcomeSrcDesc}</span>
+                <a
+                  href={OUTCOME_SEARCH_HREF}
+                  target='_blank'
+                  rel='noopener noreferrer'
+                >
+                  open.canada.ca &rarr; ATIP request OPP-DART-2025-34337
                 </a>
               </li>
               <li>

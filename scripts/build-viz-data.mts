@@ -20,6 +20,8 @@ import type {
   CoprRow,
   OfficeCell,
   ScreeningAppRow,
+  ScreeningOutcomeRow,
+  ScreeningOutcomeTotal,
   StreamData,
   StreamId,
   TrApprovalRow,
@@ -47,6 +49,13 @@ const coprFile = join(
   'data',
   'derived',
   'pr_estimate_approval_vs_applications_2025.csv'
+);
+const outcomesFile = join(
+  repoRoot,
+  'data',
+  'parsed',
+  'OPP-DART-2025-34337',
+  'unfavourable_by_nationality.csv'
 );
 const outFile = join(repoRoot, 'src', 'data', 'generated', 'viz.json');
 
@@ -562,6 +571,116 @@ export function buildCoprByCountry(idx: IsoIndex): CoprRow[] {
   return rows;
 }
 
+interface RawOutcomeRow {
+  application_type: string;
+  country: string;
+  iso3: string;
+  '2019': string;
+  '2020': string;
+  '2021': string;
+  '2022': string;
+  '2023': string;
+  '2024': string;
+  '2025_jan_jul': string;
+}
+
+const OUTCOME_YEARS = [
+  '2019',
+  '2020',
+  '2021',
+  '2022',
+  '2023',
+  '2024',
+  '2025_jan_jul',
+] as const;
+
+// A suppressed failure cell is printed `--` (the underlying count is 1–4). We
+// floor it to 0, so every failure figure is a lower bound; the article footnotes
+// this. Empty strings are treated the same.
+function outcomeCount(v: string | undefined): number {
+  const s = (v ?? '').trim();
+  return s === '--' || s === '' ? 0 : Number(s);
+}
+
+/**
+ * Join the failed-results release (OPP-DART-2025-34337) to the referral counts in
+ * the stream cells. A non-favourable result is stamped when the screening
+ * concludes, roughly a year after referral, so we carry both a same-window (naive)
+ * basis and a one-year lag-aligned basis (failures 2020–2025 over referrals
+ * 2019–2024) and let the chart show the range. Referrals come from the cumulative
+ * (`g`) and 2025 (`t`) cell counts, summed across both streams by ISO3.
+ */
+export function buildScreeningOutcomes(streams: Record<StreamId, StreamData>): {
+  rows: ScreeningOutcomeRow[];
+  total: ScreeningOutcomeTotal;
+} {
+  const refCum = new Map<string, number>();
+  const ref2025 = new Map<string, number>();
+  for (const s of Object.values(streams)) {
+    for (const c of s.cityCells) {
+      if (!c.iso3) continue;
+      refCum.set(c.iso3, (refCum.get(c.iso3) ?? 0) + c.g);
+      ref2025.set(c.iso3, (ref2025.get(c.iso3) ?? 0) + c.t);
+    }
+  }
+
+  const { data } = Papa.parse<RawOutcomeRow>(
+    readFileSync(outcomesFile, 'utf8'),
+    {
+      header: true,
+      skipEmptyLines: true,
+    }
+  );
+
+  // Sum PR + TR failures per ISO3, keeping the 2019 column apart so the
+  // lag-aligned numerator (2020–2025) can drop it.
+  const failAll = new Map<string, number>();
+  const fail2019 = new Map<string, number>();
+  const citOf = new Map<string, string>();
+  for (const row of data) {
+    const iso3 = (row.iso3 ?? '').trim();
+    if (!iso3) continue; // section-total rows and Stateless carry no code
+    const all = OUTCOME_YEARS.reduce((t, y) => t + outcomeCount(row[y]), 0);
+    failAll.set(iso3, (failAll.get(iso3) ?? 0) + all);
+    fail2019.set(iso3, (fail2019.get(iso3) ?? 0) + outcomeCount(row['2019']));
+    if (!citOf.has(iso3)) citOf.set(iso3, (row.country ?? '').trim());
+  }
+
+  const rows: ScreeningOutcomeRow[] = [];
+  for (const [iso3, all] of failAll) {
+    const cum = refCum.get(iso3) ?? 0;
+    if (cum <= 0) continue; // no denominator — cannot form a rate
+    rows.push({
+      cit: citOf.get(iso3) ?? iso3,
+      iso3,
+      referralsCum: cum,
+      referrals2019to2024: cum - (ref2025.get(iso3) ?? 0),
+      failuresAll: all,
+      failures2020to2025: all - (fail2019.get(iso3) ?? 0),
+    });
+  }
+  rows.sort((a, b) => b.referralsCum - a.referralsCum);
+
+  // National baseline: referrals summed over every coded nationality, failures
+  // over every coded failed-results row, so the mean matches the article's quoted
+  // figures rather than only the intersection shown as bars.
+  let cumT = 0;
+  let r2025T = 0;
+  for (const v of refCum.values()) cumT += v;
+  for (const v of ref2025.values()) r2025T += v;
+  let failAllT = 0;
+  let fail2019T = 0;
+  for (const v of failAll.values()) failAllT += v;
+  for (const v of fail2019.values()) fail2019T += v;
+  const total: ScreeningOutcomeTotal = {
+    referralsCum: cumT,
+    referrals2019to2024: cumT - r2025T,
+    failuresAll: failAllT,
+    failures2020to2025: failAllT - fail2019T,
+  };
+  return { rows, total };
+}
+
 // ── main ─────────────────────────────────────────────────────────────────────────
 function main() {
   if (!existsSync(screeningsFile))
@@ -571,6 +690,8 @@ function main() {
   if (!existsSync(trApprovalFile))
     throw new Error(`No TR-approval CSV at ${trApprovalFile}`);
   if (!existsSync(coprFile)) throw new Error(`No PR CoPR CSV at ${coprFile}`);
+  if (!existsSync(outcomesFile))
+    throw new Error(`No screening-outcomes CSV at ${outcomesFile}`);
   const idx = buildIsoIndex();
   const screeningApplications = buildScreeningApps(idx);
   const { rows: trApprovals, total: trApprovalTotal } = buildTrApprovals(idx);
@@ -588,6 +709,10 @@ function main() {
   for (const cfg of STREAMS)
     streams[cfg.id] = buildStream(cfg, screeningRows, idx);
 
+  // Screening outcomes need the referral counts from the streams above.
+  const { rows: screeningOutcomes, total: screeningOutcomeTotal } =
+    buildScreeningOutcomes(streams);
+
   // Emit only the ISO codes that actually appear, plus every code (for empty-state
   // tooltips the map may hover over): keep the full ccn3→iso3 join, but restrict
   // iso3ToName to a compact set of referenced + all codes is small enough to keep whole.
@@ -599,6 +724,7 @@ function main() {
         'screening_vs_applications_2025.csv',
         'tr_approval_vs_applications_2025.csv',
         'pr_estimate_approval_vs_applications_2025.csv',
+        'OPP-DART-2025-34337/unfavourable_by_nationality.csv',
       ],
       ccn3ToIso3: Object.fromEntries(idx.ccn3ToIso3),
       iso3ToName: Object.fromEntries(idx.iso3ToName),
@@ -608,6 +734,8 @@ function main() {
     trApprovals,
     trApprovalTotal,
     coprByCountry,
+    screeningOutcomes,
+    screeningOutcomeTotal,
   };
 
   mkdirSync(dirname(outFile), { recursive: true });
@@ -633,6 +761,13 @@ function main() {
   console.log(
     `[copr] ${coprByCountry.length} countries with a 2025 CoPRs-issued figure, ` +
       `${coprByCountry.filter(r => r.iso3 === null).length} unmatched to ISO3`
+  );
+  const so = screeningOutcomeTotal;
+  console.log(
+    `[outcomes] ${screeningOutcomes.length} countries with a failure rate ` +
+      `(national lag-1 ${((100 * so.failures2020to2025) / so.referrals2019to2024).toFixed(2)}%, ` +
+      `naive ${((100 * so.failuresAll) / so.referralsCum).toFixed(2)}%, ` +
+      `${so.failuresAll} failures / ${so.referralsCum} referrals)`
   );
   console.log(`Wrote ${outFile.replace(repoRoot + '/', '')}`);
 }

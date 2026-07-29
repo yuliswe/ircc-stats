@@ -84,29 +84,20 @@ export const OPINION_CHARTS = {
       zh: `累计次数取自档案的「总计」列（覆盖 2019 年 1 月 1 日至 2025 年 12 月 31 日期间发起的审查），把永久居民与临时居民两条通道、以及全部审查类型合并计算，共 ${total} 次，来自 ${countries} 个国家/地区。同一位申请人若被开启多种类型的审查会被重复计入。完整名单请切换到表格视图。`,
     }),
   },
-  mismatch: {
-    title: (shown: number): Pair => ({
-      en: `Mismatch between share of screening effort and share of refusals — top ${shown} by screening volume`,
-      zh: `审查资源份额与拒签份额的错配 — 按审查量前 ${shown} 名`,
+  outcome: {
+    title: {
+      en: 'How often a screening ends in an unfavourable result — by nationality',
+      zh: '安全审查得出非通过结果的比例 — 按国籍',
+    },
+    axisLabel: { en: 'Country', zh: '国家/地区' },
+    subtitle: (minLabel: string, shown: number): Pair => ({
+      en: `Each bar is one country, filled to its unfavourable-result rate — non-favourable results in 2020–2025 over referrals in 2019–2024, offset by a year because a screening concludes about a year after referral. The dashed line is the national mean. Only countries with at least ${minLabel} screenings appear (${shown} in all), sorted so the nationalities screening genuinely catches sit on top.`,
+      zh: `每个国家一根条形，长度是该国的非通过率——用 2020–2025 年出现的非通过结果，除以 2019–2024 年被送审的人数（因为一次审查通常在送审约一年后才出结论，所以两端各错开一年）。虚线是全国均值。仅显示审查数不少于 ${minLabel} 的国家（共 ${shown} 个），按非通过率从高到低排列，真正被审查查出问题最多的国家排在最上面。`,
     }),
-    subtitle: {
-      en: 'Left column: the country’s share of all 2025 comprehensive security screenings nationwide. Right column: its share of all 2025 temporary-residence refusals (finalized minus approved). The last column is the ratio of the two — the larger it is, the heavier the screening effort spent on that country relative to the refusals it produced; a country marked "under" is the reverse, its refusal share higher than its screening share. The two columns each use their own scale.',
-      zh: '左栏：这个国家占 2025 年全国全面安全审查总量的比例。右栏：它占 2025 年全国临时居民拒签（已办结减去获批）总量的比例。最右一列是两者的比值——数值越大，说明投在这个国家的审查力度相对它产生的拒签越重；标注「不足」的国家则相反，拒签占比高于审查占比。两栏各用自己的刻度。',
-    },
-    footnote: {
-      en: "The screening-share denominator is the sum of screenings across all nationalities in the 2025 file; the refusal-share denominator is IRCC's published 2025 temporary-residence finalized count minus approvals. Only countries with both figures are ranked. Note that refusals happen for many reasons (funds, travel history, document authenticity and so on), not all related to security screening, so this ratio measures whether the allocation of attention lines up with who is ultimately turned away, not the pass-or-fail outcome of the screening itself.",
-      zh: '审查份额的分母为档案中 2025 年全部国籍的审查次数合计；拒签份额的分母为 IRCC 公布的 2025 年临时居民已办结数减去获批数。只有同时具备两项数据的国家/地区参与排名。需要提醒：拒签的原因多种多样（资金、旅行史、材料真实性等），并非都与安全审查有关，因此这个比值衡量的是「注意力的分配」是否与「最终被挡下的人」对得上，而不是审查本身的通过或否决结论。',
-    },
-    legend: [
-      {
-        label: { en: 'Share of screening', zh: '占全国审查量' },
-        color: 'var(--series-6)',
-      },
-      {
-        label: { en: 'Share of refusals', zh: '占全国拒签量' },
-        color: 'var(--series-1)',
-      },
-    ] as LegendPair[],
+    footnote: (natLag: string): Pair => ({
+      en: `Unfavourable results come from ATIP release OPP-DART-2025-34337 (non-favourable screening results by nationality and year, January 2019 – July 2025). The referral counts come from 1A-2025-08687. A suppressed cell (printed “--”, meaning a count of 1–4) is counted as zero, so every rate is a lower bound. The most recent referral cohorts have not finished concluding, so heavy recent screeners read slightly low. The national mean is ${natLag}. Switch to the table view for every country.`,
+      zh: `非通过结果来自 ATIP 公开档案 OPP-DART-2025-34337（按国籍与年度统计的非通过审查结果，2019 年 1 月至 2025 年 7 月）；被送审人数来自 1A-2025-08687。被隐去的单元格（印作「--」，表示 1–4 之间）按零计入，因此每个比率都是下限。最近几年的送审队列尚未全部出结论，所以近年送审量大的国家读数略偏低。全国均值 ${natLag}。切换到表格视图可查看每个国家的数值。`,
+    }),
   },
   outliers: {
     title: {
@@ -145,8 +136,12 @@ export type OpinionStats = {
   cnAppShare: string;
   cnApproval: string;
   natApproval: string;
-  cnRefusalShare: string;
-  cnMismatch: string;
+  /** China's unfavourable-result rate (non-favourable results ÷ referrals). */
+  cnFailRate: string;
+  /** National unfavourable-result rate. */
+  natFailRate: string;
+  /** India's unfavourable-result rate, the peer comparison. */
+  inFailRate: string;
 };
 
 const MONTHLY_FILES = [
@@ -201,14 +196,17 @@ function prose(locale: Locale): ReactNode {
         visitor-visa applications, not students, not workers. A screening regime
         genuinely opened on case-by-case risk could hardly reach so uniform a
         conclusion across a population of hundreds of thousands.{' '}
-        <strong>Third</strong>, the effort is not borne out at the outcome end:
-        China absorbs 37.2% of the national screening volume yet accounts for
-        only 4.3% of refusals, and its temporary-residence approval rate of
-        80.1% is the highest of any large source country.
+        <strong>Third</strong>, we no longer have to infer the payoff. IRCC has
+        since released the screening results, and they are meagre: only 0.62% of
+        the screenings of Chinese applicants end in a non-favourable finding,
+        below both the national average of 0.80% and India&rsquo;s 1.35%, while
+        the nationalities screening genuinely catches — Afghanistan, Ukraine,
+        Russia — return an unfavourable result at four to five times
+        China&rsquo;s rate.
       </p>
       <div className='op-pull'>
-        When the most-suspected group is also the group approved at the highest
-        rate, what this screening sorts for is not risk but nationality.
+        When the most-screened group is also the one its own screening clears
+        most reliably, what the screening sorts for is not risk but nationality.
       </div>
       <p className='op-prose'>
         The most plausible explanation is not conspiracy but inertia: once a
@@ -228,11 +226,13 @@ function prose(locale: Locale): ReactNode {
           if the extra screening tied to a given nationality were removed, would
           more people be stopped, or the same number?
         </strong>{' '}
-        The file&rsquo;s indirect answer is not encouraging. At a minimum, IRCC
-        should publish screening conclusions by nationality — how many
-        screenings reached an inadmissible finding — because without that number
-        the label &ldquo;security screening&rdquo; cannot be told apart from
-        &ldquo;sorting by passport&rdquo;.
+        For the year this piece first asked it, the answer had to be inferred.
+        It no longer does: IRCC has published screening conclusions by
+        nationality, and for Chinese applicants the answer is close to
+        &ldquo;the same number&rdquo; — more than 99 screenings in 100 conclude
+        favourably. Once the extra scrutiny changes almost nothing about who is
+        found inadmissible, the label &ldquo;security screening&rdquo; becomes
+        hard to tell apart from &ldquo;sorting by passport&rdquo;.
       </p>
       <h3 className='op-h3'>Three objections to this piece, and my replies</h3>
       <p className='op-prose'>
@@ -262,28 +262,32 @@ function prose(locale: Locale): ReactNode {
           &ldquo;A high approval rate is exactly what proves the screening works
           — it clears the innocent.&rdquo;
         </strong>{' '}
-        If so, then the number that actually needs publishing is the
-        screening&rsquo;s marginal effect: of the 15,584 people screened, how
-        many were refused because of a screening finding. Until that number is
-        public, an 80.1% approval rate reads more like a checkpoint that, for
-        the great majority, only delays rather than filters.
+        If so, the number that settles it is the screening&rsquo;s marginal
+        effect: of the people screened, how many were found inadmissible. That
+        number has now been released, and it is small — a 0.62% non-favourable
+        rate on Chinese applicants, below the national average. An 80.1%
+        approval rate paired with a 0.62% unfavourable-result rate reads less
+        like a filter that clears the innocent than like a checkpoint that, for
+        the great majority, only delays.
       </p>
       <h3 className='op-h3'>Method and limits</h3>
       <p className='op-prose op-prose--fine'>
-        The file counts the times screening was <em>opened</em>, not the
-        conclusions, and not the number of people screened — an applicant opened
-        to more than one screening type is counted more than once, so a rate
-        over &ldquo;applications&rdquo; should be read as &ldquo;screenings per
-        application&rdquo;. The screening-rate denominator includes
-        permanent-residence applications while the approval rate covers
-        temporary residence only, so the two are not on identical bases.
-        Refusals happen for many reasons, not all tied to security screening;
-        this piece&rsquo;s &ldquo;screening ÷ refusal&rdquo; ratio measures
-        whether the allocation of attention lines up with the final outcome, not
-        the screening&rsquo;s own rejection rate. The original file is a scanned
-        image; the figures were read out by OCR and checked against the source
-        one by one. Every chart can be switched to its underlying data table for
-        verification.
+        The referral file counts the times screening was <em>opened</em>, not
+        the number of people screened — an applicant opened to more than one
+        screening type is counted more than once, so a rate over
+        &ldquo;applications&rdquo; should be read as &ldquo;screenings per
+        application&rdquo;. The unfavourable-result rates draw on a second
+        release (OPP-DART-2025-34337) that reports non-favourable results by
+        nationality and year. Because a screening concludes about a year after
+        referral, the headline rate offsets the windows by a year —
+        non-favourable results in 2020&ndash;2025 over referrals in
+        2019&ndash;2024. Suppressed result counts (a printed &ldquo;--&rdquo;,
+        meaning 1&ndash;4) are floored to zero, so every rate is a lower bound,
+        and the most recent referral cohorts have not finished concluding, so
+        heavy recent screeners read slightly low. Both make China&rsquo;s low
+        rate conservative rather than flattering. The original files are scanned
+        images, so the figures were read by OCR and checked against the source
+        one by one. Every chart can be switched to its underlying data table.
       </p>
     </>
   ) : (
@@ -294,12 +298,14 @@ function prose(locale: Locale): ReactNode {
         <strong>第二</strong>，这些审查几乎全部开在同一条法律依据下——15,584
         次里有 15,576 次援引第 34 条（安全），而这些审查里近四分之三（11,585
         次）落在最普通的访客签证申请上，不是学生，不是工人。一套真正按个案风险开启的审查，很难在一个几十万人的群体里得出这么单一的结论。
-        <strong>第三</strong>，这些投入没有在结果端得到印证：中国占掉全国 37.2%
-        的审查量，只对应 4.3% 的拒签，而它的临时居民获批率 80.1%
-        是所有大型来源国里最高的。
+        <strong>第三</strong>
+        ，这套投入换回了什么，如今不必再猜。IRCC
+        已经公开了审查的结论，而结论很单薄：中国申请人被审查后，只有 0.62%
+        得出「非通过」结果，低于全国均值 0.80%，也低于印度的
+        1.35%；而真正被审查查出问题的国家——阿富汗、乌克兰、俄罗斯——非通过率是中国的四到五倍。
       </p>
       <div className='op-pull'>
-        当最被怀疑的群体同时也是最终获批率最高的群体，这套审查筛出来的不是风险，而是国籍。
+        当被审查得最多的群体，同时也是被这套审查放行得最干净的群体，它筛出来的就不是风险，而是国籍。
       </div>
       <p className='op-prose'>
         最合理的解释不是阴谋，而是惯性：某一条国籍指标一旦被写进转介规则，它就会以极低的边际成本被无限次触发，六年不变。代价并不在预算表上——它落在一个个多等
@@ -313,8 +319,10 @@ function prose(locale: Locale): ReactNode {
         <strong>
           如果把某个国籍的加码审查取消，被挡下的人会变多还是不变？
         </strong>
-        档案给出的间接答案并不乐观。至少，IRCC
-        应当公开按国籍统计的审查结论——多少次审查得出了不可受理的结论——否则「安全审查」这个名义，无法与「按护照分流」区分开来。
+        本文最初发问的那一年，答案只能靠推断。如今不必了：IRCC
+        已经公开了按国籍统计的审查结论，而对中国申请人来说，答案接近「不变」——每
+        100 次审查里有 99
+        次以上以通过收场。当这些加码的审查几乎不改变「谁被判定不可受理」时，「安全审查」这个名义，就很难再与「按护照分流」区分开来。
       </p>
       <h3 className='op-h3'>对本文的三点反驳，以及我的回应</h3>
       <p className='op-prose'>
@@ -333,14 +341,17 @@ function prose(locale: Locale): ReactNode {
       </p>
       <p className='op-prose'>
         <strong>「获批率高恰恰说明审查有效——它放行了清白的人。」</strong>
-        如果是这样，那真正需要公布的就是审查的边际效果：在被审查的 15,584
-        人里，有多少人因审查结论而被拒。在这个数字公开之前，80.1%
-        的获批率更像是在说，这道关卡对绝大多数人只是延迟，而不是筛选。
+        如果是这样，那能一锤定音的就是审查的边际效果：在被审查的人里，有多少人被判定不可受理。这个数字如今已经公开，而且很小——中国申请人的「非通过」率只有
+        0.62%，低于全国均值。80.1% 的获批率配上 0.62%
+        的非通过率，与其说是一道放行清白者的筛子，不如说是一道对绝大多数人只造成延迟的关卡。
       </p>
       <h3 className='op-h3'>方法与局限</h3>
       <p className='op-prose op-prose--fine'>
-        档案统计的是审查被<em>发起</em>
-        的次数，不是审查的结论，也不是被审查的人数——同一位申请人若被开启多种类型的审查会被重复计入，因此以「申请数」为分母算出的比例应读作「每份申请对应的审查次数」。审查率的分母包含永久居民申请，获批率只覆盖临时居民，两者口径不完全重合。拒签的原因多种多样，并不都与安全审查有关；本文的「审查÷拒签」比值衡量的是注意力分配与最终结果是否对得上，不是审查本身的否决率。原始档案为扫描图片，数字经文字识别读出后逐一对照核对。所有图表均可切换到原始数据表核验。
+        送审档案统计的是审查被<em>发起</em>
+        的次数，不是被审查的人数——同一位申请人若被开启多种类型的审查会被重复计入，因此以「申请数」为分母算出的比例应读作「每份申请对应的审查次数」。非通过率取自另一份档案（OPP-DART-2025-34337），它按国籍与年度列出非通过结果。由于一次审查通常在送审约一年后才出结论，本文的非通过率把两端各错开一年——用
+        2020–2025 年出现的非通过结果，除以 2019–2024
+        年的送审人数。被隐去的结果计数（印作「--」，表示
+        1–4）按零计入，因此每个非通过率都是下限；最近几年的送审队列尚未全部出结论，近年送审量大的国家读数略偏低——这两点都让中国的低非通过率偏保守，而非偏高。原始档案均为扫描图片，数字经文字识别读出后逐一对照核对。所有图表均可切换到原始数据表核验。
       </p>
     </>
   );
@@ -407,12 +418,12 @@ export function getOpinionContent(locale: Locale) {
             `所有大型来源国中最高；全国平均 ${s.natApproval}`
           ),
       },
-      mismatch: {
-        label: t('Screening share ÷ refusal share', '审查份额 ÷ 拒签份额'),
+      outcome: {
+        label: t('China’s unfavourable-result rate', '中国安全审查非通过率'),
         note: (s: OpinionStats) =>
           t(
-            `China is ${s.cnScreenShare} of screening but only ${s.cnRefusalShare} of national refusals`,
-            `中国占审查量 ${s.cnScreenShare}，只占全国拒签量 ${s.cnRefusalShare}`
+            `below the national ${s.natFailRate} and India’s ${s.inFailRate}`,
+            `低于全国的 ${s.natFailRate} 与印度的 ${s.inFailRate}`
           ),
       },
     },
@@ -442,8 +453,8 @@ export function getOpinionContent(locale: Locale) {
       kicker: t('Part three', '第三部分'),
       title: t('What do these resources buy?', '这些资源换回了什么'),
       lede: t(
-        'Security screening is not free. Every comprehensive screening consumes CBSA and CSIS analytical labour and adds months, sometimes years, to an applicant’s wait. So the last question matters most: what does this investment buy? There is a way to gauge it without relying on any internal data — set "how much screening resource a country absorbs" beside "how many refusals that country ultimately produced". If the screening really identifies risk, the two should broadly move together.',
-        '安全审查不是免费的。每一次全面审查都要占用 CBSA 与 CSIS 的分析人力，也让申请人多等几个月甚至几年。所以最后一个问题最要紧：这套投入换回了什么？衡量它有一个不必依赖任何内部数据的办法——把「一个国家占掉多少审查资源」和「这个国家最后贡献了多少拒签」放在一起看。如果审查真的在识别风险，两者应当大体同向。'
+        'Security screening is not free. Every comprehensive screening consumes CBSA and CSIS analytical labour and adds months, sometimes years, to an applicant’s wait. So the last question matters most: what does this investment buy? The two charts below read IRCC’s published screening outcomes directly, then set them against who ends up approved.',
+        '安全审查不是免费的。每一次全面审查都要占用 CBSA 与 CSIS 的分析人力，也让申请人多等几个月甚至几年。所以最后一个问题最要紧：这套投入换回了什么？下面两张图直接读 IRCC 公开的审查结论数据，再把它放到「谁最终获批」旁边看。'
       ),
     },
     sections: {
@@ -483,12 +494,12 @@ export function getOpinionContent(locale: Locale) {
       },
       5: {
         title: t(
-          'Absorbs 37% of the screening, produces 4% of the refusals',
-          '占掉 37% 的审查，贡献 4% 的拒签'
+          'The extra screening of Chinese applicants finds almost nothing',
+          '对中国申请人的加码审查，几乎什么也没查出'
         ),
         intro: t(
-          'The left column is each country’s share of national security-screening volume, the right its share of national temporary-residence refusals, and the far right the ratio of the two. China is 37.2% of screening but only 4.3% of refusals — a ratio of 8.7, meaning the screening effort spent on Chinese applicants is nearly nine times the refusals those applications ultimately produce. India is the mirror image: 10.4% of screening, 23.1% of refusals, a ratio of 0.45. The same process reaches opposite conclusions about the two largest source countries.',
-          '左边一栏是每个国家占全国安全审查量的比例，右边一栏是它占全国临时居民拒签量的比例，最右边是两者的比值。中国占审查量 37.2%，只占拒签量 4.3%，比值 8.7 倍——花在中国申请人身上的审查力度，是这些申请最终产生的拒签所对应的近九倍。印度恰好相反：占审查量 10.4%，占拒签量 23.1%，比值 0.45。同一套流程，对两个最大来源国给出了方向完全相反的结论。'
+          'Across every nationality a security screening almost never ends in an unfavourable result: the national rate is 0.80%. China’s is lower still at 0.62%, below both the national average and India’s 1.35%. The countries where screening genuinely catches something are Afghanistan, Ukraine and Russia, all around 3%, four to five times China’s rate. Iran, one of the two most-screened countries of all, is at just 0.20%. One caveat runs the other way: China is first in the raw count of unfavourable results, 845 of them — but only because it is screened so much. Its share of unfavourable results, 28.5%, is roughly its share of screening, 31.1%. The disproportion is in the rate, not the share — a Chinese applicant is screened at some ten times an Indian applicant’s rate, and each of those screenings is less likely to return an unfavourable result.',
+          '对所有国籍来说，一次安全审查几乎不会得出非通过结果——全国非通过率是 0.80%。中国更低，只有 0.62%，低于全国均值，也低于印度的 1.35%；真正被审查查出问题的是阿富汗、乌克兰和俄罗斯，都在 3% 上下，是中国的四到五倍。被审查最多的两个国家之一伊朗，非通过率只有 0.20%。有一点必须朝相反方向说清楚：论非通过结果的绝对数量，中国排第一，845 次——但这只因为它被审查得太多。它占全部非通过结果的 28.5%，与它占全部审查的 31.1% 大体相当。失衡不在份额，而在比率——一个中国申请人被审查的比例大约是印度申请人的十倍，而这些审查每一次得出非通过结果的比率反而更低。'
         ),
       },
       6: {
@@ -528,8 +539,8 @@ export function getOpinionContent(locale: Locale) {
     footer: {
       aboutTitle: t('About this commentary', '关于这篇评论'),
       aboutP1: t(
-        'This is an opinion piece built on public data, unaffiliated with and unendorsed by IRCC or the Government of Canada. All data comes from IRCC’s Access to Information release 1A-2025-08687 (a 76-page scanned document recording the number of security screenings opened between January 2019 and December 2025, categorized by application class, screening type, nationality and processing office) and IRCC’s own published 2025 operational data. The numbers can be checked chart by chart against the underlying data tables; the opinions and inferences are the author’s.',
-        '本文是一篇基于公开数据的评论文章，与 IRCC 及加拿大政府没有任何关联，也未获得它们的认可。所有数据来自 IRCC 依《信息获取法》公开的档案 1A-2025-08687（一份 76 页的扫描文件，记录 2019 年 1 月至 2025 年 12 月期间发起的安全审查次数，按申请类别、审查类型、国籍与处理办公室分类），以及 IRCC 自行公布的 2025 年运营数据。数字部分可逐张图表切换到原始数据表核对；观点与推论由作者负责。'
+        'This is an opinion piece built on public data, unaffiliated with and unendorsed by IRCC or the Government of Canada. All data comes from two IRCC Access to Information releases — 1A-2025-08687 (a 76-page scanned document recording the number of security screenings opened between January 2019 and December 2025, categorized by application class, screening type, nationality and processing office) and OPP-DART-2025-34337 (how many of those screenings ended in a non-favourable result, by nationality and year) — together with IRCC’s own published 2025 operational data. The numbers can be checked chart by chart against the underlying data tables; the opinions and inferences are the author’s.',
+        '本文是一篇基于公开数据的评论文章，与 IRCC 及加拿大政府没有任何关联，也未获得它们的认可。所有数据来自 IRCC 依《信息获取法》公开的两份档案——1A-2025-08687（一份 76 页的扫描文件，记录 2019 年 1 月至 2025 年 12 月期间发起的安全审查次数，按申请类别、审查类型、国籍与处理办公室分类）与 OPP-DART-2025-34337（其中有多少次审查以非通过结果收场，按国籍与年度统计）——以及 IRCC 自行公布的 2025 年运营数据。数字部分可逐张图表切换到原始数据表核对；观点与推论由作者负责。'
       ),
       aboutP2: t(
         'This piece is about how the process allocates attention; it makes no judgement about any individual applicant. A high screening rate does not imply wrongdoing by any applicant, and the file itself never states the reason behind any individual decision. If IRCC or CBSA believes the interpretation here is mistaken, they are welcome to publish screening conclusions by nationality — the only material that could truly answer the questions this piece raises.',
@@ -542,8 +553,16 @@ export function getOpinionContent(locale: Locale) {
         'IRCC ATIP 公开档案 1A-2025-08687 — 全面安全审查'
       ),
       srcDesc: t(
-        'The number of security screenings opened between 1 January 2019 and 31 December 2025, categorized by application class, screening type, nationality and processing office. Used for the screening-rate, legal-ground composition, six-year cumulative and resource-share charts in Parts One through Three.',
-        '2019 年 1 月 1 日至 2025 年 12 月 31 日期间发起的安全审查次数，按申请类别、审查类型、国籍与处理办公室分类。用于第一至第三部分的审查率、法律依据构成、六年累计与资源份额各图。'
+        'The number of security screenings opened between 1 January 2019 and 31 December 2025, categorized by application class, screening type, nationality and processing office. Used for the screening-rate, legal-ground composition and six-year cumulative charts, and as the referral denominator for the unfavourable-result chart, across Parts One through Three.',
+        '2019 年 1 月 1 日至 2025 年 12 月 31 日期间发起的安全审查次数，按申请类别、审查类型、国籍与处理办公室分类。用于第一至第三部分的审查率、法律依据构成与六年累计各图，并为非通过率一图提供送审人数分母。'
+      ),
+      outcomeSrcName: t(
+        'IRCC ATIP release OPP-DART-2025-34337 — non-favourable screening results',
+        'IRCC ATIP 公开档案 OPP-DART-2025-34337 — 非通过审查结果'
+      ),
+      outcomeSrcDesc: t(
+        'The number of screenings that ended in a non-favourable result, by nationality and calendar year, January 2019 – July 2025, for the permanent- and temporary-residence streams. It is joined to the referral counts above to give the unfavourable-result rate in Part Three. Counts are rounded to a multiple of 5, and small counts (1–4) are suppressed and treated as zero, so the rates are lower bounds.',
+        '以「非通过」结果收场的审查次数，按国籍与年度统计，覆盖 2019 年 1 月至 2025 年 7 月，含永久居民与临时居民两条通道。与上面的送审人数相除，得出第三部分的非通过率。数字四舍五入到 5 的倍数，1–4 之间的小数被隐去；本文将其按零处理，因此各非通过率均为下限。'
       ),
       monthlyName: t(
         'IRCC monthly operational update — applications and approvals',
