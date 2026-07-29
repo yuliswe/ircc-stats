@@ -12,7 +12,8 @@
  * share between zero and one, stays linear.
  *
  * The dot area scales linearly with the country's total applications, so the
- * largest source countries read as much bigger marks. The dot color encodes the
+ * largest source countries read as much bigger marks, and the few biggest of
+ * them carry their country name as a label above the dot. The dot color encodes the
  * ratio y/x, that is approval rate divided by screening rate, diverging about the
  * national ratio: a country approved far more often than it is screened reads
  * cool (blue) and one screened nearly as often as it is approved reads warm
@@ -34,6 +35,9 @@ import {
   Scatter,
   ScatterChart,
   Tooltip,
+  usePlotArea,
+  useXAxisScale,
+  useYAxisScale,
   XAxis,
   YAxis,
   ZAxis,
@@ -41,7 +45,7 @@ import {
 import { useViz } from '@/lib/store';
 import { INK, divergingColor } from '@/lib/palette';
 import { fmtInt, fmtPct, fmtRatio, log2 } from '@/lib/format';
-import { flagName, pick, type Locale } from '@/lib/i18n';
+import { flagName, localeName, pick, type Locale } from '@/lib/i18n';
 import { CHARTS, chartText } from '@/content/strings';
 import { ChartCard } from '@/components/viz/ChartCard';
 import { Legend } from '@/components/viz/Legend';
@@ -58,6 +62,11 @@ const TX = chartText.approvalVsScreening;
 // without cutting real source countries.
 const MIN_APPLICATIONS = [1000, 5000, 25000] as const;
 const DEFAULT_MIN = 5000;
+
+// The scatter labels only the largest source countries so the biggest dots carry
+// a name without turning the plane into a wall of text. `points` is sorted by
+// applications descending, so these are simply the first N entries.
+const TOP_LABELED = 6;
 
 // The diverging color saturates once a country's y/x is this many log2 steps
 // away from the national ratio. The bulk of the countries sit within about ±3.5
@@ -364,6 +373,12 @@ export function ApprovalVsScreeningScatter() {
                 );
               })}
             </Scatter>
+            <TopDotLabels
+              points={points}
+              theme={theme}
+              locale={locale}
+              selectedCit={selectedCit}
+            />
           </ScatterChart>
         </ResponsiveContainer>
       </div>
@@ -382,6 +397,130 @@ export function ApprovalVsScreeningScatter() {
     >
       {body}
     </ChartCard>
+  );
+}
+
+/**
+ * Country-name labels for the largest dots, drawn as a plain SVG layer on top of
+ * the scatter. This runs instead of a Recharts `<LabelList>` for two reasons: a
+ * LabelList only shows its labels once the series' enter animation has finished
+ * (`showLabels: !isAnimating`), and it paints them in data order, so the biggest
+ * dot (index 0) ends up underneath its smaller, later-drawn neighbours. Here the
+ * dot positions are read straight from the axis scales, and the labels are drawn
+ * smallest-first so the largest source country's name always sits on top and stays
+ * legible even where the big dots bunch together.
+ */
+function TopDotLabels({
+  points,
+  theme,
+  locale,
+  selectedCit,
+}: {
+  points: Point[];
+  theme: 'light' | 'dark';
+  locale: Locale;
+  selectedCit: string | null;
+}) {
+  const xScale = useXAxisScale();
+  const yScale = useYAxisScale();
+  const plot = usePlotArea();
+  if (!xScale || !yScale || !plot) return null;
+
+  const ink = INK[theme];
+
+  // Reproduce the ZAxis size channel (linear map of applications onto the
+  // [36, 560] symbol-area range) so a label clears the top of its own dot.
+  let zMin = Infinity;
+  let zMax = -Infinity;
+  for (const p of points) {
+    if (p.z < zMin) zMin = p.z;
+    if (p.z > zMax) zMax = p.z;
+  }
+  const radiusOf = (z: number): number => {
+    const area =
+      zMax > zMin ? 36 + ((z - zMin) / (zMax - zMin)) * (560 - 36) : 560;
+    return Math.sqrt(area / Math.PI);
+  };
+
+  const right = plot.x + plot.width;
+
+  // Place each label just above its dot, then resolve collisions greedily by
+  // nudging a clashing label upward until it clears the ones already placed.
+  // `points` is sorted by applications descending, so the biggest dots are
+  // positioned first and keep their natural spot while smaller neighbours in a
+  // crowded cluster stack above them.
+  type Placed = {
+    cit: string;
+    iso3: string | null;
+    x: number;
+    y: number;
+    anchor: 'start' | 'middle' | 'end';
+    x0: number;
+    x1: number;
+    top: number;
+    bottom: number;
+    dimmed: boolean;
+  };
+  const CHAR_W = 6.2; // ≈ advance of the 11px semibold label font
+  const ASCENT = 11;
+  const DESCENT = 2;
+  const GAP = 2;
+  const placed: Placed[] = [];
+  for (const p of points.slice(0, TOP_LABELED)) {
+    const cx = xScale(p.x);
+    const cy = yScale(p.y);
+    if (cx == null || cy == null) continue;
+    const name = localeName(p.cit, p.iso3, locale);
+    const w = Math.max(8, name.length * CHAR_W);
+    // Anchor long labels inward at the plot edges so a wide name (e.g. the full
+    // "People's Republic of China") does not spill past the plotting area.
+    const anchor: 'start' | 'middle' | 'end' =
+      cx > right - 64 ? 'end' : cx < plot.x + 64 ? 'start' : 'middle';
+    const x0 = anchor === 'end' ? cx - w : anchor === 'start' ? cx : cx - w / 2;
+    const x1 = x0 + w;
+    let y = cy - radiusOf(p.z) - 5;
+    for (let guard = 0; guard < 24; guard++) {
+      const hit = placed.find(
+        q =>
+          x0 < q.x1 && x1 > q.x0 && y - ASCENT < q.bottom && y + DESCENT > q.top
+      );
+      if (!hit) break;
+      y = hit.top - GAP - DESCENT;
+    }
+    placed.push({
+      cit: p.cit,
+      iso3: p.iso3,
+      x: cx,
+      y,
+      anchor,
+      x0,
+      x1,
+      top: y - ASCENT,
+      bottom: y + DESCENT,
+      dimmed: selectedCit != null && p.cit !== selectedCit,
+    });
+  }
+
+  return (
+    <g style={{ pointerEvents: 'none' }}>
+      {placed.map(q => (
+        <text
+          key={q.cit}
+          x={q.x}
+          y={q.y}
+          textAnchor={q.anchor}
+          fontSize={11}
+          fontWeight={600}
+          fill={ink.ink}
+          stroke={ink.surface}
+          strokeWidth={3}
+          paintOrder='stroke'
+          opacity={q.dimmed ? 0.25 : 1}
+        >
+          {localeName(q.cit, q.iso3, locale)}
+        </text>
+      ))}
+    </g>
   );
 }
 
