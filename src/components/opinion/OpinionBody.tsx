@@ -25,7 +25,7 @@ const ATIP_SEARCH_HREF =
 const OUTCOME_SEARCH_HREF =
   'https://open.canada.ca/en/search/ati?search_api_fulltext=OPP-DART-2025-34337';
 
-/** Lag-1 failure rate = failures 2020–2025 ÷ referrals 2019–2024. */
+/** Unfavourable-result rate = results 2020–2025 ÷ referrals 2019–2024. */
 const failRate = (r: {
   failures2020to2025: number;
   referrals2019to2024: number;

@@ -1,10 +1,11 @@
 'use client';
 
 /**
- * Opinion §5 — how often a security screening actually fails, by nationality. A
- * horizontal bar per country filled to its failure rate, sorted so the countries
- * screening genuinely catches sit on top and China lands low. A dashed line marks
- * the national mean. Rendered as HTML flow like the other opinion bar charts.
+ * Opinion §5 — how often a screening ends in an unfavourable result, by
+ * nationality. A horizontal bar per country filled to its unfavourable-result
+ * rate, sorted so the countries screening genuinely catches sit on top and China
+ * lands low. A dashed line marks the national mean. Rendered as HTML flow like the
+ * other opinion bar charts.
  */
 import { useViz } from '@/lib/store';
 import { pick } from '@/lib/i18n';
@@ -126,7 +127,7 @@ export function ScreeningOutcomeChart() {
                       opacity: 0.6,
                     }}
                   />
-                  {/* filled bar to the failure rate */}
+                  {/* filled bar to the unfavourable-result rate */}
                   <div
                     className='viz-grow-x'
                     style={{
@@ -139,7 +140,7 @@ export function ScreeningOutcomeChart() {
                       animationDelay: b.delay,
                     }}
                   />
-                  {/* failure-rate label at the bar tip */}
+                  {/* unfavourable-result-rate label at the bar tip */}
                   <span
                     style={{
                       position: 'absolute',

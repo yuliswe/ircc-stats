@@ -158,19 +158,20 @@ export type CoprRow = {
 
 /**
  * One nationality's security-screening *outcome*, joining the non-favourable
- * (failed) results from ATIP release OPP-DART-2025-34337 to the referral counts
- * from `1A-2025-08687`. The failed-results file reports failures by nationality
- * and calendar year (2019 → Jul 2025); the referral counts come from the stream
- * cells (cumulative `g` and 2025 `t`). Because a screening concludes roughly a
- * year after referral, the failure rate divides failures observed in 2020–2025
- * by the referral cohort that generated them (2019–2024). The row also carries
- * the cumulative referral and all-years failure counts, so a same-window rate can
- * still be computed off it if needed. Suppressed failure cells (printed `--`,
- * meaning 1–4) are counted as 0, so every failure figure is a lower bound. Only
- * nationalities coded to an ISO3 with a positive referral denominator are emitted.
+ * (unfavourable) results from ATIP release OPP-DART-2025-34337 to the referral
+ * counts from `1A-2025-08687`. The results file reports unfavourable results by
+ * nationality and calendar year (2019 → Jul 2025); the referral counts come from
+ * the stream cells (cumulative `g` and 2025 `t`). Because a screening concludes
+ * roughly a year after referral, the unfavourable-result rate divides results
+ * observed in 2020–2025 by the referral cohort that generated them (2019–2024).
+ * The row also carries the cumulative referral and all-years result counts, so a
+ * same-window rate can still be computed off it if needed. Suppressed cells
+ * (printed `--`, meaning 1–4) are counted as 0, so every figure is a lower bound.
+ * Only nationalities coded to an ISO3 with a positive referral denominator are
+ * emitted. (Field names keep the `failures` shorthand for the counts.)
  */
 export type ScreeningOutcomeRow = {
-  /** Citizenship, as printed in the failed-results CSV. */
+  /** Citizenship, as printed in the results CSV. */
   cit: string;
   /** ISO 3166-1 alpha-3; always present (uncoded rows are dropped). */
   iso3: string;
@@ -178,9 +179,9 @@ export type ScreeningOutcomeRow = {
   referralsCum: number;
   /** Referrals 2019–2024 (cumulative − 2025), the lag-aligned denominator. */
   referrals2019to2024: number;
-  /** Failed (non-favourable) results, all years 2019–2025 (naive numerator). */
+  /** Non-favourable results, all years 2019–2025 (naive numerator). */
   failuresAll: number;
-  /** Failed results 2020–2025, the lag-aligned numerator (all years but 2019). */
+  /** Non-favourable results 2020–2025, the lag-aligned numerator (all but 2019). */
   failures2020to2025: number;
 };
 
@@ -210,7 +211,7 @@ export type VizData = {
   trApprovalTotal: TrApprovalTotal;
   /** 2025 CoPRs issued (permanent residents admitted) per country. */
   coprByCountry: CoprRow[];
-  /** Security-screening failure outcomes per nationality (OPP-DART-2025-34337). */
+  /** Security-screening unfavourable-result outcomes per nationality (OPP-DART-2025-34337). */
   screeningOutcomes: ScreeningOutcomeRow[];
   /** All-nationalities screening-outcome totals, the national baseline. */
   screeningOutcomeTotal: ScreeningOutcomeTotal;

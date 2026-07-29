@@ -486,13 +486,14 @@ export function grounds(a: Profile, b: Profile, locale: Locale) {
   };
 }
 
-// ── 04 — screening outcomes: how often a screening actually fails ────────────
+// ── 04 — screening outcomes: how often a screening ends in an unfavourable result
 /**
- * The per-country failure rate, joining the failed-results release to the
- * referral counts. A screening concludes ~a year after referral, so the rate
- * offsets the windows by a year: failures 2020–2025 over referrals 2019–2024.
- * Suppressed failure cells are floored to zero, so every rate is a lower bound.
- * Sorted by the rate, China and India highlighted, with the national mean marked.
+ * The per-country unfavourable-result rate, joining the non-favourable-results
+ * release to the referral counts. A screening concludes ~a year after referral,
+ * so the rate offsets the windows by a year: unfavourable results 2020–2025 over
+ * referrals 2019–2024. Suppressed cells are floored to zero, so every rate is a
+ * lower bound. Sorted by the rate, China and India highlighted, national mean
+ * marked.
  */
 export function screeningOutcome(
   d: VizData,
@@ -561,12 +562,12 @@ export function screeningOutcome(
         },
         {
           key: 'f',
-          label: L(locale, { en: 'Failed results', zh: '审查失败数' }),
+          label: L(locale, { en: 'Unfavourable results', zh: '非通过结果数' }),
           num: true,
         },
         {
           key: 'v',
-          label: L(locale, { en: 'Failure rate', zh: '失败率' }),
+          label: L(locale, { en: 'Unfavourable rate', zh: '非通过率' }),
           num: true,
         },
       ],
