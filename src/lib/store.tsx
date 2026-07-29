@@ -69,7 +69,8 @@ function readInitial(search: string) {
   const topDim: TopDimFilter = catsRaw
     ? catsRaw.split('~').filter(Boolean)
     : null;
-  const min = Number(p.get('min'));
+  const minRaw = p.get('min');
+  const min = minRaw === null ? NaN : Number(minRaw);
   const metric = (
     METRICS.includes(p.get('metric') as Metric) ? p.get('metric') : 'enrichment'
   ) as Metric;
