@@ -20,3 +20,4 @@ src/data/generated/
 .ds-sync/
 ds-bundle/
 .design-sync/
+.claude/worktrees/
