@@ -1,3 +1,3 @@
 :HL["/_next/static/chunks/2_bx70x405ql8.css","style"]
 :HL["/_next/static/media/75affa71d1e2f6a7-s.p.17-aodiw50953.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
-0:{"tree":{"name":"","param":null,"prefetchHints":16,"slots":{"children":{"name":"opinions","param":null,"prefetchHints":0,"slots":{"children":{"name":"china","param":null,"prefetchHints":0,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":0,"slots":null}}}}}}},"staleTime":300,"buildId":"zAgU6yym3ym6rEwVBp9hb"}
+0:{"tree":{"name":"","param":null,"prefetchHints":16,"slots":{"children":{"name":"opinions","param":null,"prefetchHints":0,"slots":{"children":{"name":"china","param":null,"prefetchHints":0,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":0,"slots":null}}}}}}},"staleTime":300,"buildId":"vYoJs6Q_qrZsJIY2v8jSo"}
